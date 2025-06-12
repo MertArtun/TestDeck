@@ -1,0 +1,21 @@
+{
+  "cards": [
+    {
+      "question": "Aşağıdakilerden hangisi BCD kodu değildir? a. 0111 b. 1010 c. 100 d. 0000",
+      "correct_answer": "B",
+      "subject": "Mantık Devreleri",
+      "difficulty": 2
+    },
+    {
+      "question": "JavaScript'te değişken tanımlamak için hangi kullanılır?",
+      "option_a": "var",
+      "option_b": "let", 
+      "option_c": "const",
+      "option_d": "Hepsi",
+      "option_e": "Hiçbiri",
+      "correct_answer": "D",
+      "subject": "JavaScript",
+      "difficulty": 1
+    }
+  ]
+}

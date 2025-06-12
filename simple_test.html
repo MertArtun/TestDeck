@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestDeck - Basit Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 TestDeck Basit Test</h1>
+        <p>Bu sayfa temel HTML/JS çalışmasını test eder</p>
+        
+        <div class="status">
+            <strong>✅ HTML Çalışıyor</strong><br>
+            Bu metni görüyorsanız temel web teknolojileri çalışıyor
+        </div>
+        
+        <button onclick="testJS()">JavaScript Test</button>
+        <button onclick="testLocalStorage()">LocalStorage Test</button>
+        <button onclick="openMainApp()">Ana Uygulamayı Aç</button>
+        
+        <div id="result" class="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        function showResult(message, isSuccess = true) {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.style.background = isSuccess ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+            result.innerHTML = message;
+        }
+        
+        function testJS() {
+            try {
+                const now = new Date();
+                showResult(`✅ JavaScript çalışıyor!<br>Zaman: ${now.toLocaleString()}`);
+            } catch (e) {
+                showResult(`❌ JavaScript hatası: ${e.message}`, false);
+            }
+        }
+        
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'OK');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                showResult(`✅ LocalStorage çalışıyor!<br>Test değer: ${value}`);
+            } catch (e) {
+                showResult(`❌ LocalStorage hatası: ${e.message}`, false);
+            }
+        }
+        
+        function openMainApp() {
+            showResult('🚀 Ana uygulamaya yönlendiriliyor...');
+            setTimeout(() => {
+                window.location.href = 'http://localhost:5174/';
+            }, 1000);
+        }
+        
+        // Sayfa yüklendiğinde otomatik test
+        window.onload = function() {
+            console.log('Basit test sayfası yüklendi');
+        };
+    </script>
+</body>
+</html>

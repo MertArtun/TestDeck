@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestDeck - Recovery Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .log-area {
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status.ok { background: #10b981; }
+        .status.error { background: #ef4444; }
+        .status.warning { background: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ TestDeck Recovery Test</h1>
+        <p>Bu sayfa TestDeck uygulamasının temel bileşenlerini test eder.</p>
+        
+        <div class="test-item">
+            <h3>📱 Browser Ortamı</h3>
+            <div>User Agent: <span id="userAgent"></span></div>
+            <div>Viewport: <span id="viewport"></span></div>
+            <div>Local Storage: <span id="localStorageStatus"></span></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>🔧 Tauri API Testi</h3>
+            <div>Tauri Durumu: <span id="tauriStatus"></span></div>
+            <button onclick="testTauriAPI()">Tauri API Test Et</button>
+        </div>
+        
+        <div class="test-item">
+            <h3>💾 Local Storage Testi</h3>
+            <div>Storage Durumu: <span id="storageStatus"></span></div>
+            <button onclick="testLocalStorage()">Local Storage Test Et</button>
+            <button onclick="clearLocalStorage()">Local Storage Temizle</button>
+        </div>
+        
+        <div class="test-item">
+            <h3>🌐 Network Testi</h3>
+            <div>Vite Dev Server: <span id="viteStatus"></span></div>
+            <button onclick="testViteServer()">Vite Server Test Et</button>
+        </div>
+        
+        <div class="test-item">
+            <h3>🚀 Uygulama Başlatma</h3>
+            <button onclick="openMainApp()">Ana Uygulamayı Aç</button>
+            <button onclick="openDebugMode()">Debug Modunda Aç</button>
+            <button onclick="restartApplication()">Uygulamayı Yeniden Başlat</button>
+        </div>
+        
+        <div class="log-area" id="logArea">
+            <div>Recovery test başlatıldı...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            logArea.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function setStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<span class="status ${status}">${text}</span>`;
+        }
+        
+        // Sayfa yüklendiğinde otomatik testler
+        window.onload = function() {
+            // User Agent
+            document.getElementById('userAgent').textContent = navigator.userAgent;
+            
+            // Viewport
+            document.getElementById('viewport').textContent = `${window.innerWidth}x${window.innerHeight}`;
+            
+            // Local Storage Test
+            try {
+                localStorage.setItem('test', 'ok');
+                localStorage.removeItem('test');
+                setStatus('localStorageStatus', 'ok', 'Çalışıyor');
+                log('✅ Local Storage çalışıyor');
+            } catch (e) {
+                setStatus('localStorageStatus', 'error', 'Hata: ' + e.message);
+                log('❌ Local Storage hatası: ' + e.message);
+            }
+            
+            // Tauri API Test
+            testTauriAPI();
+            
+            // Vite Server Test
+            testViteServer();
+            
+            log('İlk testler tamamlandı');
+        };
+        
+        function testTauriAPI() {
+            try {
+                if (window.__TAURI__) {
+                    setStatus('tauriStatus', 'ok', 'Mevcut');
+                    log('✅ Tauri API mevcut');
+                } else {
+                    setStatus('tauriStatus', 'warning', 'Mevcut değil');
+                    log('⚠️ Tauri API bulunamadı (normal web ortamında)');
+                }
+            } catch (e) {
+                setStatus('tauriStatus', 'error', 'Hata: ' + e.message);
+                log('❌ Tauri API test hatası: ' + e.message);
+            }
+        }
+        
+        function testLocalStorage() {
+            try {
+                // Test data yaz
+                const testData = {
+                    test: true,
+                    timestamp: Date.now(),
+                    data: 'TestDeck recovery test'
+                };
+                
+                localStorage.setItem('testdeck-recovery-test', JSON.stringify(testData));
+                
+                // Test data oku
+                const retrieved = JSON.parse(localStorage.getItem('testdeck-recovery-test'));
+                
+                if (retrieved && retrieved.test === true) {
+                    setStatus('storageStatus', 'ok', 'Çalışıyor');
+                    log('✅ Local Storage okuma/yazma test başarılı');
+                } else {
+                    throw new Error('Veri doğrulanamadı');
+                }
+            } catch (e) {
+                setStatus('storageStatus', 'error', 'Hata: ' + e.message);
+                log('❌ Local Storage test hatası: ' + e.message);
+            }
+        }
+        
+        function clearLocalStorage() {
+            try {
+                localStorage.clear();
+                setStatus('storageStatus', 'ok', 'Temizlendi');
+                log('🧹 Local Storage temizlendi');
+            } catch (e) {
+                log('❌ Local Storage temizleme hatası: ' + e.message);
+            }
+        }
+        
+        function testViteServer() {
+            fetch('http://localhost:5174/')
+                .then(response => {
+                    if (response.ok) {
+                        setStatus('viteStatus', 'ok', 'Çalışıyor');
+                        log('✅ Vite dev server erişilebilir');
+                    } else {
+                        throw new Error('Server response: ' + response.status);
+                    }
+                })
+                .catch(e => {
+                    setStatus('viteStatus', 'error', 'Erişilemiyor');
+                    log('❌ Vite dev server hatası: ' + e.message);
+                });
+        }
+        
+        function openMainApp() {
+            log('🚀 Ana uygulamaya yönlendiriliyor...');
+            window.location.href = 'http://localhost:5174/';
+        }
+        
+        function openDebugMode() {
+            log('🛠️ Debug moduna geçiliyor...');
+            // Local storage'a debug flag ekle
+            localStorage.setItem('testdeck-force-debug', 'true');
+            window.location.href = 'http://localhost:5174/';
+        }
+        
+        function restartApplication() {
+            log('🔄 Uygulama yeniden başlatılıyor...');
+            clearLocalStorage();
+            setTimeout(() => {
+                window.location.href = 'http://localhost:5174/';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestDeck Debug - Veri Kontrolü</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            word-wrap: break-word;
+        }
+        .image-preview {
+            max-width: 300px;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .subjects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .subject-tag {
+            background: rgba(59, 130, 246, 0.8);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        .edit-btn {
+            background: #f59e0b;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .edit-btn:hover {
+            background: #d97706;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 TestDeck Veri Debug Sayfası</h1>
+        
+        <div class="stats" id="stats">
+            <!-- İstatistikler buraya gelecek -->
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button onclick="loadAndDisplayData()">📊 Verileri Yükle</button>
+            <button onclick="showImageCards()">🖼️ Sadece Görselli Kartları Göster</button>
+            <button onclick="clearAllData()">🗑️ Tüm Verileri Temizle</button>
+            <button onclick="addSampleImageCard()">➕ Örnek Görsel Kart Ekle</button>
+        </div>
+        
+        <div id="content">
+            <p>👆 Verileri görüntülemek için "Verileri Yükle" butonuna tıklayın</p>
+        </div>
+    </div>
+
+    <script>
+        function loadAndDisplayData() {
+            const data = localStorage.getItem('testdeck-data');
+            const contentDiv = document.getElementById('content');
+            const statsDiv = document.getElementById('stats');
+            
+            if (!data) {
+                contentDiv.innerHTML = '<p style="color: #ef4444;">❌ LocalStorage\'da testdeck-data bulunamadı!</p>';
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(data);
+                const cards = parsed.cards || [];
+                
+                // İstatistikler
+                const totalCards = cards.length;
+                const imageCards = cards.filter(card => card.image_path && card.image_path.trim()).length;
+                const subjects = [...new Set(cards.map(card => card.subject))];
+                const fillInBlankCards = cards.filter(card => card.question_type === 'fill_in_blank').length;
+                
+                statsDiv.innerHTML = `
+                    <div class="stat-box">
+                        <h3>📚 Toplam Kart</h3>
+                        <p style="font-size: 2em; margin: 0;">${totalCards}</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>🖼️ Görselli Kart</h3>
+                        <p style="font-size: 2em; margin: 0; color: ${imageCards > 0 ? '#10b981' : '#ef4444'};">${imageCards}</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>📝 Boşluk Doldurma</h3>
+                        <p style="font-size: 2em; margin: 0;">${fillInBlankCards}</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>📖 Konular</h3>
+                        <p style="font-size: 2em; margin: 0;">${subjects.length}</p>
+                    </div>
+                `;
+                
+                // Konuları göster
+                if (subjects.length > 0) {
+                    const subjectTags = subjects.map(subject => 
+                        `<span class="subject-tag">${subject}</span>`
+                    ).join('');
+                    statsDiv.innerHTML += `
+                        <div class="stat-box" style="grid-column: 1 / -1;">
+                            <h3>📚 Mevcut Konular</h3>
+                            <div class="subjects">${subjectTags}</div>
+                        </div>
+                    `;
+                }
+                
+                if (totalCards === 0) {
+                    contentDiv.innerHTML = '<p style="color: #f59e0b;">⚠️ Hiç kart bulunamadı! Önce kart eklemelisiniz.</p>';
+                    return;
+                }
+                
+                // Kartları göster
+                let cardsHtml = '<h2>🗂️ Tüm Kartlar:</h2>';
+                cards.forEach((card, index) => {
+                    const hasImage = card.image_path && card.image_path.trim();
+                    const questionType = card.question_type || 'multiple_choice';
+                    
+                    cardsHtml += `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                <h3>${index + 1}. ${card.subject || 'Konu Yok'}</h3>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button onclick="updateCardSubject(${card.id})" class="edit-btn">Konuyu Değiştir</button>
+                                    ${hasImage ? '<span style="background: #10b981; padding: 3px 8px; border-radius: 15px; font-size: 12px;">🖼️ Görselli</span>' : ''}
+                                    <span style="background: #8b5cf6; padding: 3px 8px; border-radius: 15px; font-size: 12px;">
+                                        ${questionType === 'fill_in_blank' ? '📝 Boşluk' : '🔤 Çoktan Seçmeli'}
+                                    </span>
+                                    <span style="background: #f59e0b; padding: 3px 8px; border-radius: 15px; font-size: 12px;">
+                                        Zorluk: ${card.difficulty || 1}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <p><strong>Soru:</strong> ${card.question || 'Soru yok'}</p>
+                            
+                            ${hasImage ? `
+                                <div>
+                                    <strong>Görsel:</strong><br>
+                                    <img src="${card.image_path}" alt="Soru görseli" class="image-preview" 
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <p style="display: none; color: #ef4444;">❌ Görsel yüklenemedi</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${questionType === 'fill_in_blank' ? `
+                                <p><strong>Doğru Cevap:</strong> ${card.blank_answer || 'Belirtilmemiş'}</p>
+                                ${card.hints ? `<p><strong>İpuçları:</strong> ${card.hints}</p>` : ''}
+                            ` : `
+                                <p><strong>Seçenekler:</strong></p>
+                                <ul>
+                                    <li>A) ${card.option_a || ''}</li>
+                                    <li>B) ${card.option_b || ''}</li>
+                                    <li>C) ${card.option_c || ''}</li>
+                                    <li>D) ${card.option_d || ''}</li>
+                                    ${card.option_e ? `<li>E) ${card.option_e}</li>` : ''}
+                                </ul>
+                                <p><strong>Doğru Cevap:</strong> ${card.correct_answer || 'Belirtilmemiş'}</p>
+                            `}
+                            
+                            <p style="font-size: 12px; opacity: 0.8;">
+                                <strong>ID:</strong> ${card.id} | 
+                                <strong>Oluşturulma:</strong> ${card.created_at ? new Date(card.created_at).toLocaleString() : 'Bilinmiyor'}
+                            </p>
+                        </div>
+                    `;
+                });
+                
+                contentDiv.innerHTML = cardsHtml;
+                
+            } catch (error) {
+                contentDiv.innerHTML = `<p style="color: #ef4444;">❌ Veri parse hatası: ${error.message}</p>`;
+            }
+        }
+        
+        function showImageCards() {
+            const data = localStorage.getItem('testdeck-data');
+            const contentDiv = document.getElementById('content');
+            
+            if (!data) {
+                contentDiv.innerHTML = '<p style="color: #ef4444;">❌ Veri bulunamadı!</p>';
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(data);
+                const cards = parsed.cards || [];
+                const imageCards = cards.filter(card => card.image_path && card.image_path.trim());
+                
+                if (imageCards.length === 0) {
+                    contentDiv.innerHTML = '<p style="color: #f59e0b;">⚠️ Hiç görselli kart bulunamadı!</p>';
+                    return;
+                }
+                
+                let html = `<h2>🖼️ Görselli Kartlar (${imageCards.length} adet):</h2>`;
+                imageCards.forEach((card, index) => {
+                    html += `
+                        <div class="card">
+                            <h3>${index + 1}. ${card.subject}</h3>
+                            <p><strong>Soru:</strong> ${card.question}</p>
+                            <div>
+                                <strong>Görsel:</strong><br>
+                                <img src="${card.image_path}" alt="Soru görseli" class="image-preview">
+                            </div>
+                            <p><strong>ID:</strong> ${card.id}</p>
+                        </div>
+                    `;
+                });
+                
+                contentDiv.innerHTML = html;
+                
+            } catch (error) {
+                contentDiv.innerHTML = `<p style="color: #ef4444;">❌ Hata: ${error.message}</p>`;
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('⚠️ TÜM VERİLER SİLİNECEK! Emin misiniz?')) {
+                localStorage.removeItem('testdeck-data');
+                localStorage.removeItem('testdeck-backup');
+                localStorage.removeItem('create-card-draft');
+                localStorage.removeItem('quick-card-draft');
+                alert('✅ Tüm veriler temizlendi!');
+                loadAndDisplayData();
+            }
+        }
+        
+        function addSampleImageCard() {
+            const data = localStorage.getItem('testdeck-data');
+            let parsed = { cards: [], sessions: [], attempts: [], stats: [] };
+            
+            if (data) {
+                try {
+                    parsed = JSON.parse(data);
+                } catch (error) {
+                    console.error('Parse error:', error);
+                }
+            }
+            
+            // Örnek görsel kartı (base64 encoded küçük test görseli)
+            const sampleImageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+            
+            const newCard = {
+                id: Date.now(),
+                question: "Bu örnek görselli sorudur. Görseli görebiliyor musunuz?",
+                option_a: "Evet, görüyorum",
+                option_b: "Hayır, göremiyorum",
+                option_c: "Kısmen görüyorum",
+                option_d: "Bu bir test sorusudur",
+                option_e: "",
+                correct_answer: "A",
+                subject: "Test Görselli",
+                difficulty: 1,
+                image_path: sampleImageData,
+                question_type: "multiple_choice",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            parsed.cards.push(newCard);
+            parsed.lastSaved = new Date().toISOString();
+            
+            localStorage.setItem('testdeck-data', JSON.stringify(parsed));
+            alert('✅ Örnek görselli kart eklendi!');
+            loadAndDisplayData();
+        }
+        
+        function updateCardSubject(cardId) {
+            const newSubject = prompt("Lütfen bu kart için yeni konuyu girin:", "Mantık Devreleri");
+            
+            if (!newSubject || !newSubject.trim()) {
+                alert("❌ Konu değiştirme iptal edildi.");
+                return;
+            }
+
+            const data = localStorage.getItem('testdeck-data');
+            if (!data) {
+                alert("❌ Veri bulunamadı!");
+                return;
+            }
+
+            try {
+                let parsed = JSON.parse(data);
+                const cardIndex = parsed.cards.findIndex(c => c.id == cardId);
+
+                if (cardIndex === -1) {
+                    alert("❌ Kart bulunamadı!");
+                    return;
+                }
+
+                parsed.cards[cardIndex].subject = newSubject.trim();
+                parsed.lastSaved = new Date().toISOString();
+                
+                localStorage.setItem('testdeck-data', JSON.stringify(parsed));
+                alert(`✅ Kartın konusu "${newSubject.trim()}" olarak güncellendi!`);
+                loadAndDisplayData();
+
+            } catch (error) {
+                alert(`❌ Hata: ${error.message}`);
+            }
+        }
+        
+        // Sayfa yüklendiğinde otomatik veri yükle
+        window.onload = () => {
+            loadAndDisplayData();
+        };
+    </script>
+</body>
+</html> 

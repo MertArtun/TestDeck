@@ -1,0 +1,14 @@
+[
+  {
+    "question": "İfade: 7 yaşından büyük olanlar ancak 10 veya 12 yaşındakiler değil. Aşağıdaki kontrol mekanizmalarında hangisi belirtilen ifadeyi denetlemektedir?",
+    "option_a": "if(Saşe > 7 || Saşe != 10 && Saşe != 12)()",
+    "option_b": "if(Saşe > 7 && Saşe != 10 && Saşe != 12)()",
+    "option_c": "if(Saşe > 7 && Saşe != 10 && Saşe != 12)()",
+    "option_d": "if(Saşe > 7 && Saşe != 10 && Saşe != 12)()",
+    "option_e": "",
+    "correct_answer": "B",
+    "subject": "Programlama",
+    "difficulty": 2,
+    "question_type": "multiple_choice"
+  }
+] 

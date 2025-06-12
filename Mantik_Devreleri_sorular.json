@@ -1,0 +1,123 @@
+[
+  {
+    "question": "Birleşik mantık devrelerinin tasarım prosedürü şunlardır:\nA. Sorunun sözel açıklamasından, giriş ve çıkışları tanımlayın ve bir blok diyagram çizin.\nB. Farklı giriş kombinasyonları için devrenin çalışmasını tamamen açıklayacak şekilde doğruluk tablosunu oluşturun.\nC. Çıkış ifadelerini basitleştirin.\nD. Mantık kapılarını kullanarak basitleştirilmiş ifadeyi uygulayın.\nE. Çıktı minterme veya maxtermler şeklinde ifadelerini yazın.\n\nAşağıdaki şıkların hangisinde doğru sırada verilmiştir?",
+    "option_a": "B-C-D-E-A",
+    "option_b": "A-D-E-B-C",
+    "option_c": "B-A-E-C-D",
+    "option_d": "A-B-E-C-D",
+    "option_e": "",
+    "correct_answer": "D",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Paralel giriş / paralel çıkış kaydırmalı yazmacında;\nD0:1, D1:1, D2:1 ve D3:0 şeklindedir.\nÜç saat darbesinden sonra, veri çıkışları aşağıdakilerden hangisi olur?",
+    "option_a": "0001",
+    "option_b": "1110",
+    "option_c": "1000",
+    "option_d": "1100",
+    "option_e": "",
+    "correct_answer": "C",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "4 bitlik bir ikili sayacın giriş CLK frekansı 20 kHz'dir. MSB bitin frekansı aşağıdakilerden hangisidir?",
+    "option_a": "1,25 kHz",
+    "option_b": "160 kHz",
+    "option_c": "320 kHz",
+    "option_d": "2,50 kHz",
+    "option_e": "",
+    "correct_answer": "A",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Bir JK FF'ta, J=K ise, bu şekilde oluşacak FF, aşağıdakilerden hangisi ile tanımlanır?",
+    "option_a": "T-FF",
+    "option_b": "SR-FF",
+    "option_c": "Tetiklemeli SR-FF",
+    "option_d": "D-FF",
+    "option_e": "",
+    "correct_answer": "A",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Sıralı bir devrede, herhangi bir zamanda çıkış aşağıdakilerden hangisine bağlıdır?",
+    "option_a": "Hem geçmiş çıkış hem de mevcut giriş",
+    "option_b": "Ara değerler",
+    "option_c": "Mevcut giriş değerleri",
+    "option_d": "Geçmiş çıkış değerleri",
+    "option_e": "",
+    "correct_answer": "A",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "4 bitlik bir ikili sayacın giriş CLK frekansı 20 kHz'dir. MSB bitin frekansı aşağıdakilerden hangisidir?",
+    "option_a": "2,50 kHz",
+    "option_b": "320 kHz",
+    "option_c": "160 kHz",
+    "option_d": "1,25 kHz",
+    "option_e": "",
+    "correct_answer": "D",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "MOD-10 Sayıcının son değeri aşağıdakilerden hangisidir?",
+    "option_a": "1111",
+    "option_b": "1010",
+    "option_c": "0000",
+    "option_d": "1001",
+    "option_e": "",
+    "correct_answer": "D",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Kaydırmalı kaydediciler için aşağıdaki ifadelerden hangisi doğrudur?",
+    "option_a": "Bilgileri sağa veya sola kaydırabilen kaydedici",
+    "option_b": "Bilgileri sadece sağa kaydırabilen kaydedici",
+    "option_c": "Bilgileri başka bir kaydediciye kaydırabilen kaydedici",
+    "option_d": "Bilgileri yalnızca sola kaydırabilen kaydedici",
+    "option_e": "",
+    "correct_answer": "A",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Aşağıdakilerden hangisinde bir flip-flop'a ait asenkron uçlar doğru verilmiştir?",
+    "option_a": "CLEAR PRESET CLK",
+    "option_b": "J, K, Q",
+    "option_c": "CLEAR, PRESET",
+    "option_d": "CLK",
+    "option_e": "",
+    "correct_answer": "C",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Aşağıdaki ifadelerden hangisi negatif kenar tetiklemeli D tipi flip-flop'un işlemini en iyi şekilde tanımlar?",
+    "option_a": "Q çıkışı daima, D girişiyle aynıdır.",
+    "option_b": "Girişindeki lojik seviye, negatif kenar tetiklemede çıkışa aktarılır.",
+    "option_c": "D girişi lojik-1 ise Q çıkışı daima tetikleme girişiyle aynıdır.",
+    "option_d": "Tetikleme pozitif kenar olduğu müddetçe Q çıkışı D girişi ile daima aynıdır.",
+    "option_e": "",
+    "correct_answer": "B",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  },
+  {
+    "question": "Kaç tip parite biti bulunur?",
+    "option_a": "3",
+    "option_b": "4",
+    "option_c": "1",
+    "option_d": "2",
+    "option_e": "",
+    "correct_answer": "D",
+    "subject": "Mantık Devreleri",
+    "difficulty": 3
+  }
+] 
