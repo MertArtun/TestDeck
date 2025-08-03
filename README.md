@@ -1,6 +1,10 @@
-# TestDeck Local
+# 🎓 TestDeck Local
 
-TestDeck Local, tamamen offline çalışan, kişisel test ve hafıza kartı uygulamasıdır. 5 seçenekli test soruları oluşturabilir, görsel ekleyebilir ve spaced repetition algoritması ile etkili bir şekilde çalışabilirsiniz.
+Modern, offline çalışan kişisel test ve hafıza kartı uygulaması. Spaced repetition algoritması ile etkili öğrenme deneyimi sunar.
+
+![TestDeck Local](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 
 ## 🚀 Özellikler
 
@@ -41,8 +45,8 @@ TestDeck Local, tamamen offline çalışan, kişisel test ve hafıza kartı uygu
 
 1. **Depoyu klonlayın**
 ```bash
-git clone <repo-url>
-cd AnkiAPP
+git clone https://github.com/YOUR_USERNAME/testdeck-local.git
+cd testdeck-local
 ```
 
 2. **Bağımlılıkları yükleyin**
@@ -92,7 +96,7 @@ Bu komut `src-tauri/target/release/bundle/` klasöründe platform-specific kurul
 ## 🗂️ Proje Yapısı
 
 ```
-AnkiAPP/
+testdeck-local/
 ├── src/
 │   ├── components/       # React bileşenleri
 │   ├── pages/           # Sayfa bileşenleri
@@ -174,11 +178,10 @@ Uygulama, SuperMemo-2 algoritmasını kullanarak kartların tekrar zamanlarını
 
 Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
-## 📞 Destek
+## 📞 İletişim & Destek
 
-- **E-posta**: support@testdeck.local
-- **Dokümantasyon**: [Wiki](wiki-link)
-- **Sorun Bildirimi**: [Issues](issues-link)
+- **GitHub Issues**: Sorun bildirimi ve özellik istekleri için
+- **Discussions**: Genel sorular ve tartışmalar için
 
 ## 🙏 Teşekkürler
 
@@ -189,4 +192,3 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 ---
 
 **TestDeck Local v0.1.0** - Kişisel gelişiminiz için tasarlandı 🎓
-# TestDeck

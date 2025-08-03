@@ -1,5 +1,0 @@
-question,correct_answer,subject,difficulty
-"Aşağıdakilerden hangisi BCD kodu değildir? a. 0111 b. 1010 c. 100 d. 0000",B,Mantık Devreleri,2
-"JavaScript'te değişken tanımlamak için hangi kullanılır? a. var b. let c. const d. Hepsi",D,JavaScript,1
-"CSS Grid'de hizalama için hangi property kullanılır? a. justify-items b. align-items c. place-items d. Hepsi",D,CSS,2
-"React'te component state'i güncellemek için ne kullanılır? a. setState b. useState c. updateState d. changeState",B,React,2

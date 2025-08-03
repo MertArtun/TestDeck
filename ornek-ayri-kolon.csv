@@ -1,4 +1,0 @@
-question,option_a,option_b,option_c,option_d,option_e,correct_answer,subject,difficulty
-"Aşağıdakilerden hangisi BCD kodu değildir?",0111,1010,100,0000,Hiçbiri,B,Mantık Devreleri,2
-"JavaScript'te değişken tanımlamak için hangi kullanılır?",var,let,const,Hepsi,Hiçbiri,D,JavaScript,1
-"CSS Grid'de hizalama için hangi property kullanılır?",justify-items,align-items,place-items,Hepsi,grid-align,D,CSS,2

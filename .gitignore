@@ -163,3 +163,32 @@ pnpm-lock.yaml
 .local/
 local-data/
 dev-database/
+
+# Test data and debug files
+*_sorular.json
+gorsel-cikmis2-sorular.json
+sample_questions.json
+ornek-*.csv
+ornek-*.json
+debug_*.html
+debug_*.sh
+fix_*.sh
+create_*.sh
+create_*.py
+backup-script.js
+check_localStorage.js
+test_*.js
+recovery.html
+simple_test.html
+index.minimal.html
+start_simple.sh
+DEVELOPMENT.md
+KURULUM_DUZELDI.md
+STATISTICS_FIX_COMPLETED.md
+vite.config.minimal.ts
+
+# Additional ignore patterns
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
