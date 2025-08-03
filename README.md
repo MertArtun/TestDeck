@@ -2,134 +2,134 @@
 
 # 🎓 TestDeck Local
 
-**Modern, offline çalışan kişisel test ve hafıza kartı uygulaması**
+**Modern, offline personal flashcard and quiz application**
 
-*Spaced repetition algoritması ile etkili öğrenme deneyimi*
+*Effective learning experience with spaced repetition algorithm*
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/YOUR_USERNAME/testdeck-local/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#-kurulum)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#-installation)
 [![Tauri](https://img.shields.io/badge/Tauri-v1.8-orange.svg)](https://tauri.app/)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
 
-[📖 Demo](#-ekran-görüntüleri) • [🚀 Kurulum](#-hızlı-başlangıç) • [📚 Dokümantasyon](#-kullanım) • [🤝 Katkıda Bulun](#-katkıda-bulunma)
+[📖 Demo](#-screenshots) • [🚀 Installation](#-quick-start) • [📚 Documentation](#-usage) • [🤝 Contributing](#-contributing)
 
 </div>
 
 ---
 
-## 🌟 Öne Çıkan Özellikler
+## 🌟 Key Features
 
 <table>
 <tr>
 <td width="50%">
 
-### 🧠 Akıllı Öğrenme
-- **SM-2 Algoritması** ile kişiselleştirilmiş tekrar zamanları
-- **Spaced Repetition** sistemi ile uzun vadeli hafıza
-- **Adaptif zorluk** seviyesi ayarı
-- **Performans takibi** ve analizi
+### 🧠 Smart Learning
+- **SM-2 Algorithm** with personalized review intervals
+- **Spaced Repetition** system for long-term memory
+- **Adaptive difficulty** level adjustment
+- **Performance tracking** and analytics
 
 </td>
 <td width="50%">
 
-### 🔒 Gizlilik Odaklı
-- **%100 Offline** çalışma - internet gerektirmez
-- **Lokal SQLite** veritabanı
-- **Kişisel veriler** hiçbir yere gönderilmez
-- **GDPR uyumlu** tasarım
+### 🔒 Privacy Focused
+- **100% Offline** - no internet required
+- **Local SQLite** database
+- **Personal data** never sent anywhere
+- **GDPR compliant** design
 
 </td>
 </tr>
 <tr>
 <td>
 
-### 📝 Zengin İçerik
-- **5 seçenekli** test soruları (A-E)
-- **Görsel ekleme** desteği (JPEG/PNG ≤5MB)
-- **Sınırsız konu** kategorisi
-- **Zorluk seviyesi** etiketleme
+### 📝 Rich Content
+- **5-choice** quiz questions (A-E)
+- **Image support** (JPEG/PNG ≤5MB)
+- **Unlimited subject** categories
+- **Difficulty level** tagging
 
 </td>
 <td>
 
-### 📊 Detaylı İstatistikler
-- **Günlük performans** grafikleri
-- **Konu bazlı** başarı analizi
-- **Zaman takibi** ve çalışma süreleri
-- **İlerleme raporları**
+### 📊 Detailed Statistics
+- **Daily performance** charts
+- **Subject-based** success analysis
+- **Time tracking** and study duration
+- **Progress reports**
 
 </td>
 </tr>
 </table>
 
-## 🎯 Kullanım Alanları
+## 🎯 Use Cases
 
-- 🎓 **Üniversite Sınavları** - YKS, ALES, YDS hazırlığı
-- 📜 **Sertifika Sınavları** - AWS, Microsoft, Google Cloud
-- 🌍 **Dil Öğrenimi** - Kelime, dilbilgisi, ifadeler
-- 💼 **Mesleki Gelişim** - Teknik bilgi, iş mülakatları
-- 🧮 **Genel Bilgi** - Matematik, fen, tarih
+- 🎓 **University Exams** - SAT, GRE, MCAT preparation
+- 📜 **Certifications** - AWS, Microsoft, Google Cloud
+- 🌍 **Language Learning** - Vocabulary, grammar, phrases
+- 💼 **Professional Development** - Technical knowledge, interviews
+- 🧮 **General Knowledge** - Math, science, history
 
-## � Ekran Görüntüleri
+## 📱 Screenshots
 
 <div align="center">
 
-### 🏠 Ana Dashboard
-*Günlük istatistikler ve hızlı erişim*
+### 🏠 Main Dashboard
+*Daily statistics and quick access*
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
-### ✏️ Kart Oluşturma
-*Kolay ve intuitive kart oluşturma arayüzü*
+### ✏️ Card Creation
+*Easy and intuitive card creation interface*
 
 ![Create Card](docs/screenshots/create-card.png)
 
-### 📚 Çalışma Modu
-*Fokuslu çalışma deneyimi*
+### 📚 Study Mode
+*Focused learning experience*
 
 ![Study Mode](docs/screenshots/study-mode.png)
 
 </div>
 
-## � Hızlı Başlangıç
+## 🚀 Quick Start
 
-### 📋 Gereksinimler
+### 📋 Requirements
 
-- **Node.js** 18+ ([İndir](https://nodejs.org/))
-- **Rust** (latest stable) ([İndir](https://rustup.rs/))
-- **Git** ([İndir](https://git-scm.com/))
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Rust** (latest stable) ([Download](https://rustup.rs/))
+- **Git** ([Download](https://git-scm.com/))
 
-### ⚡ 3 Adımda Kurulum
+### ⚡ Installation in 3 Steps
 
 ```bash
-# 1. Projeyi klonlayın
+# 1. Clone the repository
 git clone https://github.com/YOUR_USERNAME/testdeck-local.git
 cd testdeck-local
 
-# 2. Bağımlılıkları yükleyin
+# 2. Install dependencies
 npm install
 
-# 3. Uygulamayı başlatın
+# 3. Start the application
 npm run tauri:dev
 ```
 
 ### 🏗️ Production Build
 
 ```bash
-# Desktop uygulaması oluştur
+# Create desktop application
 npm run tauri:build
 
-# Web versiyonu oluştur
+# Create web version
 npm run build
 ```
 
-## 🛠️ Teknoloji Stack
+## 🛠️ Tech Stack
 
 <div align="center">
 
-| Kategori | Teknoloji | Açıklama |
-|----------|-----------|----------|
+| Category | Technology | Description |
+|----------|------------|-------------|
 | **Frontend** | React 18 + TypeScript | Modern UI framework |
 | **Desktop** | Tauri v1.8 | Rust-based desktop wrapper |
 | **Styling** | Tailwind CSS | Utility-first CSS framework |
@@ -141,18 +141,18 @@ npm run build
 
 </div>
 
-## 📚 Kullanım
+## 📚 Usage
 
-### 1️⃣ İlk Adımlar
+### 1️⃣ Getting Started
 
-1. **Uygulamayı başlatın**
-2. **İlk kart setinizi** oluşturun
-3. **Çalışmaya başlayın!**
+1. **Launch the application**
+2. **Create your first card set**
+3. **Start studying!**
 
-### 2️⃣ Kart Oluşturma
+### 2️⃣ Creating Cards
 
 ```markdown
-📝 Soru: JavaScript'te bir array'in uzunluğunu nasıl öğreniriz?
+📝 Question: How do you get the length of an array in JavaScript?
 
 A) array.length()
 B) array.size
@@ -160,156 +160,157 @@ C) array.length
 D) array.count
 E) array.length()
 
-✅ Doğru Cevap: C
-🏷️ Konu: JavaScript Temelleri
-⭐ Zorluk: Kolay
+✅ Correct Answer: C
+🏷️ Subject: JavaScript Fundamentals
+⭐ Difficulty: Easy
 ```
 
-### 3️⃣ Çalışma Modları
+### 3️⃣ Study Modes
 
-| Mod | Açıklama | Kullanım |
-|-----|----------|----------|
-| **📖 Öğrenme** | Yeni kartları öğrenme | İlk kez görülen kartlar |
-| **🔄 Tekrar** | Spaced repetition | Daha önce çalışılan kartlar |
-| **⚡ Hızlı Test** | Rastgele sorular | Genel tekrar |
-| **🎯 Konu Bazlı** | Belirli konular | Odaklanmış çalışma |
+| Mode | Description | Usage |
+|------|-------------|--------|
+| **📖 Learning** | Learn new cards | First-time cards |
+| **🔄 Review** | Spaced repetition | Previously studied cards |
+| **⚡ Quick Test** | Random questions | General review |
+| **🎯 Subject-based** | Specific topics | Focused study |
 
-### 4️⃣ SM-2 Algoritması
+### 4️⃣ SM-2 Algorithm
 
-TestDeck, **SuperMemo-2 algoritması** kullanarak kartların tekrar zamanlarını optimize eder:
+TestDeck uses the **SuperMemo-2 algorithm** to optimize card review timing:
 
-- 🎯 **İlk doğru**: 1 gün sonra
-- 🎯 **İkinci doğru**: 6 gün sonra  
-- 🎯 **Sonraki doğrular**: Ease Factor × önceki aralık
-- ❌ **Yanlış cevap**: Başa dön, 1 gün sonra
+- 🎯 **First correct**: Review in 1 day
+- 🎯 **Second correct**: Review in 6 days  
+- 🎯 **Further correct**: Ease Factor × previous interval
+- ❌ **Wrong answer**: Reset, review in 1 day
 
-## 🗂️ Proje Yapısı
+## 🗂️ Project Structure
 
 ```
 testdeck-local/
 ├── 📱 src/
-│   ├── 🧩 components/     # React bileşenleri
-│   ├── 📄 pages/          # Sayfa bileşenleri  
-│   ├── 🗃️ database/       # SQLite işlemleri
+│   ├── 🧩 components/     # React components
+│   ├── 📄 pages/          # Page components  
+│   ├── 🗃️ database/       # SQLite operations
 │   ├── 📊 store/          # State management
-│   ├── 🔧 utils/          # Yardımcı fonksiyonlar
-│   └── 📝 types/          # TypeScript tipleri
+│   ├── 🔧 utils/          # Helper functions
+│   └── 📝 types/          # TypeScript types
 ├── 🦀 src-tauri/         # Rust backend
-├── 📊 public/            # Statik dosyalar
-├── 📖 docs/              # Dokümantasyon
-└── ⚙️ Config dosyaları
+├── 📊 public/            # Static files
+├── 📖 docs/              # Documentation
+└── ⚙️ Config files
 ```
+
 ## 🔄 Roadmap
 
-### v0.2.0 - *Gelişmiş Özellikler* 🚧
+### v0.2.0 - *Advanced Features* 🚧
 
-- [ ] **🎵 Ses Desteği** - Ses kayıtları ekleme
-- [ ] **🎥 Video Desteği** - Video içerik ekleme  
-- [ ] **☁️ Cloud Sync** - İsteğe bağlı bulut senkronizasyonu
-- [ ] **🎨 Tema Düzenleyici** - Özel renk temaları
-- [ ] **📤 Kart Paylaşımı** - Kart setlerini paylaşma
+- [ ] **🎵 Audio Support** - Voice recordings
+- [ ] **🎥 Video Support** - Video content  
+- [ ] **☁️ Cloud Sync** - Optional cloud synchronization
+- [ ] **🎨 Theme Editor** - Custom color themes
+- [ ] **📤 Card Sharing** - Share card sets
 
-### v0.3.0 - *Platform Genişletme* 🚀
+### v0.3.0 - *Platform Expansion* 🚀
 
-- [ ] **📱 Mobil App** - React Native versiyonu
-- [ ] **👥 Çoklu Kullanıcı** - Aile/takım desteği
-- [ ] **🤖 AI Desteği** - Otomatik soru oluşturma
-- [ ] **🔗 API** - Üçüncü parti entegrasyonlar
-- [ ] **🌐 Web App** - Tam web versiyonu
+- [ ] **📱 Mobile App** - React Native version
+- [ ] **👥 Multi-user** - Family/team support
+- [ ] **🤖 AI Support** - Automatic question generation
+- [ ] **🔗 API** - Third-party integrations
+- [ ] **🌐 Web App** - Full web version
 
-### v1.0.0 - *Tam Sürüm* 🎯
+### v1.0.0 - *Full Release* 🎯
 
-- [ ] **📚 Kart Mağazası** - Hazır kart setleri
-- [ ] **🏆 Gamification** - Rozet ve başarımlar  
-- [ ] **📊 Gelişmiş Analitik** - ML tabanlı analizler
-- [ ] **🔔 Akıllı Bildirimler** - Öğrenme hatırlatıcıları
+- [ ] **📚 Card Store** - Ready-made card sets
+- [ ] **🏆 Gamification** - Badges and achievements  
+- [ ] **📊 Advanced Analytics** - ML-based analysis
+- [ ] **🔔 Smart Notifications** - Learning reminders
 
-## 🐛 Bilinen Sorunlar
+## 🐛 Known Issues
 
-| Sorun | Durum | Çözüm |
-|-------|--------|--------|
-| Büyük görseller performans sorunu | ⚠️ Bilinen | v0.2'de optimize edilecek |
-| İlk açılış veritabanı gecikmesi | ℹ️ Normal | ~2-3 saniye bekleme |
-| macOS Gatekeeper uyarısı | ℹ️ Beklenen | Ayarlar > Güvenlik'ten izin |
+| Issue | Status | Solution |
+|-------|--------|----------|
+| Large images cause performance issues | ⚠️ Known | Will be optimized in v0.2 |
+| First launch database delay | ℹ️ Normal | ~2-3 second wait |
+| macOS Gatekeeper warning | ℹ️ Expected | Allow in Settings > Security |
 
-> 🔍 **Sorun bildirmek için**: [Issues](https://github.com/YOUR_USERNAME/testdeck-local/issues) sayfasını kullanın
+> 🔍 **To report issues**: Use the [Issues](https://github.com/YOUR_USERNAME/testdeck-local/issues) page
 
-## 🤝 Katkıda Bulunma
+## 🤝 Contributing
 
-TestDeck Local'a katkıda bulunmak isterseniz:
+We welcome contributions to TestDeck Local!
 
-### 📝 Katkı Süreci
+### 📝 Contribution Process
 
-1. **🍴 Fork** edin
-2. **🌿 Feature branch** oluşturun
+1. **🍴 Fork** the repository
+2. **🌿 Create feature branch**
    ```bash
    git checkout -b feature/amazing-feature
    ```
-3. **💾 Commit** edin
+3. **💾 Commit** your changes
    ```bash
    git commit -m 'feat: Add amazing feature'
    ```
-4. **📤 Push** edin
+4. **📤 Push** to the branch
    ```bash
    git push origin feature/amazing-feature
    ```
-5. **🔄 Pull Request** oluşturun
+5. **🔄 Create Pull Request**
 
-### 📋 Katkı Türleri
+### 📋 Types of Contributions
 
-- 🐛 **Bug fixes** - Hata düzeltmeleri
-- ✨ **Features** - Yeni özellikler
-- 📚 **Documentation** - Dokümantasyon iyileştirmeleri
-- 🎨 **UI/UX** - Arayüz geliştirmeleri
-- ⚡ **Performance** - Performans optimizasyonları
-- 🔒 **Security** - Güvenlik iyileştirmeleri
+- 🐛 **Bug fixes** - Error corrections
+- ✨ **Features** - New functionality
+- 📚 **Documentation** - Documentation improvements
+- 🎨 **UI/UX** - Interface enhancements
+- ⚡ **Performance** - Performance optimizations
+- 🔒 **Security** - Security improvements
 
-### 🏷️ Commit Konvansiyonları
+### 🏷️ Commit Conventions
 
 ```bash
-feat: yeni özellik
-fix: hata düzeltmesi  
-docs: dokümantasyon
-style: kod formatı
-refactor: kod yeniden düzenleme
-test: test ekleme
-chore: yapılandırma değişiklikleri
+feat: new feature
+fix: bug fix  
+docs: documentation
+style: code formatting
+refactor: code restructuring
+test: adding tests
+chore: configuration changes
 ```
 
-## 📄 Lisans
+## 📄 License
 
-Bu proje **MIT Lisansı** altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
 ```
-MIT License - Özgürce kullanın, değiştirin, dağıtın! 🚀
+MIT License - Use, modify, distribute freely! 🚀
 ```
 
-## 📞 İletişim & Destek
+## 📞 Contact & Support
 
 <div align="center">
 
-### 💬 Topluluk
+### 💬 Community
 
 [![GitHub Issues](https://img.shields.io/github/issues/YOUR_USERNAME/testdeck-local)](https://github.com/YOUR_USERNAME/testdeck-local/issues)
 [![GitHub Discussions](https://img.shields.io/github/discussions/YOUR_USERNAME/testdeck-local)](https://github.com/YOUR_USERNAME/testdeck-local/discussions)
 
-### 📧 İletişim
+### 📧 Contact
 
 - **🐛 Bug Reports**: [Issues](https://github.com/YOUR_USERNAME/testdeck-local/issues)
 - **💡 Feature Requests**: [Discussions](https://github.com/YOUR_USERNAME/testdeck-local/discussions)
-- **❓ Sorular**: [Discussions Q&A](https://github.com/YOUR_USERNAME/testdeck-local/discussions/categories/q-a)
+- **❓ Questions**: [Discussions Q&A](https://github.com/YOUR_USERNAME/testdeck-local/discussions/categories/q-a)
 
 </div>
 
-## 🙏 Teşekkürler
+## 🙏 Acknowledgments
 
-TestDeck Local'ı mümkün kılan harika teknolojilere teşekkürler:
+Thanks to the amazing technologies that make TestDeck Local possible:
 
-- 🧠 **[SuperMemo](https://www.supermemo.com/)** - SM-2 algoritması için
-- 🦀 **[Tauri Team](https://tauri.app/)** - Müthiş framework için  
-- ⚛️ **[React Team](https://reactjs.org/)** - UI library için
-- 🎨 **[Tailwind CSS](https://tailwindcss.com/)** - Styling için
-- 🔒 **[SQLite](https://sqlite.org/)** - Güvenilir veritabanı için
+- 🧠 **[SuperMemo](https://www.supermemo.com/)** - For the SM-2 algorithm
+- 🦀 **[Tauri Team](https://tauri.app/)** - For the amazing framework  
+- ⚛️ **[React Team](https://reactjs.org/)** - For the UI library
+- 🎨 **[Tailwind CSS](https://tailwindcss.com/)** - For styling
+- 🔒 **[SQLite](https://sqlite.org/)** - For reliable database
 
 ---
 
@@ -317,10 +318,10 @@ TestDeck Local'ı mümkün kılan harika teknolojilere teşekkürler:
 
 **TestDeck Local v0.1.0** 
 
-*Kişisel gelişiminiz için tasarlandı* 🎓
+*Designed for your personal development* 🎓
 
 Made with ❤️ by [Your Name](https://github.com/YOUR_USERNAME)
 
-⭐ **Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!**
+⭐ **If you like this project, don't forget to give it a star!**
 
 </div>
