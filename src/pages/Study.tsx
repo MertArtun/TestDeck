@@ -4,7 +4,6 @@ import { useAppStore } from '../store/appStore';
 import { Card } from '../types/database';
 import { getAllCards, getCardsBySubject, createSession, endSession, recordAttempt, updateCard, getDatabase } from '../database/database';
 import { safePercentage } from '../utils/safeMath';
-import FillInBlankAnswerSection from '../components/FillInBlankAnswerSection';
 import { Play, ArrowLeft, Clock, CheckCircle, XCircle, RotateCcw, BarChart3, AlertCircle } from 'lucide-react';
 
 type StudyMode = 'setup' | 'studying' | 'results';
@@ -854,16 +853,8 @@ const Study = () => {
               </div>
             </div>
 
-            {/* Boşluk doldurma veya çoktan seçmeli */}
-            {currentCard.question_type === 'fill_in_blank' ? (
-              <FillInBlankAnswerSection 
-                card={currentCard}
-                userAnswer={userAnswer || undefined}
-                isAnswered={isAnswered}
-                onAnswer={handleAnswer}
-              />
-            ) : (
-              <div className="space-y-4">
+            {/* Çoktan seçmeli sorular */}
+            <div className="space-y-4">
               {['A', 'B', 'C', 'D', 'E'].map((option) => {
                 const optionValue = currentCard[`option_${option.toLowerCase()}` as keyof typeof currentCard];
                 
@@ -955,7 +946,6 @@ const Study = () => {
                 );
               })}
             </div>
-            )}
 
             {isAnswered && (
               <div 
