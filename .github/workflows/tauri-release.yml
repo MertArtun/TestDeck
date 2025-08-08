@@ -17,28 +17,15 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - name: Install frontend deps
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-        shell: bash
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-      - name: Cache Rust
-        uses: Swatinem/rust-cache@v2
-      - name: Install Tauri CLI
-        run: npm i -g @tauri-apps/cli
-      - name: Build app
+      - name: Install dependencies
+        run: npm ci
+      - name: Build with Tauri Action
+        uses: tauri-apps/tauri-action@v0
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-        run: npm run tauri:build
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
         with:
-          name: tauri-${{ matrix.platform }}
-          path: src-tauri/target/**/bundle/**
+          tauriScript: tauri:build
+          includeDebug: false
 
