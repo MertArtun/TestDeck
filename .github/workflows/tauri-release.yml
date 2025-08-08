@@ -12,28 +12,30 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: 'npm'
       - name: Install frontend deps
-        run: pnpm install --frozen-lockfile || npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+        shell: bash
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
       - name: Install Tauri CLI
-        run: pnpm dlx @tauri-apps/cli@latest -v || npm i -g @tauri-apps/cli
+        run: npm i -g @tauri-apps/cli
       - name: Build app
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-        run: |
-          npm run tauri:build || pnpm tauri:build
+        run: npm run tauri:build
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
