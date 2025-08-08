@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import FloatingActionButton from './FloatingActionButton';
 import { useThemeStore } from '../store/themeStore';
 import { applyTheme } from '../utils/themeUtils';
+import { useI18n } from '../i18n';
 
 import { 
   Home, 
@@ -34,7 +35,8 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [notifications] = useState(3);
-  const { mode, colorScheme, fontSize, setThemeMode } = useThemeStore();
+  const { mode, colorScheme, fontSize, setThemeMode, language, setLanguage } = useThemeStore();
+  const { t } = useI18n();
   
   const toggleTheme = () => {
     const modes = ['light', 'dark', 'auto'] as const;
@@ -61,48 +63,27 @@ const Layout = ({ children }: LayoutProps) => {
     }
   };
 
+  const navText = {
+    dashboard: { name: t('nav.dashboard'), desc: t('nav.dashboard.desc') },
+    create: { name: t('nav.create'), desc: t('nav.create.desc') },
+    study: { name: t('nav.study'), desc: t('nav.study.desc') },
+    stats: { name: t('nav.stats'), desc: t('nav.stats.desc') },
+    settings: { name: t('nav.settings'), desc: t('nav.settings.desc') },
+    search: t('common.search')
+  } as const;
+
   const navigation = [
-    { 
-      name: 'Dashboard', 
-      href: '/', 
-      icon: Home, 
-      badge: null,
-      description: 'Genel bakış ve istatistikler'
-    },
-    { 
-      name: 'Kart Oluştur', 
-      href: '/create', 
-      icon: Plus, 
-      badge: null,
-      description: 'Yeni test kartları ekle'
-    },
-    { 
-      name: 'Çalışma', 
-      href: '/study', 
-      icon: BookOpen, 
-      badge: '12',
-      description: 'Spaced repetition ile öğren'
-    },
-    { 
-      name: 'İstatistikler', 
-      href: '/statistics', 
-      icon: BarChart3, 
-      badge: null,
-      description: 'Performans analizi'
-    },
-    { 
-      name: 'Ayarlar', 
-      href: '/settings', 
-      icon: SettingsIcon, 
-      badge: null,
-      description: 'Uygulama tercihleri'
-    },
+    { name: navText.dashboard.name, href: '/', icon: Home, badge: null, description: navText.dashboard.desc },
+    { name: navText.create.name, href: '/create', icon: Plus, badge: null, description: navText.create.desc },
+    { name: navText.study.name, href: '/study', icon: BookOpen, badge: '12', description: navText.study.desc },
+    { name: navText.stats.name, href: '/statistics', icon: BarChart3, badge: null, description: navText.stats.desc },
+    { name: navText.settings.name, href: '/settings', icon: SettingsIcon, badge: null, description: navText.settings.desc },
   ];
 
   const quickStats = [
-    { label: 'Bugün', value: '8/10', icon: Target, color: 'text-blue-500' },
-    { label: 'Seri', value: '7 gün', icon: Zap, color: 'text-orange-500' },
-    { label: 'Başarı', value: '%89', icon: Trophy, color: 'text-green-500' },
+    { label: t('layout.quick.today'), value: '8/10', icon: Target, color: 'text-blue-500' },
+    { label: t('layout.quick.streak'), value: `7 ${t('common.days')}`, icon: Zap, color: 'text-orange-500' },
+    { label: t('layout.quick.accuracy'), value: '%89', icon: Trophy, color: 'text-green-500' },
   ];
 
   return (
@@ -195,12 +176,31 @@ const Layout = ({ children }: LayoutProps) => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
                   }}
-                  title={`Tema: ${mode === 'light' ? 'Açık' : mode === 'dark' ? 'Koyu' : 'Otomatik'}`}
+                  title={mode === 'light' ? t('theme.title.light') : mode === 'dark' ? t('theme.title.dark') : t('theme.title.auto')}
                 >
                   {(() => {
                     const ThemeIcon = getThemeIcon();
                     return <ThemeIcon size={16} />;
                   })()}
+                </button>
+              )}
+
+              {!isCollapsed && (
+                <button
+                  onClick={() => setLanguage(language === 'tr' ? 'en' : 'tr')}
+                  style={{
+                    padding: '8px 10px',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    color: 'white',
+                    transition: 'all 0.2s ease',
+                    fontWeight: 700,
+                  }}
+                  title={language === 'tr' ? 'Switch to English' : "Türkçe'ye geç"}
+                >
+                  {language === 'tr' ? 'EN' : 'TR'}
                 </button>
               )}
               
@@ -235,7 +235,7 @@ const Layout = ({ children }: LayoutProps) => {
                 }} />
                 <input
                   type="text"
-                  placeholder="Ara..."
+                  placeholder={navText.search}
                   style={{
                     width: '100%',
                     paddingLeft: '40px',
@@ -434,8 +434,8 @@ const Layout = ({ children }: LayoutProps) => {
                     )}
                   </div>
                   <div>
-                    <p style={{ fontWeight: '600', color: 'white', fontSize: '14px', margin: '0' }}>Kullanıcı</p>
-                    <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', margin: '0' }}>Premium Üye</p>
+                    <p style={{ fontWeight: '600', color: 'white', fontSize: '14px', margin: '0' }}>{t('common.user')}</p>
+                    <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', margin: '0' }}>{t('common.premiumMember')}</p>
                   </div>
                 </div>
                 <ChevronDown style={{ width: '16px', height: '16px', color: 'rgba(255, 255, 255, 0.6)' }} />

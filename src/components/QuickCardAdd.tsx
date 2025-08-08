@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Keyboard
 } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface QuickCardData {
   question: string;
@@ -38,6 +39,7 @@ interface QuickCardAddProps {
 
 const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: QuickCardAddProps) => {
   const { addCard } = useAppStore();
+  const { t } = useI18n();
   const questionRef = useRef<HTMLTextAreaElement>(null);
   
   // Form data with auto-save to localStorage
@@ -314,7 +316,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
     }
   ];
 
-  const difficultyLabels = {
+  const difficultyLabels: Record<1 | 2 | 3, { label: string; color: string; bg: string }> = {
     1: { label: 'Kolay', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
     2: { label: 'Orta', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
     3: { label: 'Zor', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' }
@@ -375,7 +377,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 color: 'white',
                 margin: '0 0 4px 0'
               }}>
-                ⚡ Hızlı Kart Ekleme
+                {t('quick.title')}
               </h2>
               <p style={{
                 color: 'rgba(255, 255, 255, 0.7)',
@@ -479,7 +481,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 marginBottom: '8px',
                 fontSize: '14px'
               }}>
-                📝 Soru
+                {t('quick.question')}
               </label>
               <textarea
                 ref={questionRef}
@@ -507,12 +509,12 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             </div>
 
             {/* Options */}
-            <div style={{
+              <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '12px'
             }}>
-              {['A', 'B', 'C', 'D', 'E'].map((option) => (
+              {(['A', 'B', 'C', 'D', 'E'] as const).map((option) => (
                 <div key={option}>
                   <div style={{
                     display: 'flex',
@@ -542,19 +544,19 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                     >
                       {option}
                     </button>
-                    <label style={{
+                      <label style={{
                       color: 'white',
                       fontSize: '12px',
                       fontWeight: '500'
                     }}>
-                      Seçenek {option}
+                        {t('quick.option')} {option}
                       {formData.correct_answer === option && ' ✓'}
                     </label>
                   </div>
                   <input
                     type="text"
                     name={`option_${option.toLowerCase()}`}
-                    value={formData[`option_${option.toLowerCase()}`]}
+                    value={formData[`option_${option.toLowerCase()}` as keyof QuickCardData] as string}
                     onChange={handleInputChange}
                     placeholder={`${option} seçeneği`}
                     style={{
@@ -577,7 +579,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             </div>
 
             {/* Subject & Difficulty */}
-            <div style={{
+              <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
               gap: '12px'
@@ -590,7 +592,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   marginBottom: '6px',
                   fontSize: '12px'
                 }}>
-                  📚 Konu
+                  {t('quick.subject')}
                 </label>
                 <input
                   type="text"
@@ -623,10 +625,10 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   marginBottom: '6px',
                   fontSize: '12px'
                 }}>
-                  🎯 Zorluk
+                  {t('quick.difficulty')}
                 </label>
                 <div style={{ display: 'flex', gap: '4px' }}>
-                  {[1, 2, 3].map((level) => (
+                  {([1, 2, 3] as Array<1 | 2 | 3>).map((level) => (
                     <button
                       key={level}
                       type="button"
@@ -634,22 +636,22 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                       style={{
                         flex: 1,
                         padding: '8px',
-                        background: formData.difficulty === level 
-                          ? difficultyLabels[level].bg
+                       background: formData.difficulty === level 
+                          ? difficultyLabels[level as 1 | 2 | 3].bg
                           : 'rgba(255, 255, 255, 0.1)',
-                        border: formData.difficulty === level 
-                          ? `1px solid ${difficultyLabels[level].color}`
+                       border: formData.difficulty === level 
+                          ? `1px solid ${difficultyLabels[level as 1 | 2 | 3].color}`
                           : '1px solid rgba(255, 255, 255, 0.2)',
                         borderRadius: '6px',
-                        color: formData.difficulty === level 
-                          ? difficultyLabels[level].color
+                       color: formData.difficulty === level 
+                          ? difficultyLabels[level as 1 | 2 | 3].color
                           : 'rgba(255, 255, 255, 0.7)',
                         fontSize: '11px',
                         fontWeight: '600',
                         cursor: 'pointer'
                       }}
                     >
-                      {difficultyLabels[level].label}
+                      {difficultyLabels[level as 1 | 2 | 3].label}
                     </button>
                   ))}
                 </div>
@@ -657,7 +659,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             </div>
 
             {/* Action Buttons */}
-            <div style={{
+              <div style={{
               display: 'flex',
               gap: '12px',
               paddingTop: '8px'
@@ -682,7 +684,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 }}
               >
                 <Plus style={{ width: '16px', height: '16px' }} />
-                {isSubmitting ? 'Ekleniyor...' : 'Ekle & Devam (Ctrl+Enter)'}
+                  {isSubmitting ? '...' : t('quick.addAndContinue')}
               </button>
               
               <button
@@ -702,7 +704,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 }}
               >
                 <Save style={{ width: '16px', height: '16px' }} />
-                Kaydet
+                  {t('quick.save')}
               </button>
               
               <button
@@ -716,7 +718,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   padding: '12px',
                   cursor: isSubmitting ? 'not-allowed' : 'pointer'
                 }}
-                title="Formu Temizle (Ctrl+R)"
+                  title={t('quick.resetForm')}
               >
                 <RotateCcw style={{ width: '16px', height: '16px' }} />
               </button>
@@ -745,7 +747,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 gap: '6px'
               }}>
                 <Sparkles style={{ width: '16px', height: '16px', color: '#fbbf24' }} />
-                Bu Oturum
+                {t('quick.thisSession')}
               </h4>
               
               <div style={{
@@ -755,7 +757,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 marginBottom: '8px'
               }}>
                 <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '12px' }}>
-                  Eklenen Kartlar
+                  {t('quick.cardsAdded')}
                 </span>
                 <span style={{ color: '#10b981', fontWeight: '600', fontSize: '14px' }}>
                   {cardCount}
@@ -768,10 +770,10 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 justifyContent: 'space-between'
               }}>
                 <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '12px' }}>
-                  Aktif Konu
+                  {t('quick.activeSubject')}
                 </span>
                 <span style={{ color: '#3b82f6', fontWeight: '600', fontSize: '12px' }}>
-                  {formData.subject || 'Seçilmedi'}
+                  {formData.subject || t('quick.notSelected')}
                 </span>
               </div>
             </div>
@@ -783,7 +785,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 borderRadius: '12px',
                 padding: '16px'
               }}>
-                <h4 style={{
+              <h4 style={{
                   color: 'white',
                   fontSize: '14px',
                   fontWeight: '600',
@@ -793,7 +795,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   gap: '6px'
                 }}>
                   <Clock style={{ width: '16px', height: '16px', color: '#10b981' }} />
-                  Son Eklenenler
+                {t('quick.recent')}
                 </h4>
                 
                 {recentCards.slice(0, 3).map((card, index) => (
@@ -838,7 +840,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 gap: '6px'
               }}>
                 <Lightbulb style={{ width: '16px', height: '16px', color: '#fbbf24' }} />
-                Hızlı Şablonlar
+                {t('quick.templates')}
               </h4>
               
               {templates.map((template, index) => (

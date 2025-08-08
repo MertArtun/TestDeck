@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   getAllCards, 
-  getCardsBySubject, 
   updateCard, 
   deleteCard 
 } from '../database/database';
@@ -14,15 +13,14 @@ import {
   Trash2, 
   Save, 
   X, 
-  Eye,
   Filter,
   Plus,
   BookOpen,
-  Target,
-  Clock,
-  Hash,
-  AlertCircle
+  Clock
 } from 'lucide-react';
+import { SkeletonCard } from '../components/Skeleton';
+import { useToastStore } from '../store/toastStore';
+import { useI18n } from '../i18n';
 
 const CardManager = () => {
   const navigate = useNavigate();
@@ -35,6 +33,8 @@ const CardManager = () => {
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editData, setEditData] = useState<Partial<Card>>({});
   const [subjects, setSubjects] = useState<string[]>([]);
+  const addToast = useToastStore((s) => s.addToast);
+  const { t, locale } = useI18n();
 
   useEffect(() => {
     loadCards();
@@ -52,7 +52,7 @@ const CardManager = () => {
       setCards(allCards);
       
       // Benzersiz konuları çıkar
-      const uniqueSubjects = [...new Set(allCards.map(card => card.subject))];
+      const uniqueSubjects = [...new Set(allCards.map((card: Card) => card.subject))] as string[];
       setSubjects(uniqueSubjects);
       
       // URL'den gelen subject parametresini kullan
@@ -120,9 +120,10 @@ const CardManager = () => {
     try {
       await deleteCard(cardId);
       await loadCards();
+      addToast({ type: 'success', title: 'Silindi', message: `Kart ${cardId} silindi` });
     } catch (error) {
       console.error('Kart silme hatası:', error);
-      alert('Kart silinirken bir hata oluştu.');
+      addToast({ type: 'error', title: 'Hata', message: 'Kart silinirken bir hata oluştu.' });
     }
   };
 
@@ -144,8 +145,10 @@ const CardManager = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
       </div>
     );
   }
@@ -163,14 +166,11 @@ const CardManager = () => {
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Kart Yöneticisi
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">{t('manager.title')}</h1>
               <p className="text-gray-600 mt-1">
                 {selectedSubject === 'all' 
-                  ? `Tüm kartları görüntüle ve düzenle - ${filteredCards.length} kart` 
-                  : `${selectedSubject} - ${filteredCards.length} kart`
-                }
+                  ? `${t('manager.subtitle.all')} - ${filteredCards.length} ${t('common.cards')}` 
+                  : `${selectedSubject} - ${filteredCards.length} ${t('common.cards')}`}
               </p>
             </div>
           </div>
@@ -179,7 +179,7 @@ const CardManager = () => {
             className="btn-primary flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            Yeni Kart
+            {t('manager.newCard')}
           </button>
         </div>
       </div>
@@ -192,7 +192,7 @@ const CardManager = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
-              placeholder="Soru, seçenek veya cevap ara..."
+              placeholder={t('manager.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -207,7 +207,7 @@ const CardManager = () => {
               onChange={(e) => setSelectedSubject(e.target.value)}
               className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent min-w-[200px]"
             >
-              <option value="all">Tüm Konular</option>
+              <option value="all">{t('manager.allSubjects')}</option>
               {subjects.map(subject => (
                 <option key={subject} value={subject}>
                   {subject}
@@ -223,14 +223,9 @@ const CardManager = () => {
         {filteredCards.length === 0 ? (
           <div className="text-center py-12">
             <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Kart bulunamadı
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('manager.notFoundTitle')}</h3>
             <p className="text-gray-600">
-              {searchTerm || selectedSubject !== 'all' 
-                ? 'Filtrelere uygun kart bulunamadı.' 
-                : 'Henüz hiç kart oluşturulmamış.'
-              }
+              {searchTerm || selectedSubject !== 'all' ? t('manager.noResults') : t('manager.noCardsYet')}
             </p>
           </div>
         ) : (
@@ -367,7 +362,7 @@ const CardManager = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Seçenek {option}
                             {isCorrect && (
-                              <span className="ml-2 text-green-600 text-xs">(Doğru Cevap)</span>
+                          <span className="ml-2 text-green-600 text-xs">{t('manager.correctAnswer')}</span>
                             )}
                           </label>
                           {isEditing ? (
@@ -401,12 +396,12 @@ const CardManager = () => {
                     <div className="flex items-center gap-4">
                       <span className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {new Date(card.created_at).toLocaleDateString('tr-TR')}
+                        {new Date(card.created_at).toLocaleDateString(locale)}
                       </span>
                       {card.updated_at !== card.created_at && (
                         <span className="flex items-center gap-1">
                           <Edit3 className="w-4 h-4" />
-                          {new Date(card.updated_at).toLocaleDateString('tr-TR')}
+                          {new Date(card.updated_at).toLocaleDateString(locale)}
                         </span>
                       )}
                     </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import QuickCardAdd from './QuickCardAdd';
+import { useI18n } from '../i18n';
 import { 
   Plus, 
   Zap, 
@@ -16,6 +17,7 @@ const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const location = useLocation();
+  const { t } = useI18n();
 
   // Don't show FAB on create page
   if (location.pathname === '/create') {
@@ -25,8 +27,8 @@ const FloatingActionButton = () => {
   const actions = [
     {
       icon: Zap,
-      label: 'Hızlı Ekleme',
-      description: 'Aynı konudan art arda kart ekle',
+      label: t('fab.quickAdd'),
+      description: t('fab.quickAdd.desc'),
       color: '#fbbf24',
       onClick: () => {
         setShowQuickAdd(true);
@@ -35,22 +37,22 @@ const FloatingActionButton = () => {
     },
     {
       icon: Plus,
-      label: 'Yeni Kart',
-      description: 'Gelişmiş form ile kart oluştur',
+      label: t('fab.newCard'),
+      description: t('fab.newCard.desc'),
       color: '#10b981',
       href: '/create'
     },
     {
       icon: Database,
-      label: 'Toplu Import',
-      description: 'CSV/JSON/XML dosyası yükle',
+      label: t('fab.bulkImport'),
+      description: t('fab.bulkImport.desc'),
       color: '#8b5cf6',
       href: '/create?mode=import'
     },
     {
       icon: BookOpen,
-      label: 'Hızlı Test',
-      description: '10 soruluk kısa test',
+      label: t('fab.quickTest'),
+      description: t('fab.quickTest.desc'),
       color: '#3b82f6',
       href: '/study?mode=quick'
     }
@@ -242,7 +244,7 @@ const FloatingActionButton = () => {
             transition: 'opacity 0.3s ease',
             animation: 'tooltipShow 2s ease 1s forwards'
           }}>
-            Hızlı Eylemler
+            {t('layout.fab.tooltip')}
             <div style={{
               position: 'absolute',
               right: '-4px',

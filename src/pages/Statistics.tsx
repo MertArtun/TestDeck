@@ -20,11 +20,13 @@ import {
   Area
 } from 'recharts';
 import { ArrowLeft, TrendingUp, Calendar, Target, Award, BarChart3, PlayCircle, Clock, Zap, BookOpen, Brain } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 const Statistics = () => {
   const navigate = useNavigate();
   const { subjects, updateSubjects, dailyStats, updateDailyStats, setLoading } = useAppStore();
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
+  const { t, language } = useI18n();
   const [totalStats, setTotalStats] = useState({
     totalQuestions: 0,
     totalCorrect: 0,
@@ -173,8 +175,8 @@ const Statistics = () => {
                 <ArrowLeft className="w-7 h-7 text-white" />
               </button>
               <div>
-                <h1 className="text-5xl font-bold text-white mb-2">📊 İstatistikler</h1>
-                <p className="text-xl text-white/90">Çalışma performansınızı inceleyin</p>
+                 <h1 className="text-5xl font-bold text-white mb-2">{t('stats.title')}</h1>
+                 <p className="text-xl text-white/90">{t('stats.subtitle')}</p>
               </div>
             </div>
 
@@ -198,7 +200,7 @@ const Statistics = () => {
                     color: timeRange === days ? 'white' : 'rgba(255, 255, 255, 0.8)'
                   }}
                 >
-                  Son {days} gün
+                  {t('stats.lastNDays', { days })}
                 </button>
               ))}
             </div>
@@ -207,32 +209,32 @@ const Statistics = () => {
 
       {/* Ana İstatistik Kartları */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        <StatCard
-          icon={<Target />}
-          title="Toplam Soru"
+          <StatCard
+            icon={<Target />}
+            title={t('stats.main.totalQuestions')}
           value={totalStats.totalQuestions}
-          subtitle={`${totalStats.studyDays} gün boyunca`}
+            subtitle={`${totalStats.studyDays} ${language === 'en' ? (totalStats.studyDays === 1 ? t('common.day') : t('common.days')) : t('common.days')} boyunca`}
           color="linear-gradient(135deg, #3b82f6, #1d4ed8)"
         />
         <StatCard
           icon={<Award />}
-          title="Doğru Cevap"
+            title={t('stats.main.correct')}
           value={totalStats.totalCorrect}
-          subtitle={`%${totalStats.averageAccuracy} başarı oranı`}
+            subtitle={`%${totalStats.averageAccuracy}`}
           color="linear-gradient(135deg, #10b981, #059669)"
         />
         <StatCard
           icon={<BookOpen />}
-          title="Toplam Kart"
+            title={t('stats.main.totalCards')}
           value={totalStats.totalCards}
-          subtitle={`${subjects.length} farklı konu`}
+            subtitle={`${subjects.length}`}
           color="linear-gradient(135deg, #8b5cf6, #7c3aed)"
         />
         <StatCard
           icon={<Clock />}
-          title="Ortalama Süre"
-          value={`${totalStats.averageSessionTime}dk`}
-          subtitle="günlük çalışma"
+            title={t('stats.main.avgTime')}
+            value={`${totalStats.averageSessionTime}${t('unit.minutesShort')}`}
+            subtitle=""
           color="linear-gradient(135deg, #f59e0b, #d97706)"
         />
       </div>
@@ -243,24 +245,22 @@ const Statistics = () => {
           <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
             <BarChart3 size={40} className="text-gray-400 dark:text-gray-500" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Henüz İstatistik Yok</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            İstatistikleri görmek için önce birkaç kart oluşturun ve test çözmeye başlayın.
-          </p>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('stats.noStatsTitle')}</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{t('stats.noStatsDesc')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/create"
               className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
             >
               <BookOpen className="w-5 h-5 mr-2" />
-              Kart Oluştur
+              {t('nav.create')}
             </Link>
             <Link
               to="/study/all"
               className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
             >
               <PlayCircle className="w-5 h-5 mr-2" />
-              Çalışmaya Başla
+              {t('dash.startStudying')}
             </Link>
           </div>
         </div>
@@ -270,10 +270,10 @@ const Statistics = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Günlük Aktivite Grafiği */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <Calendar className="w-5 h-5 mr-2" />
-                Günlük Aktivite
-              </h3>
+           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+             <Calendar className="w-5 h-5 mr-2" />
+             {t('stats.dailyActivity')}
+           </h3>
               <ResponsiveContainer width="100%" height={250}>
                 <AreaChart data={dailyChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
@@ -305,10 +305,10 @@ const Statistics = () => {
 
             {/* Konu Başarı Grafiği */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2" />
-                Konulara Göre Başarı
-              </h3>
+               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                 <TrendingUp className="w-5 h-5 mr-2" />
+                 {t('stats.bySubject')}
+               </h3>
               {subjectChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={subjectChartData}>
@@ -338,10 +338,10 @@ const Statistics = () => {
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-[250px] text-gray-500 dark:text-gray-400">
+                 <div className="flex items-center justify-center h-[250px] text-gray-500 dark:text-gray-400">
                   <div className="text-center">
                     <Brain className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>Henüz konu verisi yok</p>
+                     <p>{t('stats.noSubjectData')}</p>
                   </div>
                 </div>
               )}
@@ -353,10 +353,10 @@ const Statistics = () => {
             {/* Başarı Dağılımı */}
             {accuracyDistribution.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2" />
-                  Başarı Dağılımı
-                </h3>
+                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                   <BarChart3 className="w-5 h-5 mr-2" />
+                   {t('stats.accuracyDist')}
+                 </h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
@@ -392,10 +392,10 @@ const Statistics = () => {
 
             {/* Konu Detayları */}
             <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <BookOpen className="w-5 h-5 mr-2" />
-                Konu Detayları
-              </h3>
+               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                 <BookOpen className="w-5 h-5 mr-2" />
+                 {t('stats.subjectDetails')}
+               </h3>
               {subjects.length > 0 ? (
                 <div className="space-y-4 max-h-64 overflow-y-auto">
                   {subjects.map((subject, index) => (
@@ -421,9 +421,9 @@ const Statistics = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <BookOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Henüz konu verisi yok</p>
+                   <p>{t('stats.noSubjectData')}</p>
                 </div>
               )}
             </div>

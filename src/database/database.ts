@@ -401,6 +401,15 @@ export async function createCard(card: Omit<any, 'id' | 'created_at' | 'updated_
 
 export async function createMultipleCards(cards: Omit<any, 'id' | 'created_at' | 'updated_at'>[]): Promise<number[]> {
   try {
+    // If SQLite is available, create cards through backend for persistence
+    if (useSQLite && sqliteService) {
+      const validCards = cards.filter(validateCard);
+      const ids = await sqliteService.createMultipleCards(validCards);
+      console.log(`Created ${ids.length} cards in batch (sqlite)`);
+      return ids;
+    }
+    
+    // Fallback to localStorage mock
     const newCards = cards
       .filter(validateCard)
       .map(card => ({
@@ -459,6 +468,10 @@ export async function updateCard(id: number, updates: Partial<any>) {
 
 export async function deleteCard(id: number) {
   try {
+    if (useSQLite && sqliteService) {
+      await sqliteService.deleteCard(id);
+      return true;
+    }
     loadMockData();
     const initialLength = mockDb.cards.length;
     mockDb.cards = mockDb.cards.filter(card => card.id !== id);
@@ -471,6 +484,25 @@ export async function deleteCard(id: number) {
     return true;
   } catch (error) {
     console.error('Delete card error:', error);
+    throw error;
+  }
+}
+
+export async function deleteAllCards(): Promise<void> {
+  try {
+    if (useSQLite && sqliteService) {
+      await sqliteService.deleteAllCards();
+      return;
+    }
+    loadMockData();
+    mockDb.cards = [];
+    mockDb.attempts = [];
+    mockDb.sessions = [];
+    mockDb.stats = [];
+    scheduleAutoSave();
+    console.log('🧹 All local cards and related data cleared');
+  } catch (error) {
+    console.error('Delete all cards error:', error);
     throw error;
   }
 }

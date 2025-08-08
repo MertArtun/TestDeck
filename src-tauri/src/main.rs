@@ -265,6 +265,25 @@ async fn delete_card(app_handle: AppHandle, id: i64) -> Result<(), String> {
     Ok(())
 }
 
+  #[tauri::command]
+  async fn delete_all_cards(app_handle: AppHandle) -> Result<(), String> {
+      let conn = init_database(&app_handle).map_err(|e| e.to_string())?;
+
+      // Clear attempts first due to foreign key relationships
+      conn.execute("DELETE FROM attempts", [])
+          .map_err(|e| e.to_string())?;
+
+      // Optionally clear sessions to remove orphaned data
+      conn.execute("DELETE FROM sessions", [])
+          .map_err(|e| e.to_string())?;
+
+      // Clear all cards
+      conn.execute("DELETE FROM cards", [])
+          .map_err(|e| e.to_string())?;
+
+      Ok(())
+  }
+
 // Session operations
 #[tauri::command]
 async fn create_session(app_handle: AppHandle, session: Session) -> Result<i64, String> {
@@ -395,7 +414,8 @@ fn main() {
             end_session,
             record_attempt,
             get_subject_stats,
-            get_daily_stats
+          get_daily_stats,
+          delete_all_cards
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

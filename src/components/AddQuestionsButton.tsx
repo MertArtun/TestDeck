@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { createMultipleCards, initDatabase } from '../database/database';
+import { useToastStore } from '../store/toastStore';
+import { useI18n } from '../i18n';
 
 const webProgrammingQuestions = [
   {
@@ -516,6 +518,8 @@ export default function AddQuestionsButton() {
   const [addedCount, setAddedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const addToast = useToastStore((s) => s.addToast);
+  const { t } = useI18n();
 
   const handleAddQuestions = async () => {
     setLoading(true);
@@ -533,7 +537,7 @@ export default function AddQuestionsButton() {
         option_d: q.option_d,
         correct_answer: q.correct_answer,
         subject: "Web Programlama",
-        difficulty: "orta",
+        difficulty: 2,
         explanation: q.explanation
       }));
 
@@ -541,10 +545,13 @@ export default function AddQuestionsButton() {
       setAddedCount(ids.length);
       setSuccess(true);
       console.log(`✅ ${ids.length} Web Programlama sorusu başarıyla eklendi!`);
+      addToast({ type: 'success', title: 'Sorular eklendi', message: `${ids.length} kart oluşturuldu` });
       
     } catch (err: any) {
       console.error('Sorular eklenirken hata:', err);
-      setError(err.message || 'Sorular eklenirken bir hata oluştu');
+      const msg = (err as any)?.message || 'Sorular eklenirken bir hata oluştu';
+      setError(msg);
+      addToast({ type: 'error', title: 'Hata', message: msg });
     } finally {
       setLoading(false);
     }
@@ -556,10 +563,14 @@ export default function AddQuestionsButton() {
     
     try {
       const cardIds = await createMultipleCards(gorselCikmisQuestions);
-      setMessage(`✅ ${cardIds.length} Görsel Çıkmış sorusu başarıyla eklendi!`);
+      const msg = `✅ ${cardIds.length} Görsel Çıkmış sorusu başarıyla eklendi!`;
+      setMessage(msg);
+      addToast({ type: 'success', title: 'Sorular eklendi', message: msg });
     } catch (error) {
       console.error('Sorular eklenirken hata:', error);
-      setMessage('❌ Sorular eklenirken bir hata oluştu.');
+      const msg = '❌ Sorular eklenirken bir hata oluştu.';
+      setMessage(msg);
+      addToast({ type: 'error', title: 'Hata', message: msg });
     } finally {
       setIsLoading(false);
     }
@@ -571,9 +582,9 @@ export default function AddQuestionsButton() {
         <div className="flex items-center">
           <span className="text-2xl mr-3">✅</span>
           <div>
-            <h3 className="font-bold">Başarılı!</h3>
-            <p>{addedCount} Web Programlama sorusu sisteme eklendi.</p>
-            <p className="text-sm mt-1">Artık "Web Programlama" konusunda çalışabilirsiniz!</p>
+            <h3 className="font-bold">{t('dash.createCard')}</h3>
+            <p>{addedCount} {t('common.cards')}</p>
+            <p className="text-sm mt-1">Web Programlama</p>
           </div>
         </div>
       </div>
@@ -592,7 +603,7 @@ export default function AddQuestionsButton() {
       
       <div className="text-center mb-4">
         <p className="text-gray-600 text-sm mb-2">
-          35 adet Web Programlama sorusu eklenecek
+          35 Web Programlama {t('common.cards')} 
         </p>
         <p className="text-xs text-gray-500">
           PHP, HTML, SQL, Database konuları
@@ -614,10 +625,10 @@ export default function AddQuestionsButton() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Ekleniyor...
+            ...
           </span>
         ) : (
-          '📚 Soruları Ekle'
+          '📚 Add Questions'
         )}
       </button>
 
@@ -653,7 +664,7 @@ export default function AddQuestionsButton() {
           }
         }}
       >
-        {isLoading ? '⏳ Ekleniyor...' : '📱 Görsel Çıkmış Soruları Ekle (17)'}
+        {isLoading ? '⏳ ...' : '📱 Görsel Çıkmış Soruları Ekle (17)'}
       </button>
     </div>
   );

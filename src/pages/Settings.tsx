@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useThemeStore } from '../store/themeStore';
 import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '../utils/themeUtils';
-import { exportUserData, importUserData } from '../database/database';
+import { exportUserData, importUserData, createMultipleCards, deleteAllCards } from '../database/database';
 import {
   ArrowLeft,
   Moon,
@@ -30,11 +30,13 @@ import {
   CheckCircle,
   Trash2
 } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 const Settings = () => {
   const navigate = useNavigate();
   const [importFile, setImportFile] = useState<File | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const { t } = useI18n();
   
   const {
     mode,
@@ -88,38 +90,74 @@ const Settings = () => {
     if (importFile) {
       const success = await importUserData(importFile);
       if (success) {
-        alert('Veriler başarıyla içe aktarıldı!');
+        alert(t('settings.data.import.success'));
         setImportFile(null);
       }
     }
   };
 
   const handleReset = () => {
-    if (window.confirm('Tüm ayarları varsayılan değerlere sıfırlamak istediğinizden emin misiniz?')) {
+    if (window.confirm(t('settings.reset.confirm'))) {
       resetToDefaults();
       applyTheme({ mode: 'auto', colorScheme: 'blue', fontSize: 'medium' });
-      alert('Ayarlar sıfırlandı!');
+      alert(t('settings.reset.done'));
+    }
+  };
+
+  const handleWipeAll = async () => {
+    if (!confirm(t('settings.data.wipe.confirm'))) return;
+    try {
+      await deleteAllCards();
+      alert(t('settings.data.wipe.done'));
+    } catch (e) {
+      console.error(e);
+      alert('Error while deleting all cards');
+    }
+  };
+
+  const handleSeedEnglish = async () => {
+    try {
+      const { englishSeedCards } = await import('../data/seedEnglish');
+      const payload = englishSeedCards.map((c: any) => ({
+        question: c.question,
+        option_a: c.option_a,
+        option_b: c.option_b,
+        option_c: c.option_c,
+        option_d: c.option_d,
+        option_e: '',
+        correct_answer: c.correct_answer,
+        blank_answer: null,
+        question_type: 'multiple_choice',
+        subject: c.subject,
+        difficulty: c.difficulty,
+        image_path: null,
+      }));
+      const ids = await createMultipleCards(payload);
+      alert(t('settings.data.seedEnglish.done', { count: ids.length }));
+    } catch (e) {
+      console.error(e);
+      alert('Error while seeding English content');
     }
   };
 
   const themeOptions: { value: ThemeMode; label: string; icon: any }[] = [
-    { value: 'light', label: 'Açık Tema', icon: Sun },
-    { value: 'dark', label: 'Koyu Tema', icon: Moon },
-    { value: 'auto', label: 'Otomatik', icon: Monitor },
+    { value: 'light', label: t('settings.theme.light'), icon: Sun },
+    { value: 'dark', label: t('settings.theme.dark'), icon: Moon },
+    { value: 'auto', label: t('settings.theme.auto'), icon: Monitor },
   ];
 
   const colorOptions: { value: ColorScheme; label: string; color: string }[] = [
-    { value: 'blue', label: 'Mavi', color: '#3b82f6' },
-    { value: 'purple', label: 'Mor', color: '#a855f7' },
-    { value: 'green', label: 'Yeşil', color: '#10b981' },
-    { value: 'orange', label: 'Turuncu', color: '#f97316' },
-    { value: 'pink', label: 'Pembe', color: '#ec4899' },
+    { value: 'blue', label: t('settings.color.blue'), color: '#3b82f6' },
+    { value: 'purple', label: t('settings.color.purple'), color: '#a855f7' },
+    { value: 'green', label: t('settings.color.green'), color: '#10b981' },
+    { value: 'orange', label: t('settings.color.orange'), color: '#f97316' },
+    { value: 'pink', label: t('settings.color.pink'), color: '#ec4899' },
   ];
 
   const fontSizeOptions: { value: FontSize; label: string }[] = [
-    { value: 'small', label: 'Küçük' },
-    { value: 'medium', label: 'Orta' },
-    { value: 'large', label: 'Büyük' },
+    { value: 'small', label: t('settings.font.small') },
+    { value: 'medium', label: t('settings.font.medium') },
+    { value: 'large', label: t('settings.font.large') },
   ];
 
   return (
@@ -134,12 +172,8 @@ const Settings = () => {
             <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Ayarlar
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Tema, dil və çalışma tercihlerinizi özelleştirin
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('settings.title')}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">{t('settings.subtitle')}</p>
           </div>
         </div>
 
@@ -151,15 +185,13 @@ const Settings = () => {
                 <Palette className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               </div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Tema Ayarları
+                {t('settings.section.theme')}
               </h2>
             </div>
 
             {/* Theme Mode */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Tema Modu
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('settings.theme.mode')}</label>
               <div className="grid grid-cols-3 gap-3">
                 {themeOptions.map(({ value, label, icon: Icon }) => (
                   <button
@@ -186,9 +218,7 @@ const Settings = () => {
 
             {/* Color Scheme */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Renk Şeması
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('settings.theme.colorScheme')}</label>
               <div className="flex gap-3">
                 {colorOptions.map(({ value, label, color }) => (
                   <button
@@ -216,9 +246,7 @@ const Settings = () => {
 
             {/* Font Size */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Yazı Boyutu
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('settings.theme.fontSize')}</label>
               <div className="grid grid-cols-3 gap-3">
                 {fontSizeOptions.map(({ value, label }) => (
                   <button
@@ -250,9 +278,7 @@ const Settings = () => {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <SettingsIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Uygulama Ayarları
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.app')}</h2>
             </div>
 
             <div className="space-y-4">
@@ -265,8 +291,8 @@ const Settings = () => {
                     <VolumeX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">Ses Efektleri</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Bildirim ve etkileşim sesleri</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.app.sound')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.app.sound.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -292,8 +318,8 @@ const Settings = () => {
                     <ZapOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">Animasyonlar</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Geçiş ve hover animasyonları</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.app.animations')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.app.animations.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -315,8 +341,8 @@ const Settings = () => {
                 <div className="flex items-center gap-3">
                   <Save className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">Otomatik Kaydetme</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Değişiklikleri otomatik kaydet</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.app.autoSave')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.app.autoSave.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -341,17 +367,13 @@ const Settings = () => {
               <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                 <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Çalışma Ayarları
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.study')}</h2>
             </div>
 
             <div className="space-y-6">
               {/* Questions per session */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Oturum Başına Soru Sayısı: {questionsPerSession}
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('settings.study.questionsPerSession', { count: questionsPerSession })}</label>
                 <input
                   type="range"
                   min="5"
@@ -369,9 +391,7 @@ const Settings = () => {
 
               {/* Time per question */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Soru Başına Süre: {timePerQuestion === 0 ? 'Sınırsız' : `${timePerQuestion} saniye`}
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('settings.study.timePerQuestion', { value: timePerQuestion === 0 ? t('settings.unlimited') : `${timePerQuestion} ${t('unit.secondsLong')}` })}</label>
                 <input
                   type="range"
                   min="0"
@@ -382,8 +402,8 @@ const Settings = () => {
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  <span>Sınırsız</span>
-                  <span>5 dakika</span>
+                  <span>{t('settings.unlimited')}</span>
+                  <span>{`5 ${t('unit.minutesLong')}`}</span>
                 </div>
               </div>
 
@@ -396,8 +416,8 @@ const Settings = () => {
                     <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">İpuçlarını Göster</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Sorularda ipucu butonunu göster</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.study.hints')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.study.hints.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -419,8 +439,8 @@ const Settings = () => {
                 <div className="flex items-center gap-3">
                   <Target className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">İlerleme Çubuğu</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Çalışma ilerlemesini göster</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.study.progress')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.study.progress.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -445,9 +465,7 @@ const Settings = () => {
               <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
                 <Bell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Bildirim Ayarları
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.notifications')}</h2>
             </div>
 
             <div className="space-y-4">
@@ -460,8 +478,8 @@ const Settings = () => {
                     <BellOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">Çalışma Hatırlatmaları</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Düzenli çalışma hatırlatmaları al</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.notifications.reminders')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.reminders.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -483,8 +501,8 @@ const Settings = () => {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">Başarı Bildirimleri</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Başarı rozetleri için bildirim al</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.notifications.achievements')}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.achievements.desc')}</div>
                   </div>
                 </div>
                 <button
@@ -504,15 +522,13 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Veri Yönetimi */}
+          {/* Veri Yönetimi */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
               <Download className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Veri Yönetimi
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.data')}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -529,8 +545,8 @@ const Settings = () => {
             >
               <Download className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               <div className="text-left">
-                <div className="font-medium text-gray-900 dark:text-white">Verileri Dışa Aktar</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Kartlar ve istatistikleri JSON olarak kaydet</div>
+                <div className="font-medium text-gray-900 dark:text-white">{t('settings.data.export')}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.data.export.desc')}</div>
               </div>
             </button>
 
@@ -549,10 +565,8 @@ const Settings = () => {
               >
                 <Upload className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div className="text-left">
-                  <div className="font-medium text-gray-900 dark:text-white">Verileri İçe Aktar</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {importFile ? importFile.name : 'JSON yedek dosyası seç'}
-                  </div>
+                  <div className="font-medium text-gray-900 dark:text-white">{t('settings.data.import')}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{importFile ? importFile.name : t('settings.data.import.choose')}</div>
                 </div>
               </label>
               {importFile && (
@@ -560,7 +574,7 @@ const Settings = () => {
                   onClick={handleImport}
                   className="mt-2 w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors"
                 >
-                  İçe Aktar
+                  {t('settings.data.import.action')}
                 </button>
               )}
             </div>
@@ -568,7 +582,7 @@ const Settings = () => {
             {/* Storage Cleanup */}
             <button
               onClick={() => {
-                if (confirm('🧹 Eski veriler (30+ gün) temizlenecek. Devam edilsin mi?')) {
+                if (confirm(t('settings.clean.confirm'))) {
                   // Clear old data
                   localStorage.removeItem('create-card-draft');
                   localStorage.removeItem('quick-card-draft');
@@ -583,15 +597,39 @@ const Settings = () => {
                   }
                   keysToRemove.forEach(key => localStorage.removeItem(key));
                   
-                  alert(`✅ Temizlik tamamlandı!\n🗑️ ${keysToRemove.length + 2} öğe temizlendi`);
+                  alert(t('settings.clean.done', { count: keysToRemove.length + 2 }));
                 }
               }}
               className="flex items-center gap-3 p-4 border border-yellow-200 dark:border-yellow-800 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 transition-colors"
             >
               <Trash2 className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium">Depolama Temizle</div>
-                <div className="text-sm opacity-75">Hafıza alanı açmak için eski verileri temizle</div>
+                <div className="font-medium">{t('settings.data.clean')}</div>
+                <div className="text-sm opacity-75">{t('settings.data.clean.desc')}</div>
+              </div>
+            </button>
+
+            {/* Wipe All Cards */}
+            <button
+              onClick={handleWipeAll}
+              className="flex items-center gap-3 p-4 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors"
+            >
+              <Trash2 className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium">{t('settings.data.wipe')}</div>
+                <div className="text-sm opacity-75">{t('settings.data.wipe.desc')}</div>
+              </div>
+            </button>
+
+            {/* Seed English Content */}
+            <button
+              onClick={handleSeedEnglish}
+              className="flex items-center gap-3 p-4 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors"
+            >
+              <BookOpen className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium">{t('settings.data.seedEnglish')}</div>
+                <div className="text-sm opacity-75">{t('settings.data.seedEnglish.desc')}</div>
               </div>
             </button>
 
@@ -602,8 +640,8 @@ const Settings = () => {
             >
               <RotateCcw className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium">Ayarları Sıfırla</div>
-                <div className="text-sm opacity-75">Tüm ayarları varsayılana döndür</div>
+                <div className="font-medium">{t('settings.data.reset')}</div>
+                <div className="text-sm opacity-75">{t('settings.data.reset.desc')}</div>
               </div>
             </button>
           </div>

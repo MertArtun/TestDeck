@@ -1,6 +1,8 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useThemeStore } from './store/themeStore';
+import ToastContainer from './components/ToastContainer';
+import { tFor } from './i18n';
 
 const Layout = React.lazy(() => import('./components/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -29,10 +31,11 @@ class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
+      const lang = useThemeStore.getState().language;
       return (
         <div className="flex h-screen w-full flex-col items-center justify-center bg-red-100 p-8 text-red-800 dark:bg-red-900/20 dark:text-red-300">
-          <h1 className="text-4xl font-bold">Bir şeyler ters gitti.</h1>
-          <p className="mt-4 text-lg">Uygulama bir hatayla karşılaştı ve yeniden başlatılması gerekiyor.</p>
+          <h1 className="text-4xl font-bold">{tFor(lang, 'error.title')}</h1>
+          <p className="mt-4 text-lg">{tFor(lang, 'error.desc')}</p>
           <pre className="mt-6 w-full max-w-2xl overflow-auto rounded-lg bg-red-200 p-4 font-mono text-sm dark:bg-red-900/30">
             {this.state.error?.toString()}
           </pre>
@@ -40,7 +43,7 @@ class ErrorBoundary extends React.Component<
             onClick={() => window.location.reload()}
             className="mt-8 rounded-md bg-red-500 px-6 py-2 text-white transition-colors hover:bg-red-600"
           >
-            Sayfayı Yenile
+            {tFor(lang, 'error.reload')}
           </button>
         </div>
       );
@@ -79,6 +82,7 @@ function App() {
                 <Route path="/statistics" element={<Statistics />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
+              <ToastContainer />
             </Layout>
           </Suspense>
         </Router>

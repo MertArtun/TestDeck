@@ -6,7 +6,7 @@
 
 *Effective learning experience with spaced repetition algorithm*
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/YOUR_USERNAME/testdeck-local/releases)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/MertArtun/TestDeck/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#-installation)
 [![Tauri](https://img.shields.io/badge/Tauri-v1.8-orange.svg)](https://tauri.app/)
@@ -104,8 +104,8 @@
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/testdeck-local.git
-cd testdeck-local
+git clone https://github.com/MertArtun/TestDeck.git
+cd TestDeck
 
 # 2. Install dependencies
 npm install
@@ -233,7 +233,7 @@ testdeck-local/
 | First launch database delay | ℹ️ Normal | ~2-3 second wait |
 | macOS Gatekeeper warning | ℹ️ Expected | Allow in Settings > Security |
 
-> 🔍 **To report issues**: Use the [Issues](https://github.com/YOUR_USERNAME/testdeck-local/issues) page
+> 🔍 **To report issues**: Use the [Issues](https://github.com/MertArtun/TestDeck/issues) page
 
 ## 🤝 Contributing
 
@@ -291,14 +291,14 @@ MIT License - Use, modify, distribute freely! 🚀
 
 ### 💬 Community
 
-[![GitHub Issues](https://img.shields.io/github/issues/YOUR_USERNAME/testdeck-local)](https://github.com/YOUR_USERNAME/testdeck-local/issues)
-[![GitHub Discussions](https://img.shields.io/github/discussions/YOUR_USERNAME/testdeck-local)](https://github.com/YOUR_USERNAME/testdeck-local/discussions)
+[![GitHub Issues](https://img.shields.io/github/issues/MertArtun/TestDeck)](https://github.com/MertArtun/TestDeck/issues)
+[![GitHub Discussions](https://img.shields.io/github/discussions/MertArtun/TestDeck)](https://github.com/MertArtun/TestDeck/discussions)
 
 ### 📧 Contact
 
-- **🐛 Bug Reports**: [Issues](https://github.com/YOUR_USERNAME/testdeck-local/issues)
-- **💡 Feature Requests**: [Discussions](https://github.com/YOUR_USERNAME/testdeck-local/discussions)
-- **❓ Questions**: [Discussions Q&A](https://github.com/YOUR_USERNAME/testdeck-local/discussions/categories/q-a)
+- **🐛 Bug Reports**: [Issues](https://github.com/MertArtun/TestDeck/issues)
+- **💡 Feature Requests**: [Discussions](https://github.com/MertArtun/TestDeck/discussions)
+- **❓ Questions**: [Discussions Q&A](https://github.com/MertArtun/TestDeck/discussions/categories/q-a)
 
 </div>
 
@@ -320,7 +320,7 @@ Thanks to the amazing technologies that make TestDeck Local possible:
 
 *Designed for your personal development* 🎓
 
-Made with ❤️ by [Your Name](https://github.com/YOUR_USERNAME)
+Made with ❤️ by [Mert Artun](https://github.com/MertArtun)
 
 ⭐ **If you like this project, don't forget to give it a star!**
 

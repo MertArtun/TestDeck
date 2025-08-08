@@ -5,6 +5,7 @@ import { Card } from '../types/database';
 import { getAllCards, getCardsBySubject, createSession, endSession, recordAttempt, updateCard, getDatabase } from '../database/database';
 import { safePercentage } from '../utils/safeMath';
 import { Play, ArrowLeft, Clock, CheckCircle, XCircle, RotateCcw, BarChart3, AlertCircle } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 type StudyMode = 'setup' | 'studying' | 'results';
 
@@ -34,6 +35,7 @@ const Study = () => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [localSessionCards, setLocalSessionCards] = useState<Card[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>([]);
+  const { t, locale } = useI18n();
 
   useEffect(() => {
     loadCards();
@@ -55,7 +57,7 @@ const Study = () => {
       setLoading(true);
       const cardsData = await getAllCards();
       console.log('🃏 Kartlar yüklendi:', cardsData);
-      const imageCards = cardsData.filter(c => c.image_path && c.image_path.trim());
+      const imageCards = cardsData.filter((c: any) => c.image_path && c.image_path.trim());
       console.log(`🖼️ ${imageCards.length} adet görselli kart bulundu.`, imageCards);
       setCards(cardsData);
     } catch (error) {
@@ -81,7 +83,7 @@ const Study = () => {
       }
 
       if (selectedCards.length === 0) {
-        alert('Seçilen kriterlere uygun kart bulunamadı!');
+        alert(t('study.noCardsMatchAlert'));
         setLoading(false);
         return;
       }
@@ -135,7 +137,7 @@ const Study = () => {
 
     } catch (error) {
       console.error('Çalışma başlatma hatası:', error);
-      alert('Çalışma başlatılırken bir hata oluştu.');
+      alert(t('study.startError'));
     } finally {
       setLoading(false);
     }
@@ -297,6 +299,17 @@ const Study = () => {
   const progress = safePercentage(currentQuestionIndex + 1, localSessionCards.length);
   const userAnswer = currentCard ? userAnswers[currentCard.id] : null;
   const isAnswered = userAnswer !== undefined;
+  const handleSkip = () => {
+    if (!currentCard) return;
+    answerQuestion(currentCard.id, '');
+    setTimeout(() => {
+      if (currentQuestionIndex < sessionCards.length - 1) {
+        nextQuestion();
+      } else {
+        handleEndSession();
+      }
+    }, 100);
+  };
 
   // Setup Mode
   if (mode === 'setup') {
@@ -321,8 +334,8 @@ const Study = () => {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Çalışma Oturumu</h1>
-            <p className="text-white/80 text-lg">Çalışma parametrelerinizi seçin</p>
+            <h1 className="text-4xl font-bold text-white mb-2">{t('study.header')}</h1>
+            <p className="text-white/80 text-lg">{t('study.header.subtitle')}</p>
           </div>
         </div>
 
@@ -337,9 +350,7 @@ const Study = () => {
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}
           >
-            <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-              📚 Hangi Konuyu Çalışacaksın?
-            </h3>
+            <h3 className="text-2xl font-bold text-white mb-6 flex items-center">📚 {t('study.selectSubject')}</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
@@ -362,17 +373,17 @@ const Study = () => {
                   <div className={`text-lg font-bold mb-2 ${
                     selectedSubject === 'all' ? 'text-gray-800' : 'text-white'
                   }`}>
-                    Karışık Çalış
+                    {t('study.mixedStudy')}
                   </div>
                   <div className={`text-sm ${
                     selectedSubject === 'all' ? 'text-gray-600' : 'text-white/80'
                   }`}>
-                    Tüm konular • {cards.length} kart
+                    {t('study.allSubjects')} • {cards.length} {t('common.cards')}
                   </div>
                   {selectedSubject === 'all' && (
                     <div className="mt-3">
                       <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">
-                        ✨ Seçili
+                        ✨ {t('common.selected')}
                       </span>
                     </div>
                   )}
@@ -411,12 +422,12 @@ const Study = () => {
                       <div className={`text-sm ${
                         selectedSubject === subject ? 'text-gray-600' : 'text-white/80'
                       }`}>
-                        {subjectCards.length} kart mevcut
+                         {subjectCards.length} {t('common.cards')}
                       </div>
                       {selectedSubject === subject && (
                         <div className="mt-3">
                           <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
-                            ✨ Seçili
+                             ✨ {t('common.selected')}
                           </span>
                         </div>
                       )}
@@ -429,13 +440,13 @@ const Study = () => {
             {subjects.length === 0 && (
               <div className="text-center py-8">
                 <div className="text-5xl mb-4">📖</div>
-                <p className="text-white/80 text-lg mb-4">Henüz konu yok, hemen oluşturun!</p>
+                <p className="text-white/80 text-lg mb-4">{t('study.noSubjects')}</p>
                 <button
                   onClick={() => navigate('/create')}
                   className="px-6 py-3 rounded-2xl font-bold text-gray-800 transition-all duration-300 transform hover:scale-105"
                   style={{ background: 'rgba(255, 255, 255, 0.9)' }}
                 >
-                  🎯 İlk Kartını Oluştur
+                  🎯 {t('study.createFirstCard')}
                 </button>
               </div>
             )}
@@ -451,13 +462,13 @@ const Study = () => {
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}
           >
-            <h3 className="text-xl font-semibold text-white mb-6">Zorluk Seviyesi</h3>
+            <h3 className="text-xl font-semibold text-white mb-6">{t('study.difficulty')}</h3>
             <div className="flex gap-4">
               {[
-                { label: 'Tümü', value: [], color: 'from-blue-500 to-blue-600' },
-                { label: 'Kolay', value: [1], color: 'from-green-500 to-green-600' },
-                { label: 'Orta', value: [2], color: 'from-yellow-500 to-orange-500' },
-                { label: 'Zor', value: [3], color: 'from-red-500 to-red-600' }
+                { label: t('study.all'), value: [], color: 'from-blue-500 to-blue-600' },
+                { label: t('study.easy'), value: [1], color: 'from-green-500 to-green-600' },
+                { label: t('study.medium'), value: [2], color: 'from-yellow-500 to-orange-500' },
+                { label: t('study.hard'), value: [3], color: 'from-red-500 to-red-600' }
               ].map(({ label, value, color }) => {
                 const isSelected = JSON.stringify(selectedDifficulties.sort()) === JSON.stringify(value.sort());
                 return (
@@ -492,7 +503,7 @@ const Study = () => {
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}
           >
-            <h3 className="text-xl font-semibold text-white mb-6">Soru Sayısı</h3>
+            <h3 className="text-xl font-semibold text-white mb-6">{t('study.questionCount')}</h3>
             <div className="flex items-center gap-6">
               <input
                 type="range"
@@ -544,7 +555,7 @@ const Study = () => {
                     style={{ background: 'rgba(239, 68, 68, 0.3)', border: '1px solid rgba(239, 68, 68, 0.5)' }}
                   >
                     <AlertCircle className="w-5 h-5" />
-                    Bu kriterlere uygun hiç kart bulunamadı.
+                    {t('study.noCardsMatch')}
                   </div>
                 );
               }
@@ -562,7 +573,7 @@ const Study = () => {
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}
           >
-            <h3 className="text-xl font-semibold text-white mb-6">Çalışma Tipi</h3>
+            <h3 className="text-xl font-semibold text-white mb-6">{t('study.type')}</h3>
             <div className="grid grid-cols-2 gap-6">
               <button
                 type="button"
@@ -588,12 +599,8 @@ const Study = () => {
                   >
                     <RotateCcw className={`w-8 h-8 ${sessionType === 'practice' ? 'text-white' : 'text-white/80'}`} />
                   </div>
-                  <div className={`text-xl font-bold mb-2 ${sessionType === 'practice' ? 'text-gray-800' : 'text-white'}`}>
-                    Pratik
-                  </div>
-                  <div className={`text-sm ${sessionType === 'practice' ? 'text-gray-600' : 'text-white/80'}`}>
-                    Spaced repetition ile öğren
-                  </div>
+                  <div className={`text-xl font-bold mb-2 ${sessionType === 'practice' ? 'text-gray-800' : 'text-white'}`}>{t('study.practice')}</div>
+                  <div className={`text-sm ${sessionType === 'practice' ? 'text-gray-600' : 'text-white/80'}`}>{t('study.practice.desc')}</div>
                 </div>
               </button>
               
@@ -621,12 +628,8 @@ const Study = () => {
                   >
                     <Clock className={`w-8 h-8 ${sessionType === 'test' ? 'text-white' : 'text-white/80'}`} />
                   </div>
-                  <div className={`text-xl font-bold mb-2 ${sessionType === 'test' ? 'text-gray-800' : 'text-white'}`}>
-                    Test
-                  </div>
-                  <div className={`text-sm ${sessionType === 'test' ? 'text-gray-600' : 'text-white/80'}`}>
-                    Hızlı çözüm
-                  </div>
+                  <div className={`text-xl font-bold mb-2 ${sessionType === 'test' ? 'text-gray-800' : 'text-white'}`}>{t('study.test')}</div>
+                  <div className={`text-sm ${sessionType === 'test' ? 'text-gray-600' : 'text-white/80'}`}>{t('study.test.desc')}</div>
                 </div>
               </button>
             </div>
@@ -649,12 +652,12 @@ const Study = () => {
               {cards.length > 0 ? (
                 <>
                   <Play className="w-8 h-8" />
-                  🚀 Hadi Başlayalım!
+                  🚀 {t('study.start')}
                 </>
               ) : (
                 <>
                   <AlertCircle className="w-8 h-8" />
-                  ⚠️ Kart Yok
+                  ⚠️ {t('study.noCards')}
                 </>
               )}
             </button>
@@ -716,11 +719,11 @@ const Study = () => {
               className="flex items-center gap-2 px-4 py-2 text-white/90 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Çıkış</span>
+              <span>{t('study.exit')}</span>
             </button>
             
             <div className="text-white/90 text-sm font-medium">
-              {sessionType === 'practice' ? '🎯 Pratik Modu' : '⚡ Test Modu'}
+              {sessionType === 'practice' ? t('study.practiceMode') : t('study.testMode')}
             </div>
           </div>
 
@@ -734,12 +737,8 @@ const Study = () => {
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-white/90 font-medium">
-                Soru {currentQuestionIndex + 1} / {localSessionCards.length}
-              </span>
-              <span className="text-white/90 font-medium">
-                %{Math.round(progress)} tamamlandı
-              </span>
+              <span className="text-white/90 font-medium">{t('study.question')} {currentQuestionIndex + 1} / {localSessionCards.length}</span>
+              <span className="text-white/90 font-medium">%{Math.round(progress)} {t('study.completed')}</span>
             </div>
             
             <div 
@@ -791,7 +790,7 @@ const Study = () => {
                     color: 'white'
                   }}
                 >
-                  {currentCard.difficulty === 1 ? '🟢 Kolay' : currentCard.difficulty === 2 ? '🟡 Orta' : '🔴 Zor'}
+                  {currentCard.difficulty === 1 ? `🟢 ${t('study.easy')}` : currentCard.difficulty === 2 ? `🟡 ${t('study.medium')}` : `🔴 ${t('study.hard')}`}
                 </span>
               </div>
 
@@ -802,7 +801,7 @@ const Study = () => {
                   color: '#667eea'
                 }}
               >
-                {currentCard.question_type === 'fill_in_blank' ? '✏️ Boşluk Doldurma' : '📋 Çoktan Seçmeli'}
+                {currentCard.question_type === 'fill_in_blank' ? t('study.fillInBlank') : t('study.multipleChoice')}
               </div>
             </div>
 
@@ -818,7 +817,7 @@ const Study = () => {
                 >
                   <img
                     src={currentCard.image_path}
-                    alt="Soru görseli"
+                    alt="question image"
                     className="max-w-full h-64 object-contain mx-auto rounded-xl"
                   />
                 </div>
@@ -980,12 +979,12 @@ const Study = () => {
                             <XCircle className="w-8 h-8 text-red-600 mr-3" />
                           )}
                           <span className="text-xl font-bold text-gray-800">
-                            {isCorrect ? '🎉 Harika! Doğru cevap!' : '❌ Yanlış cevap'}
+                            {isCorrect ? t('study.correct') : t('study.wrong')}
                           </span>
                         </div>
                         {!isCorrect && (
                           <p className="text-gray-600 text-lg">
-                            Doğru cevap: <span className="font-semibold text-green-600">{correctAnswer}</span>
+                            {t('study.correctAnswer')} <span className="font-semibold text-green-600">{correctAnswer}</span>
                           </p>
                         )}
                       </div>
@@ -998,12 +997,12 @@ const Study = () => {
             {/* Zorluk güncelleme butonları */}
             {isAnswered && (
               <div className="mt-8 text-center">
-                <h4 className="text-lg font-semibold text-gray-700 mb-6">Bu soru sizin için nasıldı?</h4>
+                <h4 className="text-lg font-semibold text-gray-700 mb-6">{t('study.howWasQuestion')}</h4>
                 <div className="flex justify-center items-center gap-4">
                   {[
-                    { label: '🟢 Kolay', value: 1, color: 'linear-gradient(135deg, #10b981, #059669)' },
-                    { label: '🟡 Orta', value: 2, color: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-                    { label: '🔴 Zor', value: 3, color: 'linear-gradient(135deg, #ef4444, #dc2626)' }
+                    { label: `🟢 ${t('study.easy')}`, value: 1, color: 'linear-gradient(135deg, #10b981, #059669)' },
+                    { label: `🟡 ${t('study.medium')}`, value: 2, color: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+                    { label: `🔴 ${t('study.hard')}`, value: 3, color: 'linear-gradient(135deg, #ef4444, #dc2626)' }
                   ].map(({ label, value, color }) => (
                     <button
                       key={value}
@@ -1027,6 +1026,19 @@ const Study = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Skip / Geç */}
+            {!isAnswered && (
+              <div className="mt-8 text-center">
+                <button
+                  onClick={handleSkip}
+                  className="px-6 py-3 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105"
+                  style={{ background: 'linear-gradient(135deg, #6b7280, #4b5563)' }}
+                >
+                  {t('study.skip')}
+                </button>
               </div>
             )}
 
@@ -1080,12 +1092,8 @@ const Study = () => {
             >
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-4">
-              🎉 Çalışma Tamamlandı!
-            </h1>
-            <p className="text-white/90 text-xl">
-              Harika iş çıkardınız. İşte sonuçlarınız:
-            </p>
+            <h1 className="text-4xl font-bold text-white mb-4">{t('study.completedTitle')}</h1>
+            <p className="text-white/90 text-xl">{t('study.completedDesc')}</p>
           </div>
 
           {/* Sonuç kartları */}
@@ -1108,7 +1116,7 @@ const Study = () => {
               <div className="text-3xl font-bold text-green-600 mb-2">
                 {correctAnswers}
               </div>
-              <div className="text-gray-600 font-medium">✅ Doğru Cevap</div>
+              <div className="text-gray-600 font-medium">{t('study.correctCount')}</div>
             </div>
 
             <div 
@@ -1129,7 +1137,7 @@ const Study = () => {
               <div className="text-3xl font-bold text-red-600 mb-2">
                 {incorrectAnswers}
               </div>
-              <div className="text-gray-600 font-medium">❌ Yanlış Cevap</div>
+              <div className="text-gray-600 font-medium">{t('study.wrongCount')}</div>
             </div>
 
             <div 
@@ -1150,7 +1158,7 @@ const Study = () => {
               <div className="text-3xl font-bold text-gray-800 mb-2">
                 {localSessionCards.length}
               </div>
-              <div className="text-gray-600 font-medium">📊 Toplam Soru</div>
+              <div className="text-gray-600 font-medium">{t('study.totalQuestions')}</div>
             </div>
 
             <div 
@@ -1177,7 +1185,7 @@ const Study = () => {
               }`}>
                 %{accuracy}
               </div>
-              <div className="text-gray-600 font-medium">🎯 Başarı Oranı</div>
+              <div className="text-gray-600 font-medium">{t('study.successRate')}</div>
             </div>
           </div>
 
@@ -1191,9 +1199,7 @@ const Study = () => {
               boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
             }}
           >
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              📋 Soru Bazlı Sonuçlar
-            </h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">{t('study.perQuestionResults')}</h3>
             <div className="space-y-3">
               {localSessionCards.map((card, index) => {
                 const userAnswer = userAnswers[card.id];
@@ -1253,7 +1259,7 @@ const Study = () => {
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center">
-                            <span className="text-gray-600 font-medium mr-2">Verdiğiniz cevap:</span>
+                             <span className="text-gray-600 font-medium mr-2">{t('study.givenAnswer')}</span>
                             <span 
                               className="px-3 py-1 rounded-xl font-bold text-white"
                               style={{
@@ -1267,7 +1273,7 @@ const Study = () => {
                           </div>
                           {!isCorrect && (
                             <div className="flex items-center">
-                              <span className="text-gray-600 font-medium mr-2">Doğru cevap:</span>
+                              <span className="text-gray-600 font-medium mr-2">{t('study.rightAnswer')}</span>
                               <span 
                                 className="px-3 py-1 rounded-xl font-bold text-white"
                                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
@@ -1311,13 +1317,13 @@ const Study = () => {
             }}
           >
             <div className="flex flex-wrap justify-center gap-6">
-              <button
+                <button
                 onClick={restartStudy}
                 className="flex items-center px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
               >
                 <RotateCcw className="w-6 h-6 mr-3" />
-                🔄 Tekrar Çalış
+                  🔄 {t('study.retry')}
               </button>
               
               {incorrectAnswers > 0 && (
@@ -1327,20 +1333,20 @@ const Study = () => {
                   style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
                 >
                   <AlertCircle className="w-6 h-6 mr-3" />
-                  ❌ Yanlışları Tekrar Et ({incorrectAnswers})
+                  {t('study.retryIncorrect')} ({incorrectAnswers})
                 </button>
               )}
 
-              <button
+                <button
                 onClick={() => navigate('/statistics')}
                 className="flex items-center px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
               >
                 <BarChart3 className="w-6 h-6 mr-3" />
-                📊 İstatistikleri Gör
+                  {t('study.viewStatistics')}
               </button>
 
-              <button
+                <button
                 onClick={() => {
                   endCurrentSession();
                   navigate('/');
@@ -1348,7 +1354,7 @@ const Study = () => {
                 className="flex items-center px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}
               >
-                🏠 Ana Sayfa
+                  {t('study.home')}
               </button>
             </div>
           </div>

@@ -318,8 +318,9 @@ function parseJSON(content: string): ImportResult {
         } else {
           result.warnings.push(`Kart ${index + 1}: ${validation.errors.join(', ')}`);
         }
-      } catch (error) {
-        result.warnings.push(`Kart ${index + 1}: Ayrıştırma hatası - ${error.message}`);
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        result.warnings.push(`Kart ${index + 1}: Ayrıştırma hatası - ${msg}`);
       }
     });
     
@@ -330,7 +331,8 @@ function parseJSON(content: string): ImportResult {
     }
     
   } catch (error) {
-    result.errors.push('JSON ayrıştırma hatası: ' + error.message);
+    const msg = error instanceof Error ? error.message : String(error);
+    result.errors.push('JSON ayrıştırma hatası: ' + msg);
   }
   
   return result;
@@ -415,7 +417,8 @@ function parseXML(content: string): ImportResult {
           result.warnings.push(`Kart ${index + 1}: ${validation.errors.join(', ')}`);
         }
       } catch (error) {
-        result.warnings.push(`Kart ${index + 1}: Ayrıştırma hatası - ${error.message}`);
+        const msg = error instanceof Error ? error.message : String(error);
+        result.warnings.push(`Kart ${index + 1}: Ayrıştırma hatası - ${msg}`);
       }
     });
     
@@ -426,7 +429,8 @@ function parseXML(content: string): ImportResult {
     }
     
   } catch (error) {
-    result.errors.push('XML işleme hatası: ' + error.message);
+    const msg = error instanceof Error ? error.message : String(error);
+    result.errors.push('XML işleme hatası: ' + msg);
   }
   
   return result;
@@ -535,7 +539,8 @@ function parseCSV(content: string): ImportResult {
           result.warnings.push(`Satır ${i + 1}: ${validation.errors.join(', ')}`);
         }
       } catch (error) {
-        result.warnings.push(`Satır ${i + 1}: Ayrıştırma hatası - ${error.message}`);
+        const msg = error instanceof Error ? error.message : String(error);
+        result.warnings.push(`Satır ${i + 1}: Ayrıştırma hatası - ${msg}`);
       }
     }
     
@@ -546,7 +551,8 @@ function parseCSV(content: string): ImportResult {
     }
     
   } catch (error) {
-    result.errors.push('CSV işleme hatası: ' + error.message);
+    const msg = error instanceof Error ? error.message : String(error);
+    result.errors.push('CSV işleme hatası: ' + msg);
   }
   
   return result;
@@ -604,10 +610,11 @@ export async function importCards(file: File): Promise<ImportResult> {
         };
     }
   } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
     return {
       success: false,
       cards: [],
-      errors: ['Dosya okuma hatası: ' + error.message],
+      errors: ['Dosya okuma hatası: ' + msg],
       warnings: [],
       totalProcessed: 0
     };

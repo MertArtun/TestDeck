@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Upload, Download, FileText, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
 import { createCard, createMultipleCards } from '../database/database';
 import { Card } from '../types/database';
+import { useToastStore } from '../store/toastStore';
+import { useI18n } from '../i18n';
 
 interface JSONQuestion {
   question: string;
@@ -35,6 +37,8 @@ const CreateCard = () => {
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [importMessage, setImportMessage] = useState('');
   const [showJsonImport, setShowJsonImport] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
+  const { t } = useI18n();
   
   // Save status
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -55,24 +59,24 @@ const CreateCard = () => {
 
   const handleManualSave = async () => {
     if (!question.trim()) {
-      alert('Lütfen soru alanını doldurun.');
+      alert(t('create.validation.fillQuestion'));
       return;
     }
 
     if (questionType === 'multiple_choice') {
       if (!optionA.trim() || !optionB.trim() || !optionC.trim() || !optionD.trim()) {
-        alert('Lütfen soru ve en az 4 seçenek doldurun.');
+        alert(t('create.validation.fillOptions4'));
         return;
       }
     } else if (questionType === 'fill_in_blank') {
       if (!blankAnswer.trim()) {
-        alert('Lütfen boşluk doldurma cevabını doldurun.');
+        alert(t('create.validation.fillBlankAnswer'));
         return;
       }
     }
 
     if (!subject.trim()) {
-      alert('Lütfen konu alanını doldurun.');
+      alert(t('create.validation.fillSubject'));
       return;
     }
 
@@ -95,12 +99,14 @@ const CreateCard = () => {
 
       await createCard(newCard);
       setSaveStatus('success');
+      addToast({ type: 'success', title: 'Kart kaydedildi', message: 'Yeni kart başarıyla oluşturuldu' });
       resetForm();
       
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (error) {
       console.error('Kart kaydedilirken hata:', error);
       setSaveStatus('error');
+      addToast({ type: 'error', title: 'Hata', message: 'Kart kaydedilemedi' });
       setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
@@ -108,7 +114,7 @@ const CreateCard = () => {
   const handleJsonImport = async () => {
     if (!jsonText.trim()) {
       setImportStatus('error');
-      setImportMessage('JSON metin alanı boş.');
+      setImportMessage(t('create.import.empty'));
       return;
     }
 
@@ -215,6 +221,7 @@ const CreateCard = () => {
       
       setImportStatus('success');
       setImportMessage(`${cards.length} kart başarıyla içe aktarıldı.`);
+      addToast({ type: 'success', title: 'İçe aktarma', message: `${cards.length} kart eklendi` });
       setJsonText('');
       setShowJsonImport(false);
       
@@ -226,7 +233,8 @@ const CreateCard = () => {
     } catch (error) {
       console.error('JSON import hatası:', error);
       setImportStatus('error');
-      setImportMessage(error instanceof Error ? error.message : 'JSON parse edilemedi.');
+      setImportMessage(error instanceof Error ? error.message : t('create.import.parseError'));
+      addToast({ type: 'error', title: 'İçe aktarma hatası', message: 'Dosya işlenemedi' });
     }
   };
 
@@ -239,8 +247,27 @@ const CreateCard = () => {
       const content = e.target?.result as string;
       setJsonText(content);
       setShowJsonImport(true);
+      addToast({ type: 'info', title: 'Dosya yüklendi', message: file.name });
     };
     reader.readAsText(file);
+  };
+
+  // Drag & Drop import handlers
+  const onDropFile = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const content = ev.target?.result as string;
+      setJsonText(content);
+      setShowJsonImport(true);
+      addToast({ type: 'info', title: 'Dosya bırakıldı', message: file.name });
+    };
+    reader.readAsText(file);
+  };
+  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
   };
 
   const exportSampleJson = () => {
@@ -299,12 +326,8 @@ const CreateCard = () => {
             border: '1px solid rgba(255, 255, 255, 0.2)'
           }}
         >
-          <h1 className="text-5xl font-bold text-white mb-4">
-            ✨ Kart Oluştur
-          </h1>
-          <p className="text-xl text-white/90">
-            Yeni çalışma kartları oluşturun veya JSON dosyasından toplu olarak içe aktarın.
-          </p>
+          <h1 className="text-5xl font-bold text-white mb-4">✨ {t('create.title')}</h1>
+          <p className="text-xl text-white/90">{t('create.subtitle')}</p>
         </div>
 
       {/* Status Messages */}
@@ -319,7 +342,7 @@ const CreateCard = () => {
       )}
 
       {/* Action Buttons */}
-      <div 
+        <div 
         className="mb-12 p-8 rounded-3xl"
         style={{
           background: 'rgba(255, 255, 255, 0.1)',
@@ -327,7 +350,7 @@ const CreateCard = () => {
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
-        <h2 className="text-2xl font-bold text-white mb-6">⚡ Hızlı İşlemler</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{t('create.quickActions')}</h2>
         <div className="flex flex-wrap gap-6">
           <button
             onClick={() => setShowJsonImport(!showJsonImport)}
@@ -335,7 +358,7 @@ const CreateCard = () => {
             style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}
           >
             <Upload size={24} />
-            📄 JSON İçe Aktar
+            {t('create.jsonImport')}
           </button>
           
           <button
@@ -344,7 +367,7 @@ const CreateCard = () => {
             style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
           >
             <FileText size={24} />
-            📁 Dosyadan Yükle
+            {t('create.fromFile')}
           </button>
           
           <button
@@ -353,7 +376,7 @@ const CreateCard = () => {
             style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
           >
             <Download size={24} />
-            💾 Örnek JSON İndir
+            {t('create.sampleDownload')}
           </button>
           
           <input
@@ -364,6 +387,19 @@ const CreateCard = () => {
             className="hidden"
           />
         </div>
+
+          {/* Drag & Drop import area */}
+          <div
+            onDrop={onDropFile}
+            onDragOver={onDragOver}
+            className="mt-6 border-2 border-dashed rounded-2xl p-6 text-white/90"
+            style={{ borderColor: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.06)' }}
+          >
+            <div className="text-center">
+              <p className="font-semibold">{t('create.dragDrop.title')}</p>
+              <p className="text-sm opacity-80">{t('create.dragDrop.sub')}</p>
+            </div>
+          </div>
       </div>
 
       {/* JSON Import Section */}
@@ -378,9 +414,7 @@ const CreateCard = () => {
           }}
         >
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-gray-800 flex items-center">
-              📄 JSON İçe Aktarma
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-800 flex items-center">{t('create.importTitle')}</h2>
             <button
               onClick={() => setShowJsonImport(false)}
               className="p-3 rounded-full transition-all duration-300 hover:scale-110 text-gray-600 hover:text-gray-800"
@@ -393,7 +427,7 @@ const CreateCard = () => {
           <textarea
             value={jsonText}
             onChange={(e) => setJsonText(e.target.value)}
-            placeholder="JSON verilerini buraya yapıştırın..."
+            placeholder={t('create.pasteJson')}
             className="mb-6 h-48 w-full rounded-2xl p-6 font-mono text-lg border-2 border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300"
             style={{
               background: 'rgba(255, 255, 255, 0.8)',
@@ -408,7 +442,7 @@ const CreateCard = () => {
             style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}
           >
             <Upload size={24} />
-            📤 İçe Aktar
+            {t('create.import')}
           </button>
           
           <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
@@ -430,14 +464,12 @@ const CreateCard = () => {
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
         }}
       >
-        <h2 className="mb-8 text-3xl font-bold text-gray-800">✏️ Manuel Kart Oluşturma</h2>
+        <h2 className="mb-8 text-3xl font-bold text-gray-800">{t('create.manualTitle')}</h2>
         
         <div className="space-y-6">
           {/* Question Type */}
           <div>
-            <label className="mb-4 block text-lg font-bold text-gray-800">
-              📝 Soru Tipi *
-            </label>
+            <label className="mb-4 block text-lg font-bold text-gray-800">{t('create.questionType')}</label>
             <div className="flex gap-6">
               <button
                 type="button"
@@ -454,16 +486,8 @@ const CreateCard = () => {
                 }}
               >
                 <div className="text-center">
-                  <div className={`text-xl font-bold mb-2 ${
-                    questionType === 'multiple_choice' ? 'text-white' : 'text-gray-800'
-                  }`}>
-                    🔘 Çoktan Seçmeli
-                  </div>
-                  <div className={`text-sm ${
-                    questionType === 'multiple_choice' ? 'text-white/90' : 'text-gray-600'
-                  }`}>
-                    A, B, C, D seçenekleri
-                  </div>
+                    <div className={`text-xl font-bold mb-2 ${questionType === 'multiple_choice' ? 'text-white' : 'text-gray-800'}`}>{t('create.multipleChoice')}</div>
+                    <div className={`text-sm ${questionType === 'multiple_choice' ? 'text-white/90' : 'text-gray-600'}`}>{t('create.multipleChoice.desc')}</div>
                 </div>
               </button>
               
@@ -482,16 +506,8 @@ const CreateCard = () => {
                 }}
               >
                 <div className="text-center">
-                  <div className={`text-xl font-bold mb-2 ${
-                    questionType === 'fill_in_blank' ? 'text-white' : 'text-gray-800'
-                  }`}>
-                    📝 Boşluk Doldurma
-                  </div>
-                  <div className={`text-sm ${
-                    questionType === 'fill_in_blank' ? 'text-white/90' : 'text-gray-600'
-                  }`}>
-                    Metin tabanlı cevap
-                  </div>
+                    <div className={`text-xl font-bold mb-2 ${questionType === 'fill_in_blank' ? 'text-white' : 'text-gray-800'}`}>{t('create.fillInBlank')}</div>
+                    <div className={`text-sm ${questionType === 'fill_in_blank' ? 'text-white/90' : 'text-gray-600'}`}>{t('create.fillInBlank.desc')}</div>
                 </div>
               </button>
             </div>
@@ -499,9 +515,7 @@ const CreateCard = () => {
 
           {/* Question */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Soru *
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t('create.question')}</label>
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -513,7 +527,7 @@ const CreateCard = () => {
             />
             {questionType === 'fill_in_blank' && (
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                💡 İpucu: Boşluk bırakmak istediğiniz yeri <code className="bg-gray-100 px-1 dark:bg-gray-700">_____</code> ile işaretleyin
+                {t('create.answerHint')} <code className="bg-gray-100 px-1 dark:bg-gray-700">_____</code>
               </p>
             )}
           </div>
@@ -521,9 +535,7 @@ const CreateCard = () => {
           {/* Multiple Choice Options */}
           {questionType === 'multiple_choice' && (
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Seçenekler *
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t('create.options')}</label>
               <div className="space-y-3">
                 {/* Option A */}
                 <div className="flex gap-3">
@@ -539,7 +551,7 @@ const CreateCard = () => {
                     type="text"
                     value={optionA}
                     onChange={(e) => setOptionA(e.target.value)}
-                    placeholder="Seçenek A"
+                      placeholder={`${t('create.option')} A`}
                     className="flex-1 rounded-lg border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -558,7 +570,7 @@ const CreateCard = () => {
                     type="text"
                     value={optionB}
                     onChange={(e) => setOptionB(e.target.value)}
-                    placeholder="Seçenek B"
+                      placeholder={`${t('create.option')} B`}
                     className="flex-1 rounded-lg border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -577,7 +589,7 @@ const CreateCard = () => {
                     type="text"
                     value={optionC}
                     onChange={(e) => setOptionC(e.target.value)}
-                    placeholder="Seçenek C"
+                      placeholder={`${t('create.option')} C`}
                     className="flex-1 rounded-lg border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -596,7 +608,7 @@ const CreateCard = () => {
                     type="text"
                     value={optionD}
                     onChange={(e) => setOptionD(e.target.value)}
-                    placeholder="Seçenek D"
+                      placeholder={`${t('create.option')} D`}
                     className="flex-1 rounded-lg border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -615,7 +627,7 @@ const CreateCard = () => {
                     type="text"
                     value={optionE}
                     onChange={(e) => setOptionE(e.target.value)}
-                    placeholder="Seçenek E (isteğe bağlı)"
+                      placeholder={`${t('create.optionOptional')}`}
                     className="flex-1 rounded-lg border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -626,14 +638,12 @@ const CreateCard = () => {
           {/* Fill in Blank Answer */}
           {questionType === 'fill_in_blank' && (
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Doğru Cevap *
-              </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t('create.answer')}</label>
               <input
                 type="text"
                 value={blankAnswer}
                 onChange={(e) => setBlankAnswer(e.target.value)}
-                placeholder="Boşluğun doğru cevabını yazın..."
+                placeholder={t('create.answer')}
                 className="w-full rounded-lg border border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -645,22 +655,18 @@ const CreateCard = () => {
           {/* Subject and Difficulty */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Konu *
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t('create.subject')}</label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Örn: Matematik, Tarih, Coğrafya..."
+                placeholder={t('create.subject.placeholder')}
                 className="w-full rounded-lg border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Zorluk
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t('create.difficulty')}</label>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(parseInt(e.target.value))}
@@ -691,22 +697,22 @@ const CreateCard = () => {
               {saveStatus === 'saving' ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Kaydediliyor...
+                  {t('create.saving')}
                 </>
               ) : saveStatus === 'success' ? (
                 <>
                   <CheckCircle size={20} />
-                  Kaydedildi!
+                  {t('create.saved')}
                 </>
               ) : saveStatus === 'error' ? (
                 <>
                   <AlertCircle size={20} />
-                  Hata!
+                  {t('create.error')}
                 </>
               ) : (
                 <>
                   <Save size={20} />
-                  Kartı Kaydet
+                  {t('create.save')}
                 </>
               )}
             </button>

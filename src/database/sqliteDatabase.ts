@@ -93,6 +93,17 @@ export async function deleteCard(id: number): Promise<void> {
   }
 }
 
+export async function deleteAllCards(): Promise<void> {
+  try {
+    console.log('🗑️ Tüm kartlar ve ilgili veriler siliniyor...');
+    await invoke('delete_all_cards');
+    console.log('✅ Tüm kartlar başarıyla silindi');
+  } catch (error) {
+    console.error('❌ Toplu kart silme hatası:', error);
+    throw new Error(`Kartlar silinemedi: ${error}`);
+  }
+}
+
 // Session operations
 export async function createSession(session: Omit<Session, 'id'>): Promise<number> {
   try {
@@ -122,8 +133,10 @@ export async function recordAttempt(attempt: Omit<Attempt, 'id' | 'attempted_at'
   try {
     const attemptWithTimestamp = {
       ...attempt,
-      attempted_at: new Date().toISOString()
-    };
+      attempted_at: new Date().toISOString(),
+      // Backend expects time_taken, while frontend types use time_spent
+      time_taken: (attempt as any).time_spent ?? (attempt as any).time_taken ?? 0,
+    } as any;
     
     console.log('📝 Deneme kaydediliyor:', attemptWithTimestamp);
     const attemptId = await invoke<number>('record_attempt', { attempt: attemptWithTimestamp });
@@ -151,8 +164,19 @@ export async function getSubjectStats(): Promise<any[]> {
 export async function getDailyStats(days: number = 30): Promise<any[]> {
   try {
     console.log(`📈 Son ${days} günün istatistikleri yükleniyor...`);
-    const stats = await invoke<any[]>('get_daily_stats', { days });
-    console.log(`✅ ${stats.length} günlük istatistik yüklendi`);
+    const rawStats = await invoke<any[]>('get_daily_stats', { days });
+    console.log(`✅ ${rawStats.length} günlük istatistik yüklendi`);
+
+    // Normalize field names to match frontend expectations
+    // Backend returns: { date, sessions, total_questions, correct_answers, accuracy }
+    // Frontend expects: { date, questions_answered, correct_answers, accuracy, study_time }
+    const stats = rawStats.map((s: any) => ({
+      date: s.date,
+      questions_answered: s.questions_answered ?? s.total_questions ?? 0,
+      correct_answers: s.correct_answers ?? 0,
+      accuracy: s.accuracy ?? 0,
+      study_time: s.study_time ?? 0,
+    }));
     return stats;
   } catch (error) {
     console.error('❌ Günlük istatistikler yükleme hatası:', error);
