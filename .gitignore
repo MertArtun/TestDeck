@@ -148,7 +148,8 @@ playwright-report/
 test-results.xml
 
 # Package managers
-package-lock.json
+# Keep lockfile for reproducible CI builds
+!package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
