@@ -2,23 +2,22 @@
 
 # 🎓 TestDeck Local
 
-**Modern, offline personal flashcard and quiz application**
-
-_Effective learning experience with spaced repetition algorithm_
+Modern, offline flashcards & quiz app for focused learning
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/MertArtun/TestDeck/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#-installation)
-[![Tauri](https://img.shields.io/badge/Tauri-v1.8-orange.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#-quick-start)
+[![CI](https://github.com/MertArtun/TestDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/MertArtun/TestDeck/actions)
 
-[📖 Demo](#-screenshots) • [🚀 Installation](#-quick-start) • [📚 Documentation](#-usage) • [🤝 Contributing](#-contributing)
+_English • [Türkçe](README_TR.md)_
+
+**[Screenshots](#-screenshots) · [Install](#-quick-start) · [Usage](#-usage) · [Tech Stack](#-tech-stack) · [Contributing](#-contributing)**
 
 </div>
 
 ---
 
-## 🌟 Key Features
+## 🌟 Highlights
 
 <table>
 <tr>
@@ -101,11 +100,8 @@ _Focused learning experience_
 
 ## 🚀 Quick Start
 
-### 🔗 Live Demo (GitHub Pages)
-
-Bu repoda otomatik olarak GitHub Pages’a web build’i deploy edilir. Ziyaret edin:
-
-- https://mertartun.github.io/TestDeck/
+<!-- Live Demo: Uncomment when Pages is stable -->
+<!-- https://mertartun.github.io/TestDeck/ -->
 
 ### 📋 Requirements
 
@@ -144,7 +140,7 @@ npm run build
 | Category     | Technology            | Description                  |
 | ------------ | --------------------- | ---------------------------- |
 | **Frontend** | React 18 + TypeScript | Modern UI framework          |
-| **Desktop**  | Tauri v1.8            | Rust-based desktop wrapper   |
+| **Desktop**  | Tauri v1              | Rust-based desktop wrapper   |
 | **Styling**  | Tailwind CSS          | Utility-first CSS framework  |
 | **State**    | Zustand               | Lightweight state management |
 | **Database** | SQLite                | Local database               |
