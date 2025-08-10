@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Programlama Soruları Ekle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Web Programlama Soruları Ekle</h1>
+        <p>Bu sayfa Web Programlama dersi için hazırlanan 35 soruyu sisteme ekleyecektir.</p>
+        
+        <div id="status" class="status"></div>
+        
+        <button id="addQuestionsBtn" onclick="addQuestions()">
+            📚 Web Programlama Sorularını Ekle
+        </button>
+        
+        <div id="questionsList" style="margin-top: 20px;"></div>
+    </div>
+
+    <script type="module">
+        import { addWebProgrammingQuestions } from '../src/scripts/addWebProgrammingQuestions.js';
+        
+        window.addQuestions = async function() {
+            const statusDiv = document.getElementById('status');
+            const button = document.getElementById('addQuestionsBtn');
+            const questionsList = document.getElementById('questionsList');
+            
+            try {
+                // Loading state
+                statusDiv.className = 'status loading';
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = '⏳ Sorular ekleniyor, lütfen bekleyin...';
+                button.disabled = true;
+                
+                // Add questions
+                const ids = await addWebProgrammingQuestions();
+                
+                // Success state
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `✅ Başarılı! ${ids.length} Web Programlama sorusu sisteme eklendi.`;
+                
+                // Show added questions info
+                questionsList.innerHTML = `
+                    <h3>✨ Eklenen Sorular:</h3>
+                    <ul>
+                        <li>📖 Toplam: ${ids.length} soru</li>
+                        <li>📚 Konu: Web Programlama</li>
+                        <li>⚖️ Zorluk: Orta seviye</li>
+                        <li>🔗 PHP, HTML, SQL, Database konuları</li>
+                    </ul>
+                    <p><strong>Ana uygulamaya dönebilirsiniz!</strong></p>
+                `;
+                
+                button.innerHTML = '✅ Sorular Eklendi!';
+                button.style.background = '#28a745';
+                
+            } catch (error) {
+                console.error('Hata:', error);
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ Hata: ${error.message || 'Sorular eklenirken bir hata oluştu'}`;
+                button.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html> 
