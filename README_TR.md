@@ -4,7 +4,7 @@
 
 **Modern, offline personal flashcard and quiz application**
 
-*Effective learning experience with spaced repetition algorithm*
+_Effective learning experience with spaced repetition algorithm_
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/YOUR_USERNAME/testdeck-local/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -25,6 +25,7 @@
 <td width="50%">
 
 ### 🧠 Smart Learning
+
 - **SM-2 Algorithm** with personalized review intervals
 - **Spaced Repetition** system for long-term memory
 - **Adaptive difficulty** level adjustment
@@ -34,6 +35,7 @@
 <td width="50%">
 
 ### 🔒 Privacy Focused
+
 - **100% Offline** - no internet required
 - **Local SQLite** database
 - **Personal data** never sent anywhere
@@ -45,6 +47,7 @@
 <td>
 
 ### 📝 Rich Content
+
 - **5-choice** quiz questions (A-E)
 - **Image support** (JPEG/PNG ≤5MB)
 - **Unlimited subject** categories
@@ -54,6 +57,7 @@
 <td>
 
 ### 📊 Detailed Statistics
+
 - **Daily performance** charts
 - **Subject-based** success analysis
 - **Time tracking** and study duration
@@ -76,19 +80,22 @@
 <div align="center">
 
 ### 🏠 Ana Dashboard
-*Günlük istatistikler ve hızlı erişim*
 
-![Dashboard](docs/screenshots/dashboard.png)
+_Günlük istatistikler ve hızlı erişim_
+
+![Dashboard](docs/screenshots/tr-dashboard.png)
 
 ### ✏️ Kart Oluşturma
-*Kolay ve intuitive kart oluşturma arayüzü*
 
-![Create Card](docs/screenshots/create-card.png)
+_Kolay ve intuitive kart oluşturma arayüzü_
+
+![Create Card](docs/screenshots/tr-create-card.png)
 
 ### 📚 Çalışma Modu
-*Fokuslu çalışma deneyimi*
 
-![Study Mode](docs/screenshots/study-mode.png)
+_Fokuslu çalışma deneyimi_
+
+![Study Mode](docs/screenshots/tr-study-mode.png)
 
 </div>
 
@@ -128,16 +135,16 @@ npm run build
 
 <div align="center">
 
-| Kategori | Teknoloji | Açıklama |
-|----------|-----------|----------|
-| **Frontend** | React 18 + TypeScript | Modern UI framework |
-| **Desktop** | Tauri v1.8 | Rust-based desktop wrapper |
-| **Styling** | Tailwind CSS | Utility-first CSS framework |
-| **State** | Zustand | Lightweight state management |
-| **Database** | SQLite | Local database |
-| **Charts** | Recharts | Interactive charts |
-| **Icons** | Lucide React | Beautiful icons |
-| **Build** | Vite | Fast build tool |
+| Kategori     | Teknoloji             | Açıklama                     |
+| ------------ | --------------------- | ---------------------------- |
+| **Frontend** | React 18 + TypeScript | Modern UI framework          |
+| **Desktop**  | Tauri v1.8            | Rust-based desktop wrapper   |
+| **Styling**  | Tailwind CSS          | Utility-first CSS framework  |
+| **State**    | Zustand               | Lightweight state management |
+| **Database** | SQLite                | Local database               |
+| **Charts**   | Recharts              | Interactive charts           |
+| **Icons**    | Lucide React          | Beautiful icons              |
+| **Build**    | Vite                  | Fast build tool              |
 
 </div>
 
@@ -167,19 +174,19 @@ E) array.length()
 
 ### 3️⃣ Çalışma Modları
 
-| Mod | Açıklama | Kullanım |
-|-----|----------|----------|
-| **📖 Öğrenme** | Yeni kartları öğrenme | İlk kez görülen kartlar |
-| **🔄 Tekrar** | Spaced repetition | Daha önce çalışılan kartlar |
-| **⚡ Hızlı Test** | Rastgele sorular | Genel tekrar |
-| **🎯 Konu Bazlı** | Belirli konular | Odaklanmış çalışma |
+| Mod               | Açıklama              | Kullanım                    |
+| ----------------- | --------------------- | --------------------------- |
+| **📖 Öğrenme**    | Yeni kartları öğrenme | İlk kez görülen kartlar     |
+| **🔄 Tekrar**     | Spaced repetition     | Daha önce çalışılan kartlar |
+| **⚡ Hızlı Test** | Rastgele sorular      | Genel tekrar                |
+| **🎯 Konu Bazlı** | Belirli konular       | Odaklanmış çalışma          |
 
 ### 4️⃣ SM-2 Algoritması
 
 TestDeck, **SuperMemo-2 algoritması** kullanarak kartların tekrar zamanlarını optimize eder:
 
 - 🎯 **İlk doğru**: 1 gün sonra
-- 🎯 **İkinci doğru**: 6 gün sonra  
+- 🎯 **İkinci doğru**: 6 gün sonra
 - 🎯 **Sonraki doğrular**: Ease Factor × önceki aralık
 - ❌ **Yanlış cevap**: Başa dön, 1 gün sonra
 
@@ -189,7 +196,7 @@ TestDeck, **SuperMemo-2 algoritması** kullanarak kartların tekrar zamanların�
 testdeck-local/
 ├── 📱 src/
 │   ├── 🧩 components/     # React bileşenleri
-│   ├── 📄 pages/          # Sayfa bileşenleri  
+│   ├── 📄 pages/          # Sayfa bileşenleri
 │   ├── 🗃️ database/       # SQLite işlemleri
 │   ├── 📊 store/          # State management
 │   ├── 🔧 utils/          # Yardımcı fonksiyonlar
@@ -199,17 +206,18 @@ testdeck-local/
 ├── 📖 docs/              # Dokümantasyon
 └── ⚙️ Config dosyaları
 ```
+
 ## 🔄 Roadmap
 
-### v0.2.0 - *Gelişmiş Özellikler* 🚧
+### v0.2.0 - _Gelişmiş Özellikler_ 🚧
 
 - [ ] **🎵 Ses Desteği** - Ses kayıtları ekleme
-- [ ] **🎥 Video Desteği** - Video içerik ekleme  
+- [ ] **🎥 Video Desteği** - Video içerik ekleme
 - [ ] **☁️ Cloud Sync** - İsteğe bağlı bulut senkronizasyonu
 - [ ] **🎨 Tema Düzenleyici** - Özel renk temaları
 - [ ] **📤 Kart Paylaşımı** - Kart setlerini paylaşma
 
-### v0.3.0 - *Platform Genişletme* 🚀
+### v0.3.0 - _Platform Genişletme_ 🚀
 
 - [ ] **📱 Mobil App** - React Native versiyonu
 - [ ] **👥 Çoklu Kullanıcı** - Aile/takım desteği
@@ -217,20 +225,20 @@ testdeck-local/
 - [ ] **🔗 API** - Üçüncü parti entegrasyonlar
 - [ ] **🌐 Web App** - Tam web versiyonu
 
-### v1.0.0 - *Tam Sürüm* 🎯
+### v1.0.0 - _Tam Sürüm_ 🎯
 
 - [ ] **📚 Kart Mağazası** - Hazır kart setleri
-- [ ] **🏆 Gamification** - Rozet ve başarımlar  
+- [ ] **🏆 Gamification** - Rozet ve başarımlar
 - [ ] **📊 Gelişmiş Analitik** - ML tabanlı analizler
 - [ ] **🔔 Akıllı Bildirimler** - Öğrenme hatırlatıcıları
 
 ## 🐛 Bilinen Sorunlar
 
-| Sorun | Durum | Çözüm |
-|-------|--------|--------|
-| Büyük görseller performans sorunu | ⚠️ Bilinen | v0.2'de optimize edilecek |
-| İlk açılış veritabanı gecikmesi | ℹ️ Normal | ~2-3 saniye bekleme |
-| macOS Gatekeeper uyarısı | ℹ️ Beklenen | Ayarlar > Güvenlik'ten izin |
+| Sorun                             | Durum       | Çözüm                       |
+| --------------------------------- | ----------- | --------------------------- |
+| Büyük görseller performans sorunu | ⚠️ Bilinen  | v0.2'de optimize edilecek   |
+| İlk açılış veritabanı gecikmesi   | ℹ️ Normal   | ~2-3 saniye bekleme         |
+| macOS Gatekeeper uyarısı          | ℹ️ Beklenen | Ayarlar > Güvenlik'ten izin |
 
 > 🔍 **Sorun bildirmek için**: [Issues](https://github.com/YOUR_USERNAME/testdeck-local/issues) sayfasını kullanın
 
@@ -268,7 +276,7 @@ TestDeck Local'a katkıda bulunmak isterseniz:
 
 ```bash
 feat: yeni özellik
-fix: hata düzeltmesi  
+fix: hata düzeltmesi
 docs: dokümantasyon
 style: kod formatı
 refactor: kod yeniden düzenleme
@@ -306,7 +314,7 @@ MIT License - Özgürce kullanın, değiştirin, dağıtın! 🚀
 TestDeck Local'ı mümkün kılan harika teknolojilere teşekkürler:
 
 - 🧠 **[SuperMemo](https://www.supermemo.com/)** - SM-2 algoritması için
-- 🦀 **[Tauri Team](https://tauri.app/)** - Müthiş framework için  
+- 🦀 **[Tauri Team](https://tauri.app/)** - Müthiş framework için
 - ⚛️ **[React Team](https://reactjs.org/)** - UI library için
 - 🎨 **[Tailwind CSS](https://tailwindcss.com/)** - Styling için
 - 🔒 **[SQLite](https://sqlite.org/)** - Güvenilir veritabanı için
@@ -315,9 +323,9 @@ TestDeck Local'ı mümkün kılan harika teknolojilere teşekkürler:
 
 <div align="center">
 
-**TestDeck Local v0.1.0** 
+**TestDeck Local v0.1.0**
 
-*Kişisel gelişiminiz için tasarlandı* 🎓
+_Kişisel gelişiminiz için tasarlandı_ 🎓
 
 Made with ❤️ by [Your Name](https://github.com/YOUR_USERNAME)
 

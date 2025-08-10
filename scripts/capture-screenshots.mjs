@@ -58,23 +58,52 @@ async function main() {
     const page = await browser.newPage();
 
     const routes = [
-      { path: '/', file: 'dashboard.png', waitFor: '#root' },
-      { path: '/create', file: 'create-card.png', waitFor: '#root' },
-      { path: '/study', file: 'study-mode.png', waitFor: '#root' },
+      { path: '/', name: 'dashboard', waitFor: '#root' },
+      { path: '/create', name: 'create-card', waitFor: '#root' },
+      { path: '/study', name: 'study-mode', waitFor: '#root' },
     ];
 
-    for (const r of routes) {
-      const url = `${BASE_URL}${r.path}`;
-      console.log(`➡️  Navigating: ${url}`);
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 60_000 });
-      if (r.waitFor) {
-        await page.waitForSelector(r.waitFor, { timeout: 30_000 });
+    const languages = [
+      { code: 'en', prefix: '' },
+      { code: 'tr', prefix: 'tr-' },
+    ];
+
+    for (const lang of languages) {
+      // Ensure language in persisted store
+      await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle2', timeout: 60_000 });
+      await page.evaluate((language) => {
+        const state = {
+          mode: 'auto',
+          colorScheme: 'blue',
+          fontSize: 'medium',
+          language,
+          soundEnabled: true,
+          animationsEnabled: true,
+          autoSave: true,
+          questionsPerSession: 10,
+          timePerQuestion: 0,
+          showHints: true,
+          showProgress: true,
+          studyReminders: true,
+          achievementNotifications: true,
+        };
+        localStorage.setItem('theme-settings', JSON.stringify({ state, version: 1 }));
+      }, lang.code);
+      await page.reload({ waitUntil: 'networkidle2', timeout: 60_000 });
+
+      for (const r of routes) {
+        const url = `${BASE_URL}${r.path}`;
+        console.log(`➡️  [${lang.code}] Navigating: ${url}`);
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 60_000 });
+        if (r.waitFor) {
+          await page.waitForSelector(r.waitFor, { timeout: 30_000 });
+        }
+        await new Promise((res) => setTimeout(res, 600));
+        const file = `${lang.prefix}${r.name}.png`;
+        const outPath = path.join(SCREEN_DIR, file);
+        await page.screenshot({ path: outPath, fullPage: false });
+        console.log(`✅ Saved: ${path.relative(ROOT, outPath)}`);
       }
-      // small extra settle time for fonts/transitions
-      await new Promise((r) => setTimeout(r, 600));
-      const outPath = path.join(SCREEN_DIR, r.file);
-      await page.screenshot({ path: outPath, fullPage: false });
-      console.log(`✅ Saved: ${path.relative(ROOT, outPath)}`);
     }
 
     await browser.close();
