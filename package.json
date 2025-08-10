@@ -8,6 +8,7 @@
     "dev:minimal": "vite --config vite.config.minimal.ts",
     "build": "vite build",
     "preview": "vite preview",
+    "shots": "node scripts/capture-screenshots.mjs",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:simple": "./start_simple.sh",
@@ -32,6 +33,7 @@
     "zustand": "^4.4.6"
   },
   "devDependencies": {
+    "puppeteer": "^22.15.0",
     "@tauri-apps/cli": "^1.5.8",
     "@types/node": "^22.15.30",
     "@types/react": "^18.2.37",
