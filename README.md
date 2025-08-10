@@ -4,7 +4,7 @@
 
 **Modern, offline personal flashcard and quiz application**
 
-*Effective learning experience with spaced repetition algorithm*
+_Effective learning experience with spaced repetition algorithm_
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/MertArtun/TestDeck/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -25,6 +25,7 @@
 <td width="50%">
 
 ### 🧠 Smart Learning
+
 - **SM-2 Algorithm** with personalized review intervals
 - **Spaced Repetition** system for long-term memory
 - **Adaptive difficulty** level adjustment
@@ -34,6 +35,7 @@
 <td width="50%">
 
 ### 🔒 Privacy Focused
+
 - **100% Offline** - no internet required
 - **Local SQLite** database
 - **Personal data** never sent anywhere
@@ -45,6 +47,7 @@
 <td>
 
 ### 📝 Rich Content
+
 - **5-choice** quiz questions (A-E)
 - **Image support** (JPEG/PNG ≤5MB)
 - **Unlimited subject** categories
@@ -54,6 +57,7 @@
 <td>
 
 ### 📊 Detailed Statistics
+
 - **Daily performance** charts
 - **Subject-based** success analysis
 - **Time tracking** and study duration
@@ -76,23 +80,32 @@
 <div align="center">
 
 ### 🏠 Main Dashboard
-*Daily statistics and quick access*
+
+_Daily statistics and quick access_
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
 ### ✏️ Card Creation
-*Easy and intuitive card creation interface*
+
+_Easy and intuitive card creation interface_
 
 ![Create Card](docs/screenshots/create-card.png)
 
 ### 📚 Study Mode
-*Focused learning experience*
+
+_Focused learning experience_
 
 ![Study Mode](docs/screenshots/study-mode.png)
 
 </div>
 
 ## 🚀 Quick Start
+
+### 🔗 Live Demo (GitHub Pages)
+
+Bu repoda otomatik olarak GitHub Pages’a web build’i deploy edilir. Ziyaret edin:
+
+- https://mertartun.github.io/TestDeck/
 
 ### 📋 Requirements
 
@@ -128,16 +141,16 @@ npm run build
 
 <div align="center">
 
-| Category | Technology | Description |
-|----------|------------|-------------|
-| **Frontend** | React 18 + TypeScript | Modern UI framework |
-| **Desktop** | Tauri v1.8 | Rust-based desktop wrapper |
-| **Styling** | Tailwind CSS | Utility-first CSS framework |
-| **State** | Zustand | Lightweight state management |
-| **Database** | SQLite | Local database |
-| **Charts** | Recharts | Interactive charts |
-| **Icons** | Lucide React | Beautiful icons |
-| **Build** | Vite | Fast build tool |
+| Category     | Technology            | Description                  |
+| ------------ | --------------------- | ---------------------------- |
+| **Frontend** | React 18 + TypeScript | Modern UI framework          |
+| **Desktop**  | Tauri v1.8            | Rust-based desktop wrapper   |
+| **Styling**  | Tailwind CSS          | Utility-first CSS framework  |
+| **State**    | Zustand               | Lightweight state management |
+| **Database** | SQLite                | Local database               |
+| **Charts**   | Recharts              | Interactive charts           |
+| **Icons**    | Lucide React          | Beautiful icons              |
+| **Build**    | Vite                  | Fast build tool              |
 
 </div>
 
@@ -167,19 +180,19 @@ E) array.length()
 
 ### 3️⃣ Study Modes
 
-| Mode | Description | Usage |
-|------|-------------|--------|
-| **📖 Learning** | Learn new cards | First-time cards |
-| **🔄 Review** | Spaced repetition | Previously studied cards |
-| **⚡ Quick Test** | Random questions | General review |
-| **🎯 Subject-based** | Specific topics | Focused study |
+| Mode                 | Description       | Usage                    |
+| -------------------- | ----------------- | ------------------------ |
+| **📖 Learning**      | Learn new cards   | First-time cards         |
+| **🔄 Review**        | Spaced repetition | Previously studied cards |
+| **⚡ Quick Test**    | Random questions  | General review           |
+| **🎯 Subject-based** | Specific topics   | Focused study            |
 
 ### 4️⃣ SM-2 Algorithm
 
 TestDeck uses the **SuperMemo-2 algorithm** to optimize card review timing:
 
 - 🎯 **First correct**: Review in 1 day
-- 🎯 **Second correct**: Review in 6 days  
+- 🎯 **Second correct**: Review in 6 days
 - 🎯 **Further correct**: Ease Factor × previous interval
 - ❌ **Wrong answer**: Reset, review in 1 day
 
@@ -189,7 +202,7 @@ TestDeck uses the **SuperMemo-2 algorithm** to optimize card review timing:
 testdeck-local/
 ├── 📱 src/
 │   ├── 🧩 components/     # React components
-│   ├── 📄 pages/          # Page components  
+│   ├── 📄 pages/          # Page components
 │   ├── 🗃️ database/       # SQLite operations
 │   ├── 📊 store/          # State management
 │   ├── 🔧 utils/          # Helper functions
@@ -202,15 +215,15 @@ testdeck-local/
 
 ## 🔄 Roadmap
 
-### v0.2.0 - *Advanced Features* 🚧
+### v0.2.0 - _Advanced Features_ 🚧
 
 - [ ] **🎵 Audio Support** - Voice recordings
-- [ ] **🎥 Video Support** - Video content  
+- [ ] **🎥 Video Support** - Video content
 - [ ] **☁️ Cloud Sync** - Optional cloud synchronization
 - [ ] **🎨 Theme Editor** - Custom color themes
 - [ ] **📤 Card Sharing** - Share card sets
 
-### v0.3.0 - *Platform Expansion* 🚀
+### v0.3.0 - _Platform Expansion_ 🚀
 
 - [ ] **📱 Mobile App** - React Native version
 - [ ] **👥 Multi-user** - Family/team support
@@ -218,20 +231,20 @@ testdeck-local/
 - [ ] **🔗 API** - Third-party integrations
 - [ ] **🌐 Web App** - Full web version
 
-### v1.0.0 - *Full Release* 🎯
+### v1.0.0 - _Full Release_ 🎯
 
 - [ ] **📚 Card Store** - Ready-made card sets
-- [ ] **🏆 Gamification** - Badges and achievements  
+- [ ] **🏆 Gamification** - Badges and achievements
 - [ ] **📊 Advanced Analytics** - ML-based analysis
 - [ ] **🔔 Smart Notifications** - Learning reminders
 
 ## 🐛 Known Issues
 
-| Issue | Status | Solution |
-|-------|--------|----------|
-| Large images cause performance issues | ⚠️ Known | Will be optimized in v0.2 |
-| First launch database delay | ℹ️ Normal | ~2-3 second wait |
-| macOS Gatekeeper warning | ℹ️ Expected | Allow in Settings > Security |
+| Issue                                 | Status      | Solution                     |
+| ------------------------------------- | ----------- | ---------------------------- |
+| Large images cause performance issues | ⚠️ Known    | Will be optimized in v0.2    |
+| First launch database delay           | ℹ️ Normal   | ~2-3 second wait             |
+| macOS Gatekeeper warning              | ℹ️ Expected | Allow in Settings > Security |
 
 > 🔍 **To report issues**: Use the [Issues](https://github.com/MertArtun/TestDeck/issues) page
 
@@ -269,7 +282,7 @@ We welcome contributions to TestDeck Local!
 
 ```bash
 feat: new feature
-fix: bug fix  
+fix: bug fix
 docs: documentation
 style: code formatting
 refactor: code restructuring
@@ -307,7 +320,7 @@ MIT License - Use, modify, distribute freely! 🚀
 Thanks to the amazing technologies that make TestDeck Local possible:
 
 - 🧠 **[SuperMemo](https://www.supermemo.com/)** - For the SM-2 algorithm
-- 🦀 **[Tauri Team](https://tauri.app/)** - For the amazing framework  
+- 🦀 **[Tauri Team](https://tauri.app/)** - For the amazing framework
 - ⚛️ **[React Team](https://reactjs.org/)** - For the UI library
 - 🎨 **[Tailwind CSS](https://tailwindcss.com/)** - For styling
 - 🔒 **[SQLite](https://sqlite.org/)** - For reliable database
@@ -316,9 +329,9 @@ Thanks to the amazing technologies that make TestDeck Local possible:
 
 <div align="center">
 
-**TestDeck Local v0.1.0** 
+**TestDeck Local v0.1.0**
 
-*Designed for your personal development* 🎓
+_Designed for your personal development_ 🎓
 
 Made with ❤️ by [Mert Artun](https://github.com/MertArtun)
 
