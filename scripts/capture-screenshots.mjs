@@ -99,7 +99,7 @@ async function main() {
           await page.waitForSelector(r.waitFor, { timeout: 30_000 });
         }
         await new Promise((res) => setTimeout(res, 600));
-        const file = `${lang.prefix}${r.name}.png`;
+        const file = `${lang.code === 'en' ? 'en-' : lang.prefix}${r.name}.png`;
         const outPath = path.join(SCREEN_DIR, file);
         await page.screenshot({ path: outPath, fullPage: false });
         console.log(`✅ Saved: ${path.relative(ROOT, outPath)}`);

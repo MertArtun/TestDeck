@@ -82,19 +82,19 @@ _English • [Türkçe](README_TR.md)_
 
 _Daily statistics and quick access_
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](docs/screenshots/en-dashboard.png)
 
 ### ✏️ Card Creation
 
 _Easy and intuitive card creation interface_
 
-![Create Card](docs/screenshots/create-card.png)
+![Create Card](docs/screenshots/en-create-card.png)
 
 ### 📚 Study Mode
 
 _Focused learning experience_
 
-![Study Mode](docs/screenshots/study-mode.png)
+![Study Mode](docs/screenshots/en-study-mode.png)
 
 </div>
 
