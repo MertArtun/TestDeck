@@ -22,12 +22,7 @@
       },
       "fs": {
         "all": true,
-        "scope": [
-          "$APPDATA",
-          "$APPDATA/**",
-          "$RESOURCE",
-          "$RESOURCE/**"
-        ]
+        "scope": ["$APPDATA", "$APPDATA/**", "$RESOURCE", "$RESOURCE/**"]
       },
       "path": {
         "all": true
@@ -37,7 +32,7 @@
       }
     },
     "bundle": {
-      "active": false,
+      "active": true,
       "identifier": "com.testdeck.local",
       "icon": []
     },
