@@ -1,6 +1,8 @@
 // Enhanced Import Utilities with Smart Text Parsing
 // Çoklu format desteği ve akıllı metin ayrıştırma
 
+import { sanitizeHTML } from './htmlSanitizer';
+
 export interface ParsedCard {
   question: string;
   option_a: string;
@@ -265,15 +267,16 @@ function normalizeCard(card: any): ParsedCard {
     options[key as keyof typeof options] = option;
   });
 
+  // Sanitize all text fields to prevent XSS
   return {
-    question: question,
-    option_a: options.option_a,
-    option_b: options.option_b,
-    option_c: options.option_c,
-    option_d: options.option_d,
-    option_e: options.option_e,
+    question: sanitizeHTML(question),
+    option_a: sanitizeHTML(options.option_a),
+    option_b: sanitizeHTML(options.option_b),
+    option_c: sanitizeHTML(options.option_c),
+    option_d: sanitizeHTML(options.option_d),
+    option_e: sanitizeHTML(options.option_e),
     correct_answer: String(card.correct_answer || 'A').toUpperCase() as 'A' | 'B' | 'C' | 'D' | 'E',
-    subject: String(card.subject || '').trim(),
+    subject: sanitizeHTML(String(card.subject || '').trim()),
     difficulty: Math.min(3, Math.max(1, parseInt(card.difficulty) || 1)) as 1 | 2 | 3,
     image_path: String(card.image_path || '').trim()
   };

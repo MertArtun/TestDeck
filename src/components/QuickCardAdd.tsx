@@ -1,20 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '../store/appStore';
 import { createCard } from '../database/database';
-import { 
-  Plus, 
-  Save, 
-  RotateCcw, 
-  Zap, 
+import {
+  Plus,
+  Save,
+  RotateCcw,
+  Zap,
   CheckCircle2,
-  AlertCircle,
   Clock,
-  Target,
-  BookOpen,
   Sparkles,
-  Copy,
   Lightbulb,
-  ArrowRight,
   Keyboard
 } from 'lucide-react';
 import { useI18n } from '../i18n';
@@ -154,7 +149,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
         const answers = ['A', 'B', 'C', 'D', 'E'];
         setFormData(prev => ({ 
           ...prev, 
-          correct_answer: answers[parseInt(e.key) - 1] as any 
+          correct_answer: answers[parseInt(e.key) - 1] as 'A' | 'B' | 'C' | 'D' | 'E' 
         }));
       }
     };
@@ -525,8 +520,8 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ 
-                        ...prev, 
-                        correct_answer: option as any 
+                        ...prev,
+                        correct_answer: option 
                       }))}
                       style={{
                         width: '24px',
@@ -632,7 +627,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                     <button
                       key={level}
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, difficulty: level as any }))}
+                      onClick={() => setFormData(prev => ({ ...prev, difficulty: level }))}
                       style={{
                         flex: 1,
                         padding: '8px',

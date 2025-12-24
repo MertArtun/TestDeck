@@ -6,6 +6,7 @@ import {
   deleteCard 
 } from '../database/database';
 import { Card } from '../types/database';
+import { sanitizeHTML } from '../utils/htmlSanitizer';
 import { 
   ArrowLeft, 
   Search, 
@@ -297,12 +298,12 @@ const CardManager = () => {
                       rows={3}
                     />
                   ) : (
-                    <div 
+                    <div
                       className="text-gray-900 font-medium"
                       dangerouslySetInnerHTML={{
-                        __html: card.question_type === 'fill_in_blank' 
-                          ? card.question.replace(/_____/g, '<span class="bg-yellow-200 px-2 py-1 rounded">_____</span>')
-                          : card.question
+                        __html: card.question_type === 'fill_in_blank'
+                          ? sanitizeHTML(card.question).replace(/_____/g, '<span class="bg-yellow-200 px-2 py-1 rounded">_____</span>')
+                          : sanitizeHTML(card.question)
                       }}
                     />
                   )}

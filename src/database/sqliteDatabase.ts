@@ -2,7 +2,7 @@
 // Gerçek SQLite veritabanı entegrasyonu
 
 import { invoke } from '@tauri-apps/api/tauri';
-import { Card, Session, Attempt } from '../types/database';
+import { Card, Session, Attempt, Subject, DailyStats } from '../types/database';
 
 // Card operations
 export async function createCard(card: Omit<Card, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
@@ -135,8 +135,8 @@ export async function recordAttempt(attempt: Omit<Attempt, 'id' | 'attempted_at'
       ...attempt,
       attempted_at: new Date().toISOString(),
       // Backend expects time_taken, while frontend types use time_spent
-      time_taken: (attempt as any).time_spent ?? (attempt as any).time_taken ?? 0,
-    } as any;
+      time_taken: attempt.time_spent ?? 0,
+    };
     
     console.log('📝 Deneme kaydediliyor:', attemptWithTimestamp);
     const attemptId = await invoke<number>('record_attempt', { attempt: attemptWithTimestamp });
@@ -149,10 +149,10 @@ export async function recordAttempt(attempt: Omit<Attempt, 'id' | 'attempted_at'
 }
 
 // Statistics operations
-export async function getSubjectStats(): Promise<any[]> {
+export async function getSubjectStats(): Promise<Subject[]> {
   try {
     console.log('📊 Konu istatistikleri yükleniyor...');
-    const stats = await invoke<any[]>('get_subject_stats');
+    const stats = await invoke<Subject[]>('get_subject_stats');
     console.log(`✅ ${stats.length} konu istatistiği yüklendi`);
     return stats;
   } catch (error) {
@@ -161,16 +161,25 @@ export async function getSubjectStats(): Promise<any[]> {
   }
 }
 
-export async function getDailyStats(days: number = 30): Promise<any[]> {
+interface RawDailyStats {
+  date: string;
+  questions_answered?: number;
+  total_questions?: number;
+  correct_answers?: number;
+  accuracy?: number;
+  study_time?: number;
+}
+
+export async function getDailyStats(days: number = 30): Promise<DailyStats[]> {
   try {
     console.log(`📈 Son ${days} günün istatistikleri yükleniyor...`);
-    const rawStats = await invoke<any[]>('get_daily_stats', { days });
+    const rawStats = await invoke<RawDailyStats[]>('get_daily_stats', { days });
     console.log(`✅ ${rawStats.length} günlük istatistik yüklendi`);
 
     // Normalize field names to match frontend expectations
     // Backend returns: { date, sessions, total_questions, correct_answers, accuracy }
     // Frontend expects: { date, questions_answered, correct_answers, accuracy, study_time }
-    const stats = rawStats.map((s: any) => ({
+    const stats: DailyStats[] = rawStats.map((s) => ({
       date: s.date,
       questions_answered: s.questions_answered ?? s.total_questions ?? 0,
       correct_answers: s.correct_answers ?? 0,
@@ -207,7 +216,13 @@ export async function initDatabase(): Promise<void> {
   }
 }
 
-export function getDatabase(): any {
+interface DatabaseInfo {
+  type: string;
+  status: string;
+  location: string;
+}
+
+export function getDatabase(): DatabaseInfo {
   // Return a mock database object for compatibility
   return {
     type: 'sqlite',

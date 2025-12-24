@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart, BookOpen, Layers, Zap, TrendingUp, Clock, Target, Award, Calendar, Plus, Play } from 'lucide-react';
+import { BarChart, Layers, Zap, Target, Award, Calendar, Plus, Play } from 'lucide-react';
 import { initDatabase, getSubjectStats, getDailyStats, getAllCards } from '../database/database';
 import { useThemeStore } from '../store/themeStore';
 import { SkeletonCard } from '../components/Skeleton';
@@ -103,7 +103,7 @@ const Dashboard = () => {
         // Haftalık seri hesapla
         let streak = 0;
         for (let i = dailyStats.length - 1; i >= 0; i--) {
-          if ((dailyStats[i] as any).questions_answered > 0) {
+          if (dailyStats[i].questions_answered > 0) {
             streak++;
           } else {
             break;
@@ -116,7 +116,7 @@ const Dashboard = () => {
         setDailyActivity(dailyStats);
         setTodayStats({
            studied: todayStat?.questions_answered || 0,
-           accuracy: todayStat ? Math.round((todayStat as any).accuracy || 0) : 0
+           accuracy: todayStat ? Math.round(todayStat.accuracy || 0) : 0
         });
         setWeeklyStreak(streak);
         

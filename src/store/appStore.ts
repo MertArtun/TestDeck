@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Card, StudySession, CardAttempt, Subject, DailyStats } from '../types/database';
+import { Card, StudySession, Subject, DailyStats } from '../types/database';
 
 interface AppState {
   // Cards

@@ -5,15 +5,14 @@ import { useThemeStore } from '../store/themeStore';
 import { applyTheme } from '../utils/themeUtils';
 import { useI18n } from '../i18n';
 
-import { 
-  Home, 
-  Plus, 
-  BookOpen, 
-  BarChart3, 
+import {
+  Home,
+  Plus,
+  BookOpen,
+  BarChart3,
   Settings as SettingsIcon,
   Brain,
   User,
-  Bell,
   Search,
   Menu,
   X,
@@ -23,8 +22,7 @@ import {
   Target,
   Sun,
   Moon,
-  Monitor,
-  Palette
+  Monitor
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -265,7 +263,7 @@ const Layout = ({ children }: LayoutProps) => {
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '12px'
             }}>
-              {quickStats.map((stat, index) => {
+              {quickStats.map((stat) => {
                 const Icon = stat.icon;
                 return (
                   <div 

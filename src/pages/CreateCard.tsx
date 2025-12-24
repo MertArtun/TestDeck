@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Upload, Download, FileText, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, Download, FileText, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
 import { createCard, createMultipleCards } from '../database/database';
 import { Card } from '../types/database';
 import { useToastStore } from '../store/toastStore';
@@ -8,15 +7,41 @@ import { useI18n } from '../i18n';
 
 interface JSONQuestion {
   question: string;
-  options: string[];
-  correct: number | string;
+  options?: string[];
+  correct?: number | string;
   explanation?: string;
   category?: string;
   difficulty?: string | number;
+  // Alternative field names
+  choices?: string[];
+  answers?: string[];
+  secenekler?: string[];
+  // Individual option fields
+  A?: string;
+  B?: string;
+  C?: string;
+  D?: string;
+  E?: string;
+  option_a?: string;
+  option_b?: string;
+  option_c?: string;
+  option_d?: string;
+  option_e?: string;
+  a?: string;
+  b?: string;
+  c?: string;
+  d?: string;
+  e?: string;
+  // Alternative correct answer fields
+  correct_answer?: string | number;
+  answer?: string | number;
+  dogruCevap?: string | number;
+  // Additional fields
+  subject?: string;
+  konu?: string;
 }
 
 const CreateCard = () => {
-  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Manual card creation state
@@ -140,22 +165,22 @@ const CreateCard = () => {
         let options: string[] = [];
         if (q.options && Array.isArray(q.options)) {
           options = q.options;
-        } else if ((q as any).choices && Array.isArray((q as any).choices)) {
-          options = (q as any).choices;
-        } else if ((q as any).answers && Array.isArray((q as any).answers)) {
-          options = (q as any).answers;
-        } else if ((q as any).secenekler && Array.isArray((q as any).secenekler)) {
-          options = (q as any).secenekler;
+        } else if (q.choices && Array.isArray(q.choices)) {
+          options = q.choices;
+        } else if (q.answers && Array.isArray(q.answers)) {
+          options = q.answers;
+        } else if (q.secenekler && Array.isArray(q.secenekler)) {
+          options = q.secenekler;
         } else {
           // A, B, C, D ayrı alanları olarak kontrol et
-          const optionA = (q as any).A || (q as any).option_a || (q as any).a;
-          const optionB = (q as any).B || (q as any).option_b || (q as any).b;
-          const optionC = (q as any).C || (q as any).option_c || (q as any).c;
-          const optionD = (q as any).D || (q as any).option_d || (q as any).d;
-          
+          const optionA = q.A || q.option_a || q.a;
+          const optionB = q.B || q.option_b || q.b;
+          const optionC = q.C || q.option_c || q.c;
+          const optionD = q.D || q.option_d || q.d;
+
           if (optionA && optionB && optionC && optionD) {
             options = [optionA, optionB, optionC, optionD];
-            const optionE = (q as any).E || (q as any).option_e || (q as any).e;
+            const optionE = q.E || q.option_e || q.e;
             if (optionE) options.push(optionE);
           } else {
             throw new Error(`Soru ${index + 1}: Seçenekler bulunamadı. 'options', 'choices', 'answers' dizisi veya 'A', 'B', 'C', 'D' alanları gerekli.`);
@@ -167,7 +192,7 @@ const CreateCard = () => {
         }
 
         // Doğru cevap alanını bul (farklı isimler destekle)
-        const correctValue = q.correct || (q as any).correct_answer || (q as any).answer || (q as any).dogruCevap;
+        const correctValue = q.correct || q.correct_answer || q.answer || q.dogruCevap;
         
         let correctIndex: number;
         if (typeof correctValue === 'number') {
@@ -211,7 +236,7 @@ const CreateCard = () => {
           option_d: options[3] || '',
           option_e: options[4] || '',
           correct_answer: correctAnswerLetter,
-          subject: q.category || (q as any).subject || (q as any).konu || 'İçe Aktarılan',
+          subject: q.category || q.subject || q.konu || 'İçe Aktarılan',
           difficulty: difficultyNum,
           question_type: 'multiple_choice' as const
         };
@@ -299,15 +324,6 @@ const CreateCard = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
-
-  const getCorrectAnswerIndex = () => {
-    return correctAnswer.charCodeAt(0) - 'A'.charCodeAt(0);
-  };
-
-  const setCorrectAnswerByIndex = (index: number) => {
-    const letter = ['A', 'B', 'C', 'D', 'E'][index] as 'A' | 'B' | 'C' | 'D' | 'E';
-    setCorrectAnswer(letter);
   };
 
   return (

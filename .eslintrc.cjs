@@ -28,14 +28,21 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
-    // Relax rules to get CI green quickly; can be tightened later
-    'import/order': 'off',
-    'prefer-const': 'off',
-    'no-useless-escape': 'off',
     'react/no-unescaped-entities': 'off',
-    'react-hooks/exhaustive-deps': 'warn',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
+    // Strict rules for code quality
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        'newlines-between': 'never',
+        alphabetize: { order: 'asc', caseInsensitive: true },
+      },
+    ],
+    'prefer-const': 'error',
+    'no-useless-escape': 'error',
+    'react-hooks/exhaustive-deps': 'error',
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-unused-vars': 'error',
   },
   ignorePatterns: ['dist', 'src-tauri/target'],
 };

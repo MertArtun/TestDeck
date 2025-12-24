@@ -2,12 +2,16 @@
 // SQLite entegrasyonu ile geliştirilmiş veritabanı servisi
 
 import { safePercentage, safeRound } from '../utils/safeMath';
+import { Card, StudySession, CardAttempt, MockDatabase } from '../types/database';
+
+// SQLite service type
+type SQLiteService = typeof import('./sqliteDatabase');
 
 // Try to use SQLite first, fallback to localStorage if not available
 let useSQLite = true;
 
 // Import SQLite service dynamically
-let sqliteService: any = null;
+let sqliteService: SQLiteService | null = null;
 
 async function initSQLiteService() {
   try {
@@ -34,12 +38,12 @@ async function initSQLiteService() {
 import { save } from '@tauri-apps/api/dialog';
 import { writeTextFile } from '@tauri-apps/api/fs';
 
-let mockDb = {
-  cards: [] as any[],
-  sessions: [] as any[],
-  attempts: [] as any[],
-  stats: [] as any[],
-  lastBackup: null as string | null
+let mockDb: MockDatabase = {
+  cards: [],
+  sessions: [],
+  attempts: [],
+  stats: [],
+  lastBackup: null
 };
 
 // Backup management
@@ -47,7 +51,7 @@ const BACKUP_KEY = 'testdeck-backup';
 const BACKUP_INTERVAL = 1000 * 60 * 10; // 10 dakika
 
 // Data validation functions
-const validateCard = (card: any): boolean => {
+const validateCard = (card: Partial<Card>): boolean => {
   const baseValid = !!(
     card.question &&
     card.subject &&
@@ -165,7 +169,7 @@ function saveMockData() {
     }
     
     console.log(`📊 Toplam ${mockDb.cards.length} kart kaydedildi`);
-  } catch (error: any) {
+  } catch (error) {
     console.error('💥 Veri kaydetme hatası:', error);
     
     // Aggressive cleanup and retry
@@ -293,8 +297,8 @@ export async function importUserData(file: File): Promise<boolean> {
     }
     
     // Merge with existing data
-    const existingIds = new Set(mockDb.cards.map((card: any) => card.id));
-    const newCards = validCards.filter((card: any) => !existingIds.has(card.id));
+    const existingIds = new Set(mockDb.cards.map((card) => card.id));
+    const newCards = validCards.filter((card) => !existingIds.has(card.id));
     
     mockDb.cards = [...mockDb.cards, ...newCards];
     
@@ -315,15 +319,16 @@ export async function importUserData(file: File): Promise<boolean> {
     
     console.log(`Imported ${newCards.length} new cards`);
     return true;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Import error:', error);
-    alert('Veri içe aktarılamadı: ' + (error?.message || 'Bilinmeyen hata'));
+    const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
+    alert('Veri içe aktarılamadı: ' + message);
     return false;
   }
 }
 
 // Auto-save mechanism
-let autoSaveTimer: any = null;
+let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 const AUTO_SAVE_DELAY = 2000; // 2 saniye
 
 function scheduleAutoSave() {
@@ -336,7 +341,7 @@ function scheduleAutoSave() {
   }, AUTO_SAVE_DELAY);
 }
 
-export async function initDatabase(): Promise<any> {
+export async function initDatabase(): Promise<MockDatabase | { type: string }> {
   try {
     console.log('🗄️ Veritabanı başlatılıyor...');
     
@@ -365,12 +370,12 @@ export async function initDatabase(): Promise<any> {
   }
 }
 
-export function getDatabase(): any {
+export function getDatabase(): MockDatabase {
   return mockDb;
 }
 
 // Enhanced Card CRUD operations
-export async function createCard(card: Omit<any, 'id' | 'created_at' | 'updated_at'>) {
+export async function createCard(card: Omit<Card, 'id' | 'created_at' | 'updated_at'>) {
   try {
     if (useSQLite && sqliteService) {
       return await sqliteService.createCard(card);
@@ -399,7 +404,7 @@ export async function createCard(card: Omit<any, 'id' | 'created_at' | 'updated_
   }
 }
 
-export async function createMultipleCards(cards: Omit<any, 'id' | 'created_at' | 'updated_at'>[]): Promise<number[]> {
+export async function createMultipleCards(cards: Omit<Card, 'id' | 'created_at' | 'updated_at'>[]): Promise<number[]> {
   try {
     // If SQLite is available, create cards through backend for persistence
     if (useSQLite && sqliteService) {
@@ -446,7 +451,7 @@ export async function getCardsBySubject(subject: string) {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 }
 
-export async function updateCard(id: number, updates: Partial<any>) {
+export async function updateCard(id: number, updates: Partial<Card>) {
   try {
     loadMockData();
     const index = mockDb.cards.findIndex(card => card.id === id);
@@ -508,7 +513,7 @@ export async function deleteAllCards(): Promise<void> {
 }
 
 // Session işlemleri
-export async function createSession(session: Omit<any, 'id'>) {
+export async function createSession(session: Omit<StudySession, 'id'>) {
   try {
     const newSession = {
       ...session,
@@ -543,7 +548,7 @@ export async function endSession(sessionId: number, correctAnswers: number) {
   }
 }
 
-export async function recordAttempt(attempt: Omit<any, 'id' | 'attempted_at'>) {
+export async function recordAttempt(attempt: Omit<CardAttempt, 'id' | 'attempted_at'>) {
   try {
     const newAttempt = {
       ...attempt,
@@ -558,7 +563,7 @@ export async function recordAttempt(attempt: Omit<any, 'id' | 'attempted_at'>) {
     
     scheduleAutoSave();
     return newAttempt.id;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Record attempt error:', error);
     throw error;
   }
@@ -630,8 +635,16 @@ export async function getSubjectStats() {
       stats: mockDb.stats.length
     });
     
-    const subjects: { [key: string]: any } = {};
-    
+    interface SubjectAccumulator {
+      name: string;
+      total_cards: number;
+      accuracy: number;
+      last_studied: string | null;
+      total_attempts: number;
+      correct_attempts: number;
+    }
+    const subjects: { [key: string]: SubjectAccumulator } = {};
+
     mockDb.cards.forEach(card => {
       if (!subjects[card.subject]) {
         subjects[card.subject] = {
@@ -680,11 +693,11 @@ export async function getSubjectStats() {
     });
     
     // Calculate final accuracy with safe math
-    Object.values(subjects).forEach((subject: any) => {
+    Object.values(subjects).forEach((subject) => {
       // Use safe percentage calculation to prevent NaN
       subject.accuracy = safePercentage(
-        subject.correct_attempts, 
-        subject.total_attempts, 
+        subject.correct_attempts,
+        subject.total_attempts,
         0
       );
     });
@@ -699,16 +712,24 @@ export async function getSubjectStats() {
 export async function getDailyStats(days: number = 30) {
   try {
     loadMockData();
-    
-    const stats: { [key: string]: any } = {};
+
+    interface DailyStatsAccumulator {
+      date: string;
+      questions_answered: number;
+      correct_answers: number;
+      accuracy: number;
+      study_time: number;
+      cards_created: number;
+    }
+    const stats: { [key: string]: DailyStatsAccumulator } = {};
     const today = new Date();
-    
+
     // Initialize empty stats for last X days
     for (let i = 0; i < days; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      
+
       stats[dateStr] = {
         date: dateStr,
         questions_answered: 0,
@@ -740,27 +761,27 @@ export async function getDailyStats(days: number = 30) {
     });
     
     // Calculate accuracy with safe math
-    Object.values(stats).forEach((stat: any) => {
+    Object.values(stats).forEach((stat) => {
       // Use safe percentage calculation to prevent NaN
       stat.accuracy = safePercentage(
-        stat.correct_answers, 
-        stat.questions_answered, 
+        stat.correct_answers,
+        stat.questions_answered,
         0
       );
-      
+
       // Safe study time rounding
       const studyTime = Number(stat.study_time) || 0;
       stat.study_time = studyTime > 0 ? safeRound(studyTime, 1) : 0;
     });
-    
+
     return Object.values(stats)
-      .filter((stat: any) => {
+      .filter((stat) => {
         const statDate = new Date(stat.date);
         const cutoff = new Date(today);
         cutoff.setDate(cutoff.getDate() - days);
         return statDate >= cutoff;
       })
-      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   } catch (error) {
     console.error('Get daily stats error:', error);
     return [];
@@ -798,9 +819,10 @@ export function checkDataIntegrity(): { isValid: boolean; issues: string[] } {
       issues
     };
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
     return {
       isValid: false,
-      issues: ['Data integrity check failed: ' + (error as any)?.message || 'Bilinmeyen hata']
+      issues: ['Data integrity check failed: ' + message]
     };
   }
 }

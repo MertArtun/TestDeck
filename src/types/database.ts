@@ -70,3 +70,11 @@ export interface DailyStats {
   accuracy: number;
   study_time: number; // in minutes
 }
+
+export interface MockDatabase {
+  cards: Card[];
+  sessions: StudySession[];
+  attempts: CardAttempt[];
+  stats: CardStats[];
+  lastBackup: string | null;
+}

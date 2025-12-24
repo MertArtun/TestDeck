@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { Card } from '../types/database';
-import { getAllCards, getCardsBySubject, createSession, endSession, recordAttempt, updateCard, getDatabase } from '../database/database';
+import { getAllCards, getCardsBySubject, createSession, endSession, recordAttempt, updateCard } from '../database/database';
 import { safePercentage } from '../utils/safeMath';
+import { sanitizeHTML } from '../utils/htmlSanitizer';
 import { Play, ArrowLeft, Clock, CheckCircle, XCircle, RotateCcw, BarChart3, AlertCircle } from 'lucide-react';
 import { useI18n } from '../i18n';
 
@@ -31,11 +32,11 @@ const Study = () => {
   const [sessionType, setSessionType] = useState<'practice' | 'test'>('practice');
   const [questionCount, setQuestionCount] = useState(10);
   const [startTime, setStartTime] = useState<Date>(new Date());
-  const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
+  const [_questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
   const [subjects, setSubjects] = useState<string[]>([]);
   const [localSessionCards, setLocalSessionCards] = useState<Card[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>([]);
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
 
   useEffect(() => {
     loadCards();
@@ -57,7 +58,7 @@ const Study = () => {
       setLoading(true);
       const cardsData = await getAllCards();
       console.log('🃏 Kartlar yüklendi:', cardsData);
-      const imageCards = cardsData.filter((c: any) => c.image_path && c.image_path.trim());
+      const imageCards = cardsData.filter((c) => c.image_path && c.image_path.trim());
       console.log(`🖼️ ${imageCards.length} adet görselli kart bulundu.`, imageCards);
       setCards(cardsData);
     } catch (error) {
@@ -834,12 +835,12 @@ const Study = () => {
                 }}
               >
                 {currentCard.question_type === 'fill_in_blank' ? (
-                  <h2 
+                  <h2
                     className="text-2xl font-bold text-gray-800 leading-relaxed text-center"
                     dangerouslySetInnerHTML={{
-                      __html: currentCard.question.replace(/_____/g, 
-                        isAnswered && userAnswer ? 
-                          `<span style="background: ${userAnswer === currentCard.blank_answer ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'}; color: white; padding: 8px 16px; border-radius: 12px; font-weight: bold; display: inline-block; margin: 0 8px;">${userAnswer}</span>` :
+                      __html: sanitizeHTML(currentCard.question).replace(/_____/g,
+                        isAnswered && userAnswer ?
+                          `<span style="background: ${userAnswer === currentCard.blank_answer ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'}; color: white; padding: 8px 16px; border-radius: 12px; font-weight: bold; display: inline-block; margin: 0 8px;">${sanitizeHTML(userAnswer)}</span>` :
                           '<span style="border-bottom: 3px solid #667eea; display: inline-block; min-width: 120px; height: 35px; margin: 0 8px; background: rgba(103, 126, 234, 0.1); border-radius: 8px;"></span>'
                       )
                     }}
@@ -906,7 +907,7 @@ const Study = () => {
                 return (
                   <button
                     key={option}
-                    onClick={() => !isAnswered && handleAnswer(option as any)}
+                    onClick={() => !isAnswered && handleAnswer(option as 'A' | 'B' | 'C' | 'D' | 'E')}
                     disabled={isAnswered}
                     className={buttonClass}
                     style={buttonStyle}
@@ -1067,7 +1068,7 @@ const Study = () => {
     
     const incorrectAnswers = localSessionCards.length - correctAnswers;
     const accuracy = safePercentage(correctAnswers, localSessionCards.length);
-    const timeTaken = currentSession.ended_at ? 
+    const _timeTaken = currentSession.ended_at ?
       (new Date(currentSession.ended_at).getTime() - new Date(currentSession.started_at).getTime()) / 1000 : 0;
 
     return (

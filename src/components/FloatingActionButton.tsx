@@ -2,15 +2,12 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import QuickCardAdd from './QuickCardAdd';
 import { useI18n } from '../i18n';
-import { 
-  Plus, 
-  Zap, 
-  Database, 
+import {
+  Plus,
+  Zap,
+  Database,
   X,
-  ChevronUp,
-  BookOpen,
-  Target,
-  Clock
+  BookOpen
 } from 'lucide-react';
 
 const FloatingActionButton = () => {
