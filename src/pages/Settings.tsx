@@ -1,8 +1,3 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useThemeStore } from '../store/themeStore';
-import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '../utils/themeUtils';
-import { exportUserData, importUserData, createMultipleCards, deleteAllCards } from '../database/database';
 import {
   ArrowLeft,
   Moon,
@@ -17,32 +12,38 @@ import {
   Save,
   Bell,
   BellOff,
-  Clock,
   Eye,
   EyeOff,
   RotateCcw,
   Download,
   Upload,
-  Globe,
   Settings as SettingsIcon,
   BookOpen,
   Target,
   CheckCircle,
-  Trash2
+  Trash2,
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
+import { useThemeStore } from '../store/themeStore';
+import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '../utils/themeUtils';
+import {
+  exportUserData,
+  importUserData,
+  createMultipleCards,
+  deleteAllCards,
+} from '@/services/database';
 
 const Settings = () => {
   const navigate = useNavigate();
   const [importFile, setImportFile] = useState<File | null>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
   const { t } = useI18n();
-  
+
   const {
     mode,
     colorScheme,
     fontSize,
-    language,
     soundEnabled,
     animationsEnabled,
     autoSave,
@@ -55,7 +56,6 @@ const Settings = () => {
     setThemeMode,
     setColorScheme,
     setFontSize,
-    setLanguage,
     setSoundEnabled,
     setAnimationsEnabled,
     setAutoSave,
@@ -72,7 +72,7 @@ const Settings = () => {
   useEffect(() => {
     console.log('⚙️ Settings page theme change:', { mode, colorScheme, fontSize });
     applyTheme({ mode, colorScheme, fontSize });
-    
+
     // Force a small delay to ensure DOM is ready
     setTimeout(() => {
       applyTheme({ mode, colorScheme, fontSize });
@@ -118,20 +118,31 @@ const Settings = () => {
   const handleSeedEnglish = async () => {
     try {
       const { englishSeedCards } = await import('../data/seedEnglish');
-      const payload = englishSeedCards.map((c: any) => ({
-        question: c.question,
-        option_a: c.option_a,
-        option_b: c.option_b,
-        option_c: c.option_c,
-        option_d: c.option_d,
-        option_e: '',
-        correct_answer: c.correct_answer,
-        blank_answer: null,
-        question_type: 'multiple_choice',
-        subject: c.subject,
-        difficulty: c.difficulty,
-        image_path: null,
-      }));
+      const payload = englishSeedCards.map(
+        (c: {
+          question: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
+          correct_answer: string;
+          subject: string;
+          difficulty: number;
+        }) => ({
+          question: c.question,
+          option_a: c.option_a,
+          option_b: c.option_b,
+          option_c: c.option_c,
+          option_d: c.option_d,
+          option_e: '',
+          correct_answer: c.correct_answer,
+          blank_answer: null,
+          question_type: 'multiple_choice',
+          subject: c.subject,
+          difficulty: c.difficulty,
+          image_path: null,
+        })
+      );
       const ids = await createMultipleCards(payload);
       alert(t('settings.data.seedEnglish.done', { count: ids.length }));
     } catch (e) {
@@ -140,7 +151,11 @@ const Settings = () => {
     }
   };
 
-  const themeOptions: { value: ThemeMode; label: string; icon: any }[] = [
+  const themeOptions: {
+    value: ThemeMode;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[] = [
     { value: 'light', label: t('settings.theme.light'), icon: Sun },
     { value: 'dark', label: t('settings.theme.dark'), icon: Moon },
     { value: 'auto', label: t('settings.theme.auto'), icon: Monitor },
@@ -172,7 +187,9 @@ const Settings = () => {
             <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('settings.title')}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {t('settings.title')}
+            </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">{t('settings.subtitle')}</p>
           </div>
         </div>
@@ -191,7 +208,9 @@ const Settings = () => {
 
             {/* Theme Mode */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('settings.theme.mode')}</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                {t('settings.theme.mode')}
+              </label>
               <div className="grid grid-cols-3 gap-3">
                 {themeOptions.map(({ value, label, icon: Icon }) => (
                   <button
@@ -203,12 +222,20 @@ const Settings = () => {
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 mx-auto mb-2 ${
-                      mode === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'
-                    }`} />
-                    <div className={`text-sm font-medium ${
-                      mode === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'
-                    }`}>
+                    <Icon
+                      className={`w-5 h-5 mx-auto mb-2 ${
+                        mode === value
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    />
+                    <div
+                      className={`text-sm font-medium ${
+                        mode === value
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
                       {label}
                     </div>
                   </button>
@@ -218,7 +245,9 @@ const Settings = () => {
 
             {/* Color Scheme */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('settings.theme.colorScheme')}</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                {t('settings.theme.colorScheme')}
+              </label>
               <div className="flex gap-3">
                 {colorOptions.map(({ value, label, color }) => (
                   <button
@@ -234,9 +263,13 @@ const Settings = () => {
                       className="w-6 h-6 rounded-full mx-auto mb-2"
                       style={{ backgroundColor: color }}
                     />
-                    <div className={`text-sm font-medium ${
-                      colorScheme === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'
-                    }`}>
+                    <div
+                      className={`text-sm font-medium ${
+                        colorScheme === value
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
                       {label}
                     </div>
                   </button>
@@ -246,7 +279,9 @@ const Settings = () => {
 
             {/* Font Size */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('settings.theme.fontSize')}</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                {t('settings.theme.fontSize')}
+              </label>
               <div className="grid grid-cols-3 gap-3">
                 {fontSizeOptions.map(({ value, label }) => (
                   <button
@@ -258,12 +293,20 @@ const Settings = () => {
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
-                    <Type className={`w-5 h-5 mx-auto mb-2 ${
-                      fontSize === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'
-                    }`} />
-                    <div className={`text-sm font-medium ${
-                      fontSize === value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'
-                    }`}>
+                    <Type
+                      className={`w-5 h-5 mx-auto mb-2 ${
+                        fontSize === value
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    />
+                    <div
+                      className={`text-sm font-medium ${
+                        fontSize === value
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
                       {label}
                     </div>
                   </button>
@@ -278,7 +321,9 @@ const Settings = () => {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <SettingsIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.app')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {t('settings.section.app')}
+              </h2>
             </div>
 
             <div className="space-y-4">
@@ -291,8 +336,12 @@ const Settings = () => {
                     <VolumeX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.app.sound')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.app.sound.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.app.sound')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.app.sound.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -318,8 +367,12 @@ const Settings = () => {
                     <ZapOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.app.animations')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.app.animations.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.app.animations')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.app.animations.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -341,8 +394,12 @@ const Settings = () => {
                 <div className="flex items-center gap-3">
                   <Save className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.app.autoSave')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.app.autoSave.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.app.autoSave')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.app.autoSave.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -367,13 +424,17 @@ const Settings = () => {
               <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                 <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.study')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {t('settings.section.study')}
+              </h2>
             </div>
 
             <div className="space-y-6">
               {/* Questions per session */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('settings.study.questionsPerSession', { count: questionsPerSession })}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t('settings.study.questionsPerSession', { count: questionsPerSession })}
+                </label>
                 <input
                   type="range"
                   min="5"
@@ -391,7 +452,14 @@ const Settings = () => {
 
               {/* Time per question */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('settings.study.timePerQuestion', { value: timePerQuestion === 0 ? t('settings.unlimited') : `${timePerQuestion} ${t('unit.secondsLong')}` })}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t('settings.study.timePerQuestion', {
+                    value:
+                      timePerQuestion === 0
+                        ? t('settings.unlimited')
+                        : `${timePerQuestion} ${t('unit.secondsLong')}`,
+                  })}
+                </label>
                 <input
                   type="range"
                   min="0"
@@ -416,8 +484,12 @@ const Settings = () => {
                     <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.study.hints')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.study.hints.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.study.hints')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.study.hints.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -439,8 +511,12 @@ const Settings = () => {
                 <div className="flex items-center gap-3">
                   <Target className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.study.progress')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.study.progress.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.study.progress')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.study.progress.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -465,7 +541,9 @@ const Settings = () => {
               <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
                 <Bell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.notifications')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {t('settings.section.notifications')}
+              </h2>
             </div>
 
             <div className="space-y-4">
@@ -478,8 +556,12 @@ const Settings = () => {
                     <BellOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.notifications.reminders')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.reminders.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.notifications.reminders')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.notifications.reminders.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -501,8 +583,12 @@ const Settings = () => {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{t('settings.notifications.achievements')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.achievements.desc')}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {t('settings.notifications.achievements')}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('settings.notifications.achievements.desc')}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -522,13 +608,15 @@ const Settings = () => {
           </div>
         </div>
 
-          {/* Veri Yönetimi */}
+        {/* Veri Yönetimi */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
               <Download className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.section.data')}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {t('settings.section.data')}
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -545,8 +633,12 @@ const Settings = () => {
             >
               <Download className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               <div className="text-left">
-                <div className="font-medium text-gray-900 dark:text-white">{t('settings.data.export')}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.data.export.desc')}</div>
+                <div className="font-medium text-gray-900 dark:text-white">
+                  {t('settings.data.export')}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {t('settings.data.export.desc')}
+                </div>
               </div>
             </button>
 
@@ -565,8 +657,12 @@ const Settings = () => {
               >
                 <Upload className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div className="text-left">
-                  <div className="font-medium text-gray-900 dark:text-white">{t('settings.data.import')}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{importFile ? importFile.name : t('settings.data.import.choose')}</div>
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {t('settings.data.import')}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {importFile ? importFile.name : t('settings.data.import.choose')}
+                  </div>
                 </div>
               </label>
               {importFile && (
@@ -586,7 +682,7 @@ const Settings = () => {
                   // Clear old data
                   localStorage.removeItem('create-card-draft');
                   localStorage.removeItem('quick-card-draft');
-                  
+
                   // Clear other apps data
                   const keysToRemove = [];
                   for (let i = 0; i < localStorage.length; i++) {
@@ -595,8 +691,8 @@ const Settings = () => {
                       keysToRemove.push(key);
                     }
                   }
-                  keysToRemove.forEach(key => localStorage.removeItem(key));
-                  
+                  keysToRemove.forEach((key) => localStorage.removeItem(key));
+
                   alert(t('settings.clean.done', { count: keysToRemove.length + 2 }));
                 }
               }}

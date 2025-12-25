@@ -1,27 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  getAllCards, 
-  updateCard, 
-  deleteCard 
-} from '../database/database';
-import { Card } from '../types/database';
-import { sanitizeHTML } from '../utils/htmlSanitizer';
-import { 
-  ArrowLeft, 
-  Search, 
-  Edit3, 
-  Trash2, 
-  Save, 
-  X, 
+import {
+  ArrowLeft,
+  Search,
+  Edit3,
+  Trash2,
+  Save,
+  X,
   Filter,
   Plus,
   BookOpen,
-  Clock
+  Clock,
 } from 'lucide-react';
-import { SkeletonCard } from '../components/Skeleton';
-import { useToastStore } from '../store/toastStore';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
+import { useToastStore } from '../store/toastStore';
+import { Card } from '../types/database';
+import { sanitizeHTML } from '../utils/htmlSanitizer';
+import { getAllCards, updateCard, deleteCard } from '@/services/database';
+import { SkeletonCard } from '@/shared/components';
 
 const CardManager = () => {
   const navigate = useNavigate();
@@ -39,10 +35,12 @@ const CardManager = () => {
 
   useEffect(() => {
     loadCards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     filterCards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, searchTerm, selectedSubject]);
 
   const loadCards = async () => {
@@ -51,11 +49,11 @@ const CardManager = () => {
       // Her zaman tüm kartları yükle
       const allCards = await getAllCards();
       setCards(allCards);
-      
+
       // Benzersiz konuları çıkar
       const uniqueSubjects = [...new Set(allCards.map((card: Card) => card.subject))] as string[];
       setSubjects(uniqueSubjects);
-      
+
       // URL'den gelen subject parametresini kullan
       if (subject && subject !== 'all') {
         setSelectedSubject(subject);
@@ -72,19 +70,20 @@ const CardManager = () => {
 
     // Konuya göre filtrele
     if (selectedSubject !== 'all') {
-      filtered = filtered.filter(card => card.subject === selectedSubject);
+      filtered = filtered.filter((card) => card.subject === selectedSubject);
     }
 
     // Arama terimine göre filtrele
     if (searchTerm) {
-      filtered = filtered.filter(card =>
-        card.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        card.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (card.option_a && card.option_a.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (card.option_b && card.option_b.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (card.option_c && card.option_c.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (card.option_d && card.option_d.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (card.blank_answer && card.blank_answer.toLowerCase().includes(searchTerm.toLowerCase()))
+      filtered = filtered.filter(
+        (card) =>
+          card.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          card.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (card.option_a && card.option_a.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (card.option_b && card.option_b.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (card.option_c && card.option_c.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (card.option_d && card.option_d.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (card.blank_answer && card.blank_answer.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -130,17 +129,23 @@ const CardManager = () => {
 
   const getDifficultyLabel = (difficulty: number) => {
     switch (difficulty) {
-      case 1: return { label: 'Kolay', color: 'bg-green-100 text-green-800' };
-      case 2: return { label: 'Orta', color: 'bg-yellow-100 text-yellow-800' };
-      case 3: return { label: 'Zor', color: 'bg-red-100 text-red-800' };
-      default: return { label: 'Bilinmiyor', color: 'bg-gray-100 text-gray-800' };
+      case 1:
+        return { label: 'Kolay', color: 'bg-green-100 text-green-800' };
+      case 2:
+        return { label: 'Orta', color: 'bg-yellow-100 text-yellow-800' };
+      case 3:
+        return { label: 'Zor', color: 'bg-red-100 text-red-800' };
+      default:
+        return { label: 'Bilinmiyor', color: 'bg-gray-100 text-gray-800' };
     }
   };
 
   const getQuestionTypeLabel = (questionType?: string) => {
     switch (questionType) {
-      case 'fill_in_blank': return { label: 'Boşluk Doldurma', color: 'bg-purple-100 text-purple-800', icon: '✏️' };
-      default: return { label: 'Çoktan Seçmeli', color: 'bg-blue-100 text-blue-800', icon: '📝' };
+      case 'fill_in_blank':
+        return { label: 'Boşluk Doldurma', color: 'bg-purple-100 text-purple-800', icon: '✏️' };
+      default:
+        return { label: 'Çoktan Seçmeli', color: 'bg-blue-100 text-blue-800', icon: '📝' };
     }
   };
 
@@ -169,8 +174,8 @@ const CardManager = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{t('manager.title')}</h1>
               <p className="text-gray-600 mt-1">
-                {selectedSubject === 'all' 
-                  ? `${t('manager.subtitle.all')} - ${filteredCards.length} ${t('common.cards')}` 
+                {selectedSubject === 'all'
+                  ? `${t('manager.subtitle.all')} - ${filteredCards.length} ${t('common.cards')}`
                   : `${selectedSubject} - ${filteredCards.length} ${t('common.cards')}`}
               </p>
             </div>
@@ -209,7 +214,7 @@ const CardManager = () => {
               className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent min-w-[200px]"
             >
               <option value="all">{t('manager.allSubjects')}</option>
-              {subjects.map(subject => (
+              {subjects.map((subject) => (
                 <option key={subject} value={subject}>
                   {subject}
                 </option>
@@ -226,11 +231,13 @@ const CardManager = () => {
             <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">{t('manager.notFoundTitle')}</h3>
             <p className="text-gray-600">
-              {searchTerm || selectedSubject !== 'all' ? t('manager.noResults') : t('manager.noCardsYet')}
+              {searchTerm || selectedSubject !== 'all'
+                ? t('manager.noResults')
+                : t('manager.noCardsYet')}
             </p>
           </div>
         ) : (
-          filteredCards.map(card => {
+          filteredCards.map((card) => {
             const isEditing = editingCard === card.id;
             const difficultyInfo = getDifficultyLabel(card.difficulty);
             const questionTypeInfo = getQuestionTypeLabel(card.question_type);
@@ -239,17 +246,21 @@ const CardManager = () => {
               <div key={card.id} className="card">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${questionTypeInfo.color}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${questionTypeInfo.color}`}
+                    >
                       {questionTypeInfo.icon} {questionTypeInfo.label}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${difficultyInfo.color}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${difficultyInfo.color}`}
+                    >
                       {difficultyInfo.label}
                     </span>
                     <span className="px-2 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-medium">
                       {card.subject}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {isEditing ? (
                       <>
@@ -287,13 +298,13 @@ const CardManager = () => {
 
                 {/* Question */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Soru
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Soru</label>
                   {isEditing ? (
                     <textarea
                       value={editData.question || ''}
-                      onChange={(e) => setEditData(prev => ({ ...prev, question: e.target.value }))}
+                      onChange={(e) =>
+                        setEditData((prev) => ({ ...prev, question: e.target.value }))
+                      }
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       rows={3}
                     />
@@ -301,9 +312,13 @@ const CardManager = () => {
                     <div
                       className="text-gray-900 font-medium"
                       dangerouslySetInnerHTML={{
-                        __html: card.question_type === 'fill_in_blank'
-                          ? sanitizeHTML(card.question).replace(/_____/g, '<span class="bg-yellow-200 px-2 py-1 rounded">_____</span>')
-                          : sanitizeHTML(card.question)
+                        __html:
+                          card.question_type === 'fill_in_blank'
+                            ? sanitizeHTML(card.question).replace(
+                                /_____/g,
+                                '<span class="bg-yellow-200 px-2 py-1 rounded">_____</span>'
+                              )
+                            : sanitizeHTML(card.question),
                       }}
                     />
                   )}
@@ -320,7 +335,9 @@ const CardManager = () => {
                         <input
                           type="text"
                           value={editData.blank_answer || ''}
-                          onChange={(e) => setEditData(prev => ({ ...prev, blank_answer: e.target.value }))}
+                          onChange={(e) =>
+                            setEditData((prev) => ({ ...prev, blank_answer: e.target.value }))
+                          }
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                       ) : (
@@ -337,7 +354,9 @@ const CardManager = () => {
                         {isEditing ? (
                           <textarea
                             value={editData.hints || ''}
-                            onChange={(e) => setEditData(prev => ({ ...prev, hints: e.target.value }))}
+                            onChange={(e) =>
+                              setEditData((prev) => ({ ...prev, hints: e.target.value }))
+                            }
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             rows={2}
                           />
@@ -351,11 +370,11 @@ const CardManager = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {['A', 'B', 'C', 'D', 'E'].map(option => {
+                    {['A', 'B', 'C', 'D', 'E'].map((option) => {
                       const optionKey = `option_${option.toLowerCase()}` as keyof Card;
                       const optionValue = card[optionKey] as string;
                       const isCorrect = card.correct_answer === option;
-                      
+
                       if (!optionValue && !isEditing) return null;
 
                       return (
@@ -363,25 +382,31 @@ const CardManager = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Seçenek {option}
                             {isCorrect && (
-                          <span className="ml-2 text-green-600 text-xs">{t('manager.correctAnswer')}</span>
+                              <span className="ml-2 text-green-600 text-xs">
+                                {t('manager.correctAnswer')}
+                              </span>
                             )}
                           </label>
                           {isEditing ? (
                             <input
                               type="text"
                               value={(editData[optionKey] as string) || ''}
-                              onChange={(e) => setEditData(prev => ({ 
-                                ...prev, 
-                                [optionKey]: e.target.value 
-                              }))}
+                              onChange={(e) =>
+                                setEditData((prev) => ({
+                                  ...prev,
+                                  [optionKey]: e.target.value,
+                                }))
+                              }
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             />
                           ) : (
-                            <div className={`p-3 rounded-lg border ${
-                              isCorrect 
-                                ? 'bg-green-50 border-green-200 text-green-800' 
-                                : 'bg-gray-50 border-gray-200 text-gray-800'
-                            }`}>
+                            <div
+                              className={`p-3 rounded-lg border ${
+                                isCorrect
+                                  ? 'bg-green-50 border-green-200 text-green-800'
+                                  : 'bg-gray-50 border-gray-200 text-gray-800'
+                              }`}
+                            >
                               {optionValue}
                             </div>
                           )}
@@ -418,4 +443,4 @@ const CardManager = () => {
   );
 };
 
-export default CardManager; 
+export default CardManager;

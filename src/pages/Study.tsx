@@ -1,12 +1,28 @@
+import {
+  Play,
+  ArrowLeft,
+  Clock,
+  CheckCircle,
+  XCircle,
+  RotateCcw,
+  BarChart3,
+  AlertCircle,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '../i18n';
 import { useAppStore } from '../store/appStore';
 import { Card } from '../types/database';
-import { getAllCards, getCardsBySubject, createSession, endSession, recordAttempt, updateCard } from '../database/database';
-import { safePercentage } from '../utils/safeMath';
 import { sanitizeHTML } from '../utils/htmlSanitizer';
-import { Play, ArrowLeft, Clock, CheckCircle, XCircle, RotateCcw, BarChart3, AlertCircle } from 'lucide-react';
-import { useI18n } from '../i18n';
+import {
+  getAllCards,
+  getCardsBySubject,
+  createSession,
+  endSession,
+  recordAttempt,
+  updateCard,
+} from '@/services/database';
+import { safePercentage } from '@/shared/utils';
 
 type StudyMode = 'setup' | 'studying' | 'results';
 
@@ -24,7 +40,7 @@ const Study = () => {
     nextQuestion,
     endSession: endCurrentSession,
     setLoading,
-    updateCard: updateStoreCard
+    updateCard: updateStoreCard,
   } = useAppStore();
 
   const [mode, setMode] = useState<StudyMode>('setup');
@@ -32,7 +48,7 @@ const Study = () => {
   const [sessionType, setSessionType] = useState<'practice' | 'test'>('practice');
   const [questionCount, setQuestionCount] = useState(10);
   const [startTime, setStartTime] = useState<Date>(new Date());
-  const [_questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
+  const [, setQuestionStartTime] = useState<Date>(new Date());
   const [subjects, setSubjects] = useState<string[]>([]);
   const [localSessionCards, setLocalSessionCards] = useState<Card[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>([]);
@@ -40,11 +56,12 @@ const Study = () => {
 
   useEffect(() => {
     loadCards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     // Konuları çıkar
-    const uniqueSubjects = [...new Set(cards.map(card => card.subject))];
+    const uniqueSubjects = [...new Set(cards.map((card) => card.subject))];
     setSubjects(uniqueSubjects);
   }, [cards]);
 
@@ -71,16 +88,18 @@ const Study = () => {
   const handleStartStudy = async () => {
     try {
       setLoading(true);
-      
+
       let selectedCards = cards;
-      
+
       if (selectedSubject !== 'all') {
         selectedCards = await getCardsBySubject(selectedSubject);
       }
 
       // Zorluğa göre filtrele
       if (selectedDifficulties.length > 0) {
-        selectedCards = selectedCards.filter(card => selectedDifficulties.includes(card.difficulty));
+        selectedCards = selectedCards.filter((card) =>
+          selectedDifficulties.includes(card.difficulty)
+        );
       }
 
       if (selectedCards.length === 0) {
@@ -100,10 +119,12 @@ const Study = () => {
 
       // Eğer istenen soru sayısı mevcut kartlardan fazlaysa, rastgele kartları tekrarla
       if (questionCount > shuffledCards.length) {
-        console.log(`📚 TEKRAR MODU: İstenen ${questionCount} soru > Mevcut ${shuffledCards.length} kart`);
-        
+        console.log(
+          `📚 TEKRAR MODU: İstenen ${questionCount} soru > Mevcut ${shuffledCards.length} kart`
+        );
+
         const remainingQuestions = questionCount - shuffledCards.length;
-        
+
         // Rastgele kartları seçip tekrarla
         for (let i = 0; i < remainingQuestions; i++) {
           const randomIndex = Math.floor(Math.random() * shuffledCards.length);
@@ -112,22 +133,28 @@ const Study = () => {
           randomCard.id = randomCard.id + (i + 1) * 10000; // Geçici ID
           studyCards.push(randomCard);
         }
-        
-        console.log(`✅ SONUÇ: ${shuffledCards.length} farklı kart + ${remainingQuestions} rastgele tekrar = ${studyCards.length} toplam`);
+
+        console.log(
+          `✅ SONUÇ: ${shuffledCards.length} farklı kart + ${remainingQuestions} rastgele tekrar = ${studyCards.length} toplam`
+        );
       } else if (questionCount === shuffledCards.length) {
         // Tam eşitlik: Tüm kartlar bir kez
         studyCards = shuffledCards;
-        console.log(`🎯 MÜKEMMEL EŞLEME: ${questionCount} soru = ${shuffledCards.length} kart (hiç tekrar yok)`);
+        console.log(
+          `🎯 MÜKEMMEL EŞLEME: ${questionCount} soru = ${shuffledCards.length} kart (hiç tekrar yok)`
+        );
       } else {
         // Normal durum: istenen sayıya kısıtla
         studyCards = shuffledCards.slice(0, questionCount);
-        console.log(`📝 NORMAL MOD: ${questionCount} farklı soru seçildi (${shuffledCards.length} karttan)`);
+        console.log(
+          `📝 NORMAL MOD: ${questionCount} farklı soru seçildi (${shuffledCards.length} karttan)`
+        );
       }
 
       console.log('🔀 Final kartlar:', {
         totalCards: studyCards.length,
         uniqueCards: shuffledCards.length,
-        requestedCount: questionCount
+        requestedCount: questionCount,
       });
 
       // Session başlat
@@ -135,7 +162,6 @@ const Study = () => {
       setStartTime(new Date());
       setQuestionStartTime(new Date());
       setMode('studying');
-
     } catch (error) {
       console.error('Çalışma başlatma hatası:', error);
       alert(t('study.startError'));
@@ -149,7 +175,7 @@ const Study = () => {
 
     const currentCard = sessionCards[currentQuestionIndex];
     answerQuestion(currentCard.id, answer);
-    
+
     // Sonraki soruya geç veya bitir
     setTimeout(() => {
       if (currentQuestionIndex < sessionCards.length - 1) {
@@ -173,54 +199,57 @@ const Study = () => {
       const sessionId = await createSession({
         started_at: startTime.toISOString(),
         total_questions: sessionCards.length,
-        session_type: sessionType
+        session_type: sessionType,
       });
-      
+
       if (!sessionId) {
         return;
       }
 
       // Cevapları kaydet
       let correctCount = 0;
-      
+
       for (const card of sessionCards) {
         const userAnswer = userAnswers[card.id];
-        
+
         // Soru tipine göre doğru cevap kontrolü
         let isCorrect = false;
         if (card.question_type === 'fill_in_blank' && card.blank_answer) {
           // Boşluk doldurma için blank_answer ile karşılaştır
-          const correctAnswers = card.blank_answer.toLowerCase().split(',').map(a => a.trim());
+          const correctAnswers = card.blank_answer
+            .toLowerCase()
+            .split(',')
+            .map((a) => a.trim());
           const userAnswerLower = (userAnswer || '').toString().toLowerCase().trim();
           isCorrect = correctAnswers.includes(userAnswerLower);
-          
+
           console.log('🔍 Boşluk doldurma cevap kontrolü:', {
             cardId: card.id,
             userAnswer: userAnswerLower,
             correctAnswers,
-            isCorrect
+            isCorrect,
           });
         } else {
           // Çoktan seçmeli için normal karşılaştırma
           isCorrect = userAnswer === card.correct_answer;
-          
+
           console.log('🔍 Çoktan seçmeli cevap kontrolü:', {
             cardId: card.id,
             userAnswer,
             correctAnswer: card.correct_answer,
-            isCorrect
+            isCorrect,
           });
         }
-        
+
         if (isCorrect) correctCount++;
-        
+
         try {
           await recordAttempt({
             card_id: card.id,
             session_id: sessionId,
             user_answer: userAnswer,
             is_correct: isCorrect,
-            time_spent: 30 // Ortalama süre, gerçek uygulamada hesaplanacak
+            time_spent: 30, // Ortalama süre, gerçek uygulamada hesaplanacak
           });
         } catch (error) {
           console.error('❌ Attempt kaydetme hatası:', error, { cardId: card.id });
@@ -229,9 +258,8 @@ const Study = () => {
 
       // Session'ı sonlandır
       await endSession(sessionId, correctCount);
-      
-      setMode('results');
 
+      setMode('results');
     } catch (error) {
       console.error('Session sonlandırma hatası:', error);
     } finally {
@@ -242,14 +270,12 @@ const Study = () => {
   const handleUpdateDifficulty = async (cardId: number, difficulty: number) => {
     try {
       // 1. Update local state for immediate UI feedback
-      setLocalSessionCards(prev => 
-        prev.map(card => 
-          card.id === cardId ? { ...card, difficulty } : card
-        )
+      setLocalSessionCards((prev) =>
+        prev.map((card) => (card.id === cardId ? { ...card, difficulty } : card))
       );
 
       // 2. Update global state (Zustand)
-      const cardToUpdate = cards.find(c => c.id === cardId);
+      const cardToUpdate = cards.find((c) => c.id === cardId);
       if (cardToUpdate) {
         updateStoreCard({ ...cardToUpdate, difficulty });
       }
@@ -264,12 +290,15 @@ const Study = () => {
   };
 
   const handleRetryIncorrect = () => {
-    const incorrectCards = localSessionCards.filter(card => {
+    const incorrectCards = localSessionCards.filter((card) => {
       const userAnswer = userAnswers[card.id];
       if (userAnswer === undefined) return false;
 
       if (card.question_type === 'fill_in_blank' && card.blank_answer) {
-        const correctAnswers = card.blank_answer.toLowerCase().split(',').map(a => a.trim());
+        const correctAnswers = card.blank_answer
+          .toLowerCase()
+          .split(',')
+          .map((a) => a.trim());
         const userAnswerLower = (userAnswer || '').toString().toLowerCase().trim();
         return !correctAnswers.includes(userAnswerLower);
       } else {
@@ -278,7 +307,9 @@ const Study = () => {
     });
 
     if (incorrectCards.length > 0) {
-      console.log(`🔄 Yanlış bilinen ${incorrectCards.length} kart ile yeni oturum başlatılıyor...`);
+      console.log(
+        `🔄 Yanlış bilinen ${incorrectCards.length} kart ile yeni oturum başlatılıyor...`
+      );
       // Mevcut oturum bilgilerini temizlemeden doğrudan yeni oturumu başlat
       endCurrentSession(); // Önceki oturum state'ini temizle
       startSession(incorrectCards, 'practice'); // Yeni oturumu başlat
@@ -315,11 +346,11 @@ const Study = () => {
   // Setup Mode
   if (mode === 'setup') {
     return (
-      <div 
+      <div
         style={{
           minHeight: '100vh',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          padding: '2rem'
+          padding: '2rem',
         }}
       >
         {/* Header */}
@@ -342,43 +373,52 @@ const Study = () => {
 
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Konu Seçimi */}
-          <div 
+          <div
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(20px)',
               borderRadius: '24px',
               padding: '2rem',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
-            <h3 className="text-2xl font-bold text-white mb-6 flex items-center">📚 {t('study.selectSubject')}</h3>
-            
+            <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+              📚 {t('study.selectSubject')}
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
                 onClick={() => setSelectedSubject('all')}
                 className="p-6 rounded-2xl transition-all duration-300 transform hover:scale-105"
                 style={{
-                  background: selectedSubject === 'all'
-                    ? 'rgba(255, 255, 255, 0.9)'
-                    : 'rgba(255, 255, 255, 0.2)',
-                  border: selectedSubject === 'all'
-                    ? '3px solid #3b82f6'
-                    : '2px solid rgba(255, 255, 255, 0.3)',
-                  boxShadow: selectedSubject === 'all' 
-                    ? '0 20px 40px rgba(59, 130, 246, 0.3)'
-                    : '0 10px 25px rgba(0, 0, 0, 0.1)'
+                  background:
+                    selectedSubject === 'all'
+                      ? 'rgba(255, 255, 255, 0.9)'
+                      : 'rgba(255, 255, 255, 0.2)',
+                  border:
+                    selectedSubject === 'all'
+                      ? '3px solid #3b82f6'
+                      : '2px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow:
+                    selectedSubject === 'all'
+                      ? '0 20px 40px rgba(59, 130, 246, 0.3)'
+                      : '0 10px 25px rgba(0, 0, 0, 0.1)',
                 }}
               >
                 <div className="text-center">
                   <div className="text-3xl mb-3">🎯</div>
-                  <div className={`text-lg font-bold mb-2 ${
-                    selectedSubject === 'all' ? 'text-gray-800' : 'text-white'
-                  }`}>
+                  <div
+                    className={`text-lg font-bold mb-2 ${
+                      selectedSubject === 'all' ? 'text-gray-800' : 'text-white'
+                    }`}
+                  >
                     {t('study.mixedStudy')}
                   </div>
-                  <div className={`text-sm ${
-                    selectedSubject === 'all' ? 'text-gray-600' : 'text-white/80'
-                  }`}>
+                  <div
+                    className={`text-sm ${
+                      selectedSubject === 'all' ? 'text-gray-600' : 'text-white/80'
+                    }`}
+                  >
                     {t('study.allSubjects')} • {cards.length} {t('common.cards')}
                   </div>
                   {selectedSubject === 'all' && (
@@ -390,45 +430,52 @@ const Study = () => {
                   )}
                 </div>
               </button>
-              
+
               {subjects.map((subject, index) => {
                 const subjectEmojis = ['📐', '🧪', '📖', '🌍', '🎨', '💼', '⚖️', '🔬', '💻', '🏛️'];
                 const emoji = subjectEmojis[index % subjectEmojis.length];
-                const subjectCards = cards.filter(card => card.subject === subject);
-                
+                const subjectCards = cards.filter((card) => card.subject === subject);
+
                 return (
                   <button
                     key={subject}
                     onClick={() => setSelectedSubject(subject)}
                     className="p-6 rounded-2xl transition-all duration-300 transform hover:scale-105"
                     style={{
-                      background: selectedSubject === subject
-                        ? 'rgba(255, 255, 255, 0.9)'
-                        : 'rgba(255, 255, 255, 0.2)',
-                      border: selectedSubject === subject
-                        ? '3px solid #10b981'
-                        : '2px solid rgba(255, 255, 255, 0.3)',
-                      boxShadow: selectedSubject === subject 
-                        ? '0 20px 40px rgba(16, 185, 129, 0.3)'
-                        : '0 10px 25px rgba(0, 0, 0, 0.1)'
+                      background:
+                        selectedSubject === subject
+                          ? 'rgba(255, 255, 255, 0.9)'
+                          : 'rgba(255, 255, 255, 0.2)',
+                      border:
+                        selectedSubject === subject
+                          ? '3px solid #10b981'
+                          : '2px solid rgba(255, 255, 255, 0.3)',
+                      boxShadow:
+                        selectedSubject === subject
+                          ? '0 20px 40px rgba(16, 185, 129, 0.3)'
+                          : '0 10px 25px rgba(0, 0, 0, 0.1)',
                     }}
                   >
                     <div className="text-center">
                       <div className="text-3xl mb-3">{emoji}</div>
-                      <div className={`text-lg font-bold mb-2 ${
-                        selectedSubject === subject ? 'text-gray-800' : 'text-white'
-                      }`}>
+                      <div
+                        className={`text-lg font-bold mb-2 ${
+                          selectedSubject === subject ? 'text-gray-800' : 'text-white'
+                        }`}
+                      >
                         {subject}
                       </div>
-                      <div className={`text-sm ${
-                        selectedSubject === subject ? 'text-gray-600' : 'text-white/80'
-                      }`}>
-                         {subjectCards.length} {t('common.cards')}
+                      <div
+                        className={`text-sm ${
+                          selectedSubject === subject ? 'text-gray-600' : 'text-white/80'
+                        }`}
+                      >
+                        {subjectCards.length} {t('common.cards')}
                       </div>
                       {selectedSubject === subject && (
                         <div className="mt-3">
                           <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
-                             ✨ {t('common.selected')}
+                            ✨ {t('common.selected')}
                           </span>
                         </div>
                       )}
@@ -437,7 +484,7 @@ const Study = () => {
                 );
               })}
             </div>
-            
+
             {subjects.length === 0 && (
               <div className="text-center py-8">
                 <div className="text-5xl mb-4">📖</div>
@@ -454,13 +501,13 @@ const Study = () => {
           </div>
 
           {/* Zorluk Seviyesi */}
-          <div 
+          <div
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(20px)',
               borderRadius: '24px',
               padding: '2rem',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
             <h3 className="text-xl font-semibold text-white mb-6">{t('study.difficulty')}</h3>
@@ -469,9 +516,10 @@ const Study = () => {
                 { label: t('study.all'), value: [], color: 'from-blue-500 to-blue-600' },
                 { label: t('study.easy'), value: [1], color: 'from-green-500 to-green-600' },
                 { label: t('study.medium'), value: [2], color: 'from-yellow-500 to-orange-500' },
-                { label: t('study.hard'), value: [3], color: 'from-red-500 to-red-600' }
+                { label: t('study.hard'), value: [3], color: 'from-red-500 to-red-600' },
               ].map(({ label, value, color }) => {
-                const isSelected = JSON.stringify(selectedDifficulties.sort()) === JSON.stringify(value.sort());
+                const isSelected =
+                  JSON.stringify(selectedDifficulties.sort()) === JSON.stringify(value.sort());
                 return (
                   <button
                     key={label}
@@ -481,10 +529,12 @@ const Study = () => {
                       isSelected ? 'ring-4 ring-white/50' : ''
                     }`}
                     style={{
-                      background: isSelected 
-                        ? `linear-gradient(135deg, var(--tw-gradient-stops))` 
+                      background: isSelected
+                        ? `linear-gradient(135deg, var(--tw-gradient-stops))`
                         : 'rgba(255, 255, 255, 0.2)',
-                      backgroundImage: isSelected ? `linear-gradient(135deg, ${color.includes('blue') ? '#3b82f6, #2563eb' : color.includes('green') ? '#10b981, #059669' : color.includes('yellow') ? '#f59e0b, #ea580c' : '#ef4444, #dc2626'})` : undefined
+                      backgroundImage: isSelected
+                        ? `linear-gradient(135deg, ${color.includes('blue') ? '#3b82f6, #2563eb' : color.includes('green') ? '#10b981, #059669' : color.includes('yellow') ? '#f59e0b, #ea580c' : '#ef4444, #dc2626'})`
+                        : undefined,
                     }}
                   >
                     {label}
@@ -495,13 +545,13 @@ const Study = () => {
           </div>
 
           {/* Soru Sayısı */}
-          <div 
+          <div
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(20px)',
               borderRadius: '24px',
               padding: '2rem',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
             <h3 className="text-xl font-semibold text-white mb-6">{t('study.questionCount')}</h3>
@@ -512,10 +562,14 @@ const Study = () => {
                 max={(() => {
                   let availableCards = cards;
                   if (selectedSubject !== 'all') {
-                    availableCards = availableCards.filter(card => card.subject === selectedSubject);
+                    availableCards = availableCards.filter(
+                      (card) => card.subject === selectedSubject
+                    );
                   }
                   if (selectedDifficulties.length > 0) {
-                    availableCards = availableCards.filter(card => selectedDifficulties.includes(card.difficulty));
+                    availableCards = availableCards.filter((card) =>
+                      selectedDifficulties.includes(card.difficulty)
+                    );
                   }
                   return availableCards.length > 0 ? Math.max(50, availableCards.length) : 50;
                 })()}
@@ -525,35 +579,40 @@ const Study = () => {
                 style={{
                   background: 'rgba(255, 255, 255, 0.3)',
                   height: '12px',
-                  borderRadius: '6px'
+                  borderRadius: '6px',
                 }}
               />
-              <div 
+              <div
                 className="text-3xl font-bold text-white px-6 py-3 rounded-2xl min-w-[80px] text-center"
                 style={{
                   background: 'rgba(255, 255, 255, 0.2)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                 }}
               >
                 {questionCount}
               </div>
             </div>
-            
+
             {(() => {
               let availableCards = cards;
               if (selectedSubject !== 'all') {
-                availableCards = availableCards.filter(card => card.subject === selectedSubject);
+                availableCards = availableCards.filter((card) => card.subject === selectedSubject);
               }
               if (selectedDifficulties.length > 0) {
-                availableCards = availableCards.filter(card => selectedDifficulties.includes(card.difficulty));
+                availableCards = availableCards.filter((card) =>
+                  selectedDifficulties.includes(card.difficulty)
+                );
               }
               const availableCardCount = availableCards.length;
-              
+
               if (availableCardCount === 0) {
                 return (
-                  <div 
+                  <div
                     className="mt-4 p-4 rounded-2xl text-white font-medium flex items-center gap-3"
-                    style={{ background: 'rgba(239, 68, 68, 0.3)', border: '1px solid rgba(239, 68, 68, 0.5)' }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.3)',
+                      border: '1px solid rgba(239, 68, 68, 0.5)',
+                    }}
                   >
                     <AlertCircle className="w-5 h-5" />
                     {t('study.noCardsMatch')}
@@ -565,13 +624,13 @@ const Study = () => {
           </div>
 
           {/* Çalışma Tipi */}
-          <div 
+          <div
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(20px)',
               borderRadius: '24px',
               padding: '2rem',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
             <h3 className="text-xl font-semibold text-white mb-6">{t('study.type')}</h3>
@@ -583,28 +642,40 @@ const Study = () => {
                   sessionType === 'practice' ? 'ring-4 ring-white/50' : ''
                 }`}
                 style={{
-                  background: sessionType === 'practice' 
-                    ? 'rgba(255, 255, 255, 0.9)' 
-                    : 'rgba(255, 255, 255, 0.2)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                  background:
+                    sessionType === 'practice'
+                      ? 'rgba(255, 255, 255, 0.9)'
+                      : 'rgba(255, 255, 255, 0.2)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                 }}
               >
                 <div className="text-center">
-                  <div 
+                  <div
                     className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
                     style={{
-                      background: sessionType === 'practice' 
-                        ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' 
-                        : 'rgba(255, 255, 255, 0.3)'
+                      background:
+                        sessionType === 'practice'
+                          ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+                          : 'rgba(255, 255, 255, 0.3)',
                     }}
                   >
-                    <RotateCcw className={`w-8 h-8 ${sessionType === 'practice' ? 'text-white' : 'text-white/80'}`} />
+                    <RotateCcw
+                      className={`w-8 h-8 ${sessionType === 'practice' ? 'text-white' : 'text-white/80'}`}
+                    />
                   </div>
-                  <div className={`text-xl font-bold mb-2 ${sessionType === 'practice' ? 'text-gray-800' : 'text-white'}`}>{t('study.practice')}</div>
-                  <div className={`text-sm ${sessionType === 'practice' ? 'text-gray-600' : 'text-white/80'}`}>{t('study.practice.desc')}</div>
+                  <div
+                    className={`text-xl font-bold mb-2 ${sessionType === 'practice' ? 'text-gray-800' : 'text-white'}`}
+                  >
+                    {t('study.practice')}
+                  </div>
+                  <div
+                    className={`text-sm ${sessionType === 'practice' ? 'text-gray-600' : 'text-white/80'}`}
+                  >
+                    {t('study.practice.desc')}
+                  </div>
                 </div>
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => setSessionType('test')}
@@ -612,25 +683,37 @@ const Study = () => {
                   sessionType === 'test' ? 'ring-4 ring-white/50' : ''
                 }`}
                 style={{
-                  background: sessionType === 'test' 
-                    ? 'rgba(255, 255, 255, 0.9)' 
-                    : 'rgba(255, 255, 255, 0.2)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                  background:
+                    sessionType === 'test'
+                      ? 'rgba(255, 255, 255, 0.9)'
+                      : 'rgba(255, 255, 255, 0.2)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                 }}
               >
                 <div className="text-center">
-                  <div 
+                  <div
                     className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
                     style={{
-                      background: sessionType === 'test' 
-                        ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' 
-                        : 'rgba(255, 255, 255, 0.3)'
+                      background:
+                        sessionType === 'test'
+                          ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+                          : 'rgba(255, 255, 255, 0.3)',
                     }}
                   >
-                    <Clock className={`w-8 h-8 ${sessionType === 'test' ? 'text-white' : 'text-white/80'}`} />
+                    <Clock
+                      className={`w-8 h-8 ${sessionType === 'test' ? 'text-white' : 'text-white/80'}`}
+                    />
                   </div>
-                  <div className={`text-xl font-bold mb-2 ${sessionType === 'test' ? 'text-gray-800' : 'text-white'}`}>{t('study.test')}</div>
-                  <div className={`text-sm ${sessionType === 'test' ? 'text-gray-600' : 'text-white/80'}`}>{t('study.test.desc')}</div>
+                  <div
+                    className={`text-xl font-bold mb-2 ${sessionType === 'test' ? 'text-gray-800' : 'text-white'}`}
+                  >
+                    {t('study.test')}
+                  </div>
+                  <div
+                    className={`text-sm ${sessionType === 'test' ? 'text-gray-600' : 'text-white/80'}`}
+                  >
+                    {t('study.test.desc')}
+                  </div>
                 </div>
               </button>
             </div>
@@ -643,11 +726,12 @@ const Study = () => {
               disabled={cards.length === 0}
               className="px-16 py-6 rounded-3xl font-black text-2xl text-white transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-4 shadow-2xl"
               style={{
-                background: cards.length > 0 
-                  ? 'linear-gradient(135deg, #667eea, #764ba2)' 
-                  : 'rgba(255, 255, 255, 0.3)',
+                background:
+                  cards.length > 0
+                    ? 'linear-gradient(135deg, #667eea, #764ba2)'
+                    : 'rgba(255, 255, 255, 0.3)',
                 border: '3px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: cards.length > 0 ? '0 25px 50px rgba(103, 126, 234, 0.4)' : 'none'
+                boxShadow: cards.length > 0 ? '0 25px 50px rgba(103, 126, 234, 0.4)' : 'none',
               }}
             >
               {cards.length > 0 ? (
@@ -663,31 +747,36 @@ const Study = () => {
               )}
             </button>
           </div>
-          
+
           {cards.length > 0 && (
             <div className="text-center mt-6 text-white/80 text-lg">
               <span className="font-bold">
                 {(() => {
                   let availableCards = cards;
                   if (selectedSubject !== 'all') {
-                    availableCards = availableCards.filter(card => card.subject === selectedSubject);
+                    availableCards = availableCards.filter(
+                      (card) => card.subject === selectedSubject
+                    );
                   }
                   if (selectedDifficulties.length > 0) {
-                    availableCards = availableCards.filter(card => selectedDifficulties.includes(card.difficulty));
+                    availableCards = availableCards.filter((card) =>
+                      selectedDifficulties.includes(card.difficulty)
+                    );
                   }
                   return Math.min(questionCount, availableCards.length);
                 })()}
-              </span> kart ile çalışmaya hazırsın! 🎯
+              </span>{' '}
+              kart ile çalışmaya hazırsın! 🎯
             </div>
           )}
 
           {cards.length === 0 && (
-            <div 
+            <div
               className="text-center p-6 rounded-2xl"
               style={{
                 background: 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
+                border: '1px solid rgba(255, 255, 255, 0.2)',
               }}
             >
               <p className="text-white/90 text-lg">
@@ -703,7 +792,7 @@ const Study = () => {
   // Studying Mode
   if (mode === 'studying' && currentCard) {
     return (
-      <div 
+      <div
         className="min-h-screen p-8"
         style={{
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -722,35 +811,39 @@ const Study = () => {
               <ArrowLeft className="w-5 h-5" />
               <span>{t('study.exit')}</span>
             </button>
-            
+
             <div className="text-white/90 text-sm font-medium">
               {sessionType === 'practice' ? t('study.practiceMode') : t('study.testMode')}
             </div>
           </div>
 
           {/* Modern Progress Bar */}
-          <div 
+          <div
             className="p-6 rounded-3xl"
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-white/90 font-medium">{t('study.question')} {currentQuestionIndex + 1} / {localSessionCards.length}</span>
-              <span className="text-white/90 font-medium">%{Math.round(progress)} {t('study.completed')}</span>
+              <span className="text-white/90 font-medium">
+                {t('study.question')} {currentQuestionIndex + 1} / {localSessionCards.length}
+              </span>
+              <span className="text-white/90 font-medium">
+                %{Math.round(progress)} {t('study.completed')}
+              </span>
             </div>
-            
-            <div 
+
+            <div
               className="w-full rounded-full h-3"
               style={{ background: 'rgba(255, 255, 255, 0.2)' }}
             >
               <div
                 className="h-3 rounded-full transition-all duration-500 ease-out"
-                style={{ 
+                style={{
                   width: `${progress}%`,
-                  background: 'linear-gradient(90deg, #10b981, #059669)'
+                  background: 'linear-gradient(90deg, #10b981, #059669)',
                 }}
               />
             </div>
@@ -758,62 +851,69 @@ const Study = () => {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <div 
+          <div
             className="p-8 rounded-3xl"
             style={{
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
             }}
           >
             {/* Subject and Difficulty Tags */}
             <div className="mb-8 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span 
+                <span
                   className="px-4 py-2 rounded-2xl text-sm font-semibold"
                   style={{
                     background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                    color: 'white'
+                    color: 'white',
                   }}
                 >
                   📚 {currentCard.subject}
                 </span>
-                
-                <span 
+
+                <span
                   className="px-4 py-2 rounded-2xl text-sm font-semibold"
                   style={{
-                    background: currentCard.difficulty === 1 
-                      ? 'linear-gradient(135deg, #10b981, #059669)' 
-                      : currentCard.difficulty === 2 
-                      ? 'linear-gradient(135deg, #f59e0b, #d97706)'
-                      : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    color: 'white'
+                    background:
+                      currentCard.difficulty === 1
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : currentCard.difficulty === 2
+                          ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                          : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    color: 'white',
                   }}
                 >
-                  {currentCard.difficulty === 1 ? `🟢 ${t('study.easy')}` : currentCard.difficulty === 2 ? `🟡 ${t('study.medium')}` : `🔴 ${t('study.hard')}`}
+                  {currentCard.difficulty === 1
+                    ? `🟢 ${t('study.easy')}`
+                    : currentCard.difficulty === 2
+                      ? `🟡 ${t('study.medium')}`
+                      : `🔴 ${t('study.hard')}`}
                 </span>
               </div>
 
-              <div 
+              <div
                 className="px-4 py-2 rounded-2xl text-sm font-medium"
                 style={{
                   background: 'rgba(103, 126, 234, 0.1)',
-                  color: '#667eea'
+                  color: '#667eea',
                 }}
               >
-                {currentCard.question_type === 'fill_in_blank' ? t('study.fillInBlank') : t('study.multipleChoice')}
+                {currentCard.question_type === 'fill_in_blank'
+                  ? t('study.fillInBlank')
+                  : t('study.multipleChoice')}
               </div>
             </div>
 
             {/* Görsel varsa göster */}
             {currentCard.image_path && (
               <div className="mb-8">
-                <div 
+                <div
                   className="p-4 rounded-2xl"
                   style={{
                     background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-                    border: '1px solid rgba(148, 163, 184, 0.2)'
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
                   }}
                 >
                   <img
@@ -827,22 +927,23 @@ const Study = () => {
 
             {/* Soru */}
             <div className="mb-10">
-              <div 
+              <div
                 className="p-8 rounded-2xl"
                 style={{
                   background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
-                  border: '1px solid rgba(148, 163, 184, 0.2)'
+                  border: '1px solid rgba(148, 163, 184, 0.2)',
                 }}
               >
                 {currentCard.question_type === 'fill_in_blank' ? (
                   <h2
                     className="text-2xl font-bold text-gray-800 leading-relaxed text-center"
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeHTML(currentCard.question).replace(/_____/g,
-                        isAnswered && userAnswer ?
-                          `<span style="background: ${userAnswer === currentCard.blank_answer ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'}; color: white; padding: 8px 16px; border-radius: 12px; font-weight: bold; display: inline-block; margin: 0 8px;">${sanitizeHTML(userAnswer)}</span>` :
-                          '<span style="border-bottom: 3px solid #667eea; display: inline-block; min-width: 120px; height: 35px; margin: 0 8px; background: rgba(103, 126, 234, 0.1); border-radius: 8px;"></span>'
-                      )
+                      __html: sanitizeHTML(currentCard.question).replace(
+                        /_____/g,
+                        isAnswered && userAnswer
+                          ? `<span style="background: ${userAnswer === currentCard.blank_answer ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'}; color: white; padding: 8px 16px; border-radius: 12px; font-weight: bold; display: inline-block; margin: 0 8px;">${sanitizeHTML(userAnswer)}</span>`
+                          : '<span style="border-bottom: 3px solid #667eea; display: inline-block; min-width: 120px; height: 35px; margin: 0 8px; background: rgba(103, 126, 234, 0.1); border-radius: 8px;"></span>'
+                      ),
                     }}
                   />
                 ) : (
@@ -856,24 +957,26 @@ const Study = () => {
             {/* Çoktan seçmeli sorular */}
             <div className="space-y-4">
               {['A', 'B', 'C', 'D', 'E'].map((option) => {
-                const optionValue = currentCard[`option_${option.toLowerCase()}` as keyof typeof currentCard];
-                
+                const optionValue =
+                  currentCard[`option_${option.toLowerCase()}` as keyof typeof currentCard];
+
                 // Eğer seçenek boşsa gösterme
                 if (!optionValue || (typeof optionValue === 'string' && !optionValue.trim())) {
                   return null;
                 }
-                
+
                 const isSelected = userAnswer === option;
                 const isCorrect = currentCard.correct_answer === option;
-                
+
                 let buttonStyle = {};
-                let buttonClass = 'w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-[1.02]';
-                
+                let buttonClass =
+                  'w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-[1.02]';
+
                 if (!isAnswered) {
                   buttonStyle = {
                     background: 'rgba(255, 255, 255, 0.8)',
                     border: '2px solid rgba(148, 163, 184, 0.3)',
-                    backdropFilter: 'blur(10px)'
+                    backdropFilter: 'blur(10px)',
                   };
                   buttonClass += ' hover:shadow-lg';
                 } else {
@@ -881,25 +984,25 @@ const Study = () => {
                     buttonStyle = {
                       background: 'linear-gradient(135deg, #10b981, #059669)',
                       border: '2px solid #059669',
-                      color: 'white'
+                      color: 'white',
                     };
                   } else if (isSelected && !isCorrect) {
                     buttonStyle = {
                       background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                       border: '2px solid #dc2626',
-                      color: 'white'
+                      color: 'white',
                     };
                   } else if (isCorrect) {
                     buttonStyle = {
                       background: 'linear-gradient(135deg, #10b981, #059669)',
                       border: '2px solid #059669',
-                      color: 'white'
+                      color: 'white',
                     };
                   } else {
                     buttonStyle = {
                       background: 'rgba(148, 163, 184, 0.2)',
                       border: '2px solid rgba(148, 163, 184, 0.3)',
-                      color: '#64748b'
+                      color: '#64748b',
                     };
                   }
                 }
@@ -907,26 +1010,31 @@ const Study = () => {
                 return (
                   <button
                     key={option}
-                    onClick={() => !isAnswered && handleAnswer(option as 'A' | 'B' | 'C' | 'D' | 'E')}
+                    onClick={() =>
+                      !isAnswered && handleAnswer(option as 'A' | 'B' | 'C' | 'D' | 'E')
+                    }
                     disabled={isAnswered}
                     className={buttonClass}
                     style={buttonStyle}
                   >
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mr-6"
                         style={{
-                          background: !isAnswered || (isSelected && isCorrect) || (!isSelected && isCorrect) 
-                            ? 'rgba(255, 255, 255, 0.3)' 
-                            : isSelected && !isCorrect 
-                            ? 'rgba(255, 255, 255, 0.3)'
-                            : 'rgba(148, 163, 184, 0.3)',
-                          color: !isAnswered ? '#667eea' : 'inherit'
+                          background:
+                            !isAnswered || (isSelected && isCorrect) || (!isSelected && isCorrect)
+                              ? 'rgba(255, 255, 255, 0.3)'
+                              : isSelected && !isCorrect
+                                ? 'rgba(255, 255, 255, 0.3)'
+                                : 'rgba(148, 163, 184, 0.3)',
+                          color: !isAnswered ? '#667eea' : 'inherit',
                         }}
                       >
                         {option}
                       </div>
-                      <span className="flex-1 text-lg font-medium leading-relaxed">{optionValue}</span>
+                      <span className="flex-1 text-lg font-medium leading-relaxed">
+                        {optionValue}
+                      </span>
                       {isAnswered && isSelected && (
                         <div className="ml-4">
                           {isCorrect ? (
@@ -948,11 +1056,11 @@ const Study = () => {
             </div>
 
             {isAnswered && (
-              <div 
+              <div
                 className="mt-8 p-6 rounded-2xl"
                 style={{
                   background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-                  border: '1px solid rgba(148, 163, 184, 0.2)'
+                  border: '1px solid rgba(148, 163, 184, 0.2)',
                 }}
               >
                 <div className="flex items-center justify-center">
@@ -960,9 +1068,12 @@ const Study = () => {
                     // Soru tipine göre doğru cevap kontrolü
                     let isCorrect = false;
                     let correctAnswer = '';
-                    
+
                     if (currentCard.question_type === 'fill_in_blank' && currentCard.blank_answer) {
-                      const correctAnswers = currentCard.blank_answer.toLowerCase().split(',').map(a => a.trim());
+                      const correctAnswers = currentCard.blank_answer
+                        .toLowerCase()
+                        .split(',')
+                        .map((a) => a.trim());
                       const userAnswerLower = (userAnswer || '').toString().toLowerCase().trim();
                       isCorrect = correctAnswers.includes(userAnswerLower);
                       correctAnswer = currentCard.blank_answer;
@@ -970,7 +1081,7 @@ const Study = () => {
                       isCorrect = userAnswer === currentCard.correct_answer;
                       correctAnswer = currentCard.correct_answer;
                     }
-                    
+
                     return (
                       <div className="text-center">
                         <div className="flex items-center justify-center mb-3">
@@ -985,7 +1096,8 @@ const Study = () => {
                         </div>
                         {!isCorrect && (
                           <p className="text-gray-600 text-lg">
-                            {t('study.correctAnswer')} <span className="font-semibold text-green-600">{correctAnswer}</span>
+                            {t('study.correctAnswer')}{' '}
+                            <span className="font-semibold text-green-600">{correctAnswer}</span>
                           </p>
                         )}
                       </div>
@@ -998,29 +1110,41 @@ const Study = () => {
             {/* Zorluk güncelleme butonları */}
             {isAnswered && (
               <div className="mt-8 text-center">
-                <h4 className="text-lg font-semibold text-gray-700 mb-6">{t('study.howWasQuestion')}</h4>
+                <h4 className="text-lg font-semibold text-gray-700 mb-6">
+                  {t('study.howWasQuestion')}
+                </h4>
                 <div className="flex justify-center items-center gap-4">
                   {[
-                    { label: `🟢 ${t('study.easy')}`, value: 1, color: 'linear-gradient(135deg, #10b981, #059669)' },
-                    { label: `🟡 ${t('study.medium')}`, value: 2, color: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-                    { label: `🔴 ${t('study.hard')}`, value: 3, color: 'linear-gradient(135deg, #ef4444, #dc2626)' }
+                    {
+                      label: `🟢 ${t('study.easy')}`,
+                      value: 1,
+                      color: 'linear-gradient(135deg, #10b981, #059669)',
+                    },
+                    {
+                      label: `🟡 ${t('study.medium')}`,
+                      value: 2,
+                      color: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    },
+                    {
+                      label: `🔴 ${t('study.hard')}`,
+                      value: 3,
+                      color: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    },
                   ].map(({ label, value, color }) => (
                     <button
                       key={value}
                       onClick={() => handleUpdateDifficulty(currentCard.id, value)}
                       className={`px-6 py-3 rounded-2xl text-sm font-bold transition-all duration-300 transform hover:scale-105 ${
-                        currentCard.difficulty === value
-                          ? 'shadow-lg scale-105'
-                          : 'hover:shadow-md'
+                        currentCard.difficulty === value ? 'shadow-lg scale-105' : 'hover:shadow-md'
                       }`}
                       style={{
-                        background: currentCard.difficulty === value 
-                          ? color 
-                          : 'rgba(255, 255, 255, 0.8)',
-                        border: currentCard.difficulty === value 
-                          ? '2px solid rgba(255, 255, 255, 0.3)' 
-                          : '2px solid rgba(148, 163, 184, 0.3)',
-                        color: currentCard.difficulty === value ? 'white' : '#374151'
+                        background:
+                          currentCard.difficulty === value ? color : 'rgba(255, 255, 255, 0.8)',
+                        border:
+                          currentCard.difficulty === value
+                            ? '2px solid rgba(255, 255, 255, 0.3)'
+                            : '2px solid rgba(148, 163, 184, 0.3)',
+                        color: currentCard.difficulty === value ? 'white' : '#374151',
                       }}
                     >
                       {label}
@@ -1042,7 +1166,6 @@ const Study = () => {
                 </button>
               </div>
             )}
-
           </div>
         </div>
       </div>
@@ -1054,40 +1177,41 @@ const Study = () => {
     const correctAnswers = localSessionCards.reduce((count, card) => {
       const userAnswer = userAnswers[card.id];
       let isCorrect = false;
-      
+
       if (card.question_type === 'fill_in_blank' && card.blank_answer) {
-        const correctAnswers = card.blank_answer.toLowerCase().split(',').map(a => a.trim());
+        const correctAnswers = card.blank_answer
+          .toLowerCase()
+          .split(',')
+          .map((a) => a.trim());
         const userAnswerLower = (userAnswer || '').toString().toLowerCase().trim();
         isCorrect = correctAnswers.includes(userAnswerLower);
       } else {
         isCorrect = userAnswer === card.correct_answer;
       }
-      
+
       return isCorrect ? count + 1 : count;
     }, 0);
-    
+
     const incorrectAnswers = localSessionCards.length - correctAnswers;
     const accuracy = safePercentage(correctAnswers, localSessionCards.length);
-    const _timeTaken = currentSession.ended_at ?
-      (new Date(currentSession.ended_at).getTime() - new Date(currentSession.started_at).getTime()) / 1000 : 0;
 
     return (
-      <div 
+      <div
         className="min-h-screen p-8"
         style={{
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         }}
       >
         <div className="max-w-5xl mx-auto">
-          <div 
+          <div
             className="text-center mb-12 p-8 rounded-3xl"
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
-            <div 
+            <div
               className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
               style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
             >
@@ -1099,58 +1223,54 @@ const Study = () => {
 
           {/* Sonuç kartları */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div 
+            <div
               className="text-center p-8 rounded-3xl transition-all duration-300 transform hover:scale-105"
               style={{
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
               }}
             >
-              <div 
+              <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
               >
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-              <div className="text-3xl font-bold text-green-600 mb-2">
-                {correctAnswers}
-              </div>
+              <div className="text-3xl font-bold text-green-600 mb-2">{correctAnswers}</div>
               <div className="text-gray-600 font-medium">{t('study.correctCount')}</div>
             </div>
 
-            <div 
+            <div
               className="text-center p-8 rounded-3xl transition-all duration-300 transform hover:scale-105"
               style={{
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
               }}
             >
-              <div 
+              <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
               >
                 <XCircle className="w-6 h-6 text-white" />
               </div>
-              <div className="text-3xl font-bold text-red-600 mb-2">
-                {incorrectAnswers}
-              </div>
+              <div className="text-3xl font-bold text-red-600 mb-2">{incorrectAnswers}</div>
               <div className="text-gray-600 font-medium">{t('study.wrongCount')}</div>
             </div>
 
-            <div 
+            <div
               className="text-center p-8 rounded-3xl transition-all duration-300 transform hover:scale-105"
               style={{
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
               }}
             >
-              <div 
+              <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}
               >
@@ -1162,28 +1282,37 @@ const Study = () => {
               <div className="text-gray-600 font-medium">{t('study.totalQuestions')}</div>
             </div>
 
-            <div 
+            <div
               className="text-center p-8 rounded-3xl transition-all duration-300 transform hover:scale-105"
               style={{
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
               }}
             >
-              <div 
+              <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{
-                  background: accuracy >= 70 ? 'linear-gradient(135deg, #10b981, #059669)' : 
-                            accuracy >= 50 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 
-                            'linear-gradient(135deg, #ef4444, #dc2626)'
+                  background:
+                    accuracy >= 70
+                      ? 'linear-gradient(135deg, #10b981, #059669)'
+                      : accuracy >= 50
+                        ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                        : 'linear-gradient(135deg, #ef4444, #dc2626)',
                 }}
               >
                 <span className="text-white font-bold">%</span>
               </div>
-              <div className={`text-3xl font-bold mb-2 ${
-                accuracy >= 70 ? 'text-green-600' : accuracy >= 50 ? 'text-yellow-600' : 'text-red-600'
-              }`}>
+              <div
+                className={`text-3xl font-bold mb-2 ${
+                  accuracy >= 70
+                    ? 'text-green-600'
+                    : accuracy >= 50
+                      ? 'text-yellow-600'
+                      : 'text-red-600'
+                }`}
+              >
                 %{accuracy}
               </div>
               <div className="text-gray-600 font-medium">{t('study.successRate')}</div>
@@ -1191,26 +1320,31 @@ const Study = () => {
           </div>
 
           {/* Detaylı sonuçlar */}
-          <div 
+          <div
             className="p-8 rounded-3xl mb-12"
             style={{
               background: 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">{t('study.perQuestionResults')}</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              {t('study.perQuestionResults')}
+            </h3>
             <div className="space-y-3">
               {localSessionCards.map((card, index) => {
                 const userAnswer = userAnswers[card.id];
-                
+
                 // Soru tipine göre doğru cevap kontrolü
                 let isCorrect = false;
                 let correctAnswer = '';
-                
+
                 if (card.question_type === 'fill_in_blank' && card.blank_answer) {
-                  const correctAnswers = card.blank_answer.toLowerCase().split(',').map(a => a.trim());
+                  const correctAnswers = card.blank_answer
+                    .toLowerCase()
+                    .split(',')
+                    .map((a) => a.trim());
                   const userAnswerLower = (userAnswer || '').toString().toLowerCase().trim();
                   isCorrect = correctAnswers.includes(userAnswerLower);
                   correctAnswer = card.blank_answer;
@@ -1218,55 +1352,59 @@ const Study = () => {
                   isCorrect = userAnswer === card.correct_answer;
                   correctAnswer = card.correct_answer;
                 }
-                
+
                 return (
                   <div
                     key={card.id}
                     className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                     style={{
-                      background: isCorrect 
+                      background: isCorrect
                         ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))'
                         : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1))',
-                      border: isCorrect 
+                      border: isCorrect
                         ? '2px solid rgba(16, 185, 129, 0.3)'
                         : '2px solid rgba(239, 68, 68, 0.3)',
-                      backdropFilter: 'blur(10px)'
+                      backdropFilter: 'blur(10px)',
                     }}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center mb-3">
-                          <span 
+                          <span
                             className="px-3 py-1 rounded-full text-xs font-bold mr-3"
                             style={{
                               background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                              color: 'white'
+                              color: 'white',
                             }}
                           >
                             Soru {index + 1}
                           </span>
-                          <span 
+                          <span
                             className="px-3 py-1 rounded-full text-xs font-medium"
                             style={{
                               background: 'rgba(148, 163, 184, 0.2)',
-                              color: '#475569'
+                              color: '#475569',
                             }}
                           >
                             📚 {card.subject}
                           </span>
                         </div>
                         <div className="font-bold text-gray-800 mb-4 text-lg">
-                          {card.question.length > 120 ? `${card.question.substring(0, 120)}...` : card.question}
+                          {card.question.length > 120
+                            ? `${card.question.substring(0, 120)}...`
+                            : card.question}
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center">
-                             <span className="text-gray-600 font-medium mr-2">{t('study.givenAnswer')}</span>
-                            <span 
+                            <span className="text-gray-600 font-medium mr-2">
+                              {t('study.givenAnswer')}
+                            </span>
+                            <span
                               className="px-3 py-1 rounded-xl font-bold text-white"
                               style={{
-                                background: isCorrect 
+                                background: isCorrect
                                   ? 'linear-gradient(135deg, #10b981, #059669)'
-                                  : 'linear-gradient(135deg, #ef4444, #dc2626)'
+                                  : 'linear-gradient(135deg, #ef4444, #dc2626)',
                               }}
                             >
                               {userAnswer}
@@ -1274,8 +1412,10 @@ const Study = () => {
                           </div>
                           {!isCorrect && (
                             <div className="flex items-center">
-                              <span className="text-gray-600 font-medium mr-2">{t('study.rightAnswer')}</span>
-                              <span 
+                              <span className="text-gray-600 font-medium mr-2">
+                                {t('study.rightAnswer')}
+                              </span>
+                              <span
                                 className="px-3 py-1 rounded-xl font-bold text-white"
                                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
                               >
@@ -1286,12 +1426,12 @@ const Study = () => {
                         </div>
                       </div>
                       <div className="ml-6">
-                        <div 
+                        <div
                           className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                           style={{
-                            background: isCorrect 
+                            background: isCorrect
                               ? 'linear-gradient(135deg, #10b981, #059669)'
-                              : 'linear-gradient(135deg, #ef4444, #dc2626)'
+                              : 'linear-gradient(135deg, #ef4444, #dc2626)',
                           }}
                         >
                           {isCorrect ? (
@@ -1309,24 +1449,24 @@ const Study = () => {
           </div>
 
           {/* Aksiyon butonları */}
-          <div 
+          <div
             className="p-8 rounded-3xl"
             style={{
               background: 'rgba(255, 255, 255, 0.1)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
             }}
           >
             <div className="flex flex-wrap justify-center gap-6">
-                <button
+              <button
                 onClick={restartStudy}
                 className="flex items-center px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
               >
                 <RotateCcw className="w-6 h-6 mr-3" />
-                  🔄 {t('study.retry')}
+                🔄 {t('study.retry')}
               </button>
-              
+
               {incorrectAnswers > 0 && (
                 <button
                   onClick={handleRetryIncorrect}
@@ -1338,16 +1478,16 @@ const Study = () => {
                 </button>
               )}
 
-                <button
+              <button
                 onClick={() => navigate('/statistics')}
                 className="flex items-center px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
               >
                 <BarChart3 className="w-6 h-6 mr-3" />
-                  {t('study.viewStatistics')}
+                {t('study.viewStatistics')}
               </button>
 
-                <button
+              <button
                 onClick={() => {
                   endCurrentSession();
                   navigate('/');
@@ -1355,7 +1495,7 @@ const Study = () => {
                 className="flex items-center px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}
               >
-                  {t('study.home')}
+                {t('study.home')}
               </button>
             </div>
           </div>
