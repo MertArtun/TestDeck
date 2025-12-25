@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useAppStore } from './appStore';
 import type { Card, Subject, DailyStats } from '../types/database';
+import { useAppStore } from './appStore';
 
 // Mock card factory
 const createMockCard = (overrides: Partial<Card> = {}): Card => ({
@@ -470,8 +470,20 @@ describe('appStore', () => {
     describe('updateSubjects', () => {
       it('should update subjects array', () => {
         const subjects: Subject[] = [
-          { name: 'Math', total_cards: 10, accuracy: 85, last_studied: '2024-01-01', total_attempts: 50 },
-          { name: 'Science', total_cards: 15, accuracy: 90, last_studied: '2024-01-02', total_attempts: 75 },
+          {
+            name: 'Math',
+            total_cards: 10,
+            accuracy: 85,
+            last_studied: '2024-01-01',
+            total_attempts: 50,
+          },
+          {
+            name: 'Science',
+            total_cards: 15,
+            accuracy: 90,
+            last_studied: '2024-01-02',
+            total_attempts: 75,
+          },
         ];
 
         useAppStore.getState().updateSubjects(subjects);
@@ -483,7 +495,13 @@ describe('appStore', () => {
     describe('updateDailyStats', () => {
       it('should update dailyStats array', () => {
         const stats: DailyStats[] = [
-          { date: '2024-01-01', questions_answered: 20, correct_answers: 15, accuracy: 75, study_time: 30 },
+          {
+            date: '2024-01-01',
+            questions_answered: 20,
+            correct_answers: 15,
+            accuracy: 75,
+            study_time: 30,
+          },
         ];
 
         useAppStore.getState().updateDailyStats(stats);

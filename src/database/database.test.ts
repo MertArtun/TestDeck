@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { Card, StudySession, CardAttempt } from '../types/database';
-
 // Mock Tauri APIs before importing database module
 vi.mock('@tauri-apps/api/dialog', () => ({
   save: vi.fn(),
@@ -241,7 +240,7 @@ describe('Database Integration Tests', () => {
         const mathCards = await db.getCardsBySubject('Math');
 
         expect(mathCards).toHaveLength(2);
-        expect(mathCards.every(c => c.subject === 'Math')).toBe(true);
+        expect(mathCards.every((c) => c.subject === 'Math')).toBe(true);
       });
 
       it('should return empty array for non-existent subject', async () => {
@@ -281,11 +280,13 @@ describe('Database Integration Tests', () => {
       });
 
       it('should preserve other properties when updating', async () => {
-        const id = await db.createCard(createMockCardInput({
-          question: 'Q',
-          subject: 'Math',
-          difficulty: 3,
-        }));
+        const id = await db.createCard(
+          createMockCardInput({
+            question: 'Q',
+            subject: 'Math',
+            difficulty: 3,
+          })
+        );
 
         await db.updateCard(id, { question: 'Updated Q' });
 
@@ -386,7 +387,7 @@ describe('Database Integration Tests', () => {
         await db.endSession(sessionId, 8);
 
         const database = db.getDatabase();
-        const session = database.sessions.find(s => s.id === sessionId);
+        const session = database.sessions.find((s) => s.id === sessionId);
 
         expect(session?.ended_at).toBe('2024-01-01T10:30:00.000Z');
         expect(session?.correct_answers).toBe(8);
@@ -430,7 +431,7 @@ describe('Database Integration Tests', () => {
         await db.recordAttempt(createMockAttemptInput(cardId, sessionId, { is_correct: true }));
 
         const database = db.getDatabase();
-        const stat = database.stats.find(s => s.card_id === cardId);
+        const stat = database.stats.find((s) => s.card_id === cardId);
 
         expect(stat).toBeDefined();
         expect(stat?.total_attempts).toBe(1);
@@ -445,7 +446,7 @@ describe('Database Integration Tests', () => {
         await db.updateCardStats(cardId, true);
 
         const database = db.getDatabase();
-        const stat = database.stats.find(s => s.card_id === cardId);
+        const stat = database.stats.find((s) => s.card_id === cardId);
 
         expect(stat).toBeDefined();
         expect(stat?.ease_factor).toBe(2.5);
@@ -459,7 +460,7 @@ describe('Database Integration Tests', () => {
         await db.updateCardStats(cardId, true);
 
         const database = db.getDatabase();
-        const stat = database.stats.find(s => s.card_id === cardId);
+        const stat = database.stats.find((s) => s.card_id === cardId);
 
         expect(stat?.total_attempts).toBe(3);
       });
@@ -472,7 +473,7 @@ describe('Database Integration Tests', () => {
         await db.updateCardStats(cardId, true);
 
         const database = db.getDatabase();
-        const stat = database.stats.find(s => s.card_id === cardId);
+        const stat = database.stats.find((s) => s.card_id === cardId);
 
         expect(stat?.correct_attempts).toBe(2);
       });
@@ -482,12 +483,12 @@ describe('Database Integration Tests', () => {
 
         // First correct: interval = 1
         await db.updateCardStats(cardId, true);
-        let stat = db.getDatabase().stats.find(s => s.card_id === cardId);
+        let stat = db.getDatabase().stats.find((s) => s.card_id === cardId);
         expect(stat?.interval_days).toBe(1);
 
         // Second correct: interval = 6
         await db.updateCardStats(cardId, true);
-        stat = db.getDatabase().stats.find(s => s.card_id === cardId);
+        stat = db.getDatabase().stats.find((s) => s.card_id === cardId);
         expect(stat?.interval_days).toBe(6);
       });
 
@@ -497,12 +498,12 @@ describe('Database Integration Tests', () => {
         await db.updateCardStats(cardId, true);
         await db.updateCardStats(cardId, true);
 
-        let stat = db.getDatabase().stats.find(s => s.card_id === cardId);
+        let stat = db.getDatabase().stats.find((s) => s.card_id === cardId);
         expect(stat?.repetitions).toBe(2);
 
         await db.updateCardStats(cardId, false);
 
-        stat = db.getDatabase().stats.find(s => s.card_id === cardId);
+        stat = db.getDatabase().stats.find((s) => s.card_id === cardId);
         expect(stat?.repetitions).toBe(0);
         expect(stat?.interval_days).toBe(1);
       });
@@ -511,10 +512,10 @@ describe('Database Integration Tests', () => {
         const cardId = await db.createCard(createMockCardInput());
 
         await db.updateCardStats(cardId, true);
-        const initialEase = db.getDatabase().stats.find(s => s.card_id === cardId)?.ease_factor;
+        const initialEase = db.getDatabase().stats.find((s) => s.card_id === cardId)?.ease_factor;
 
         await db.updateCardStats(cardId, false);
-        const newEase = db.getDatabase().stats.find(s => s.card_id === cardId)?.ease_factor;
+        const newEase = db.getDatabase().stats.find((s) => s.card_id === cardId)?.ease_factor;
 
         expect(newEase).toBeLessThan(initialEase!);
       });
@@ -527,7 +528,7 @@ describe('Database Integration Tests', () => {
           await db.updateCardStats(cardId, false);
         }
 
-        const stat = db.getDatabase().stats.find(s => s.card_id === cardId);
+        const stat = db.getDatabase().stats.find((s) => s.card_id === cardId);
         expect(stat?.ease_factor).toBeGreaterThanOrEqual(1.3);
       });
 
@@ -537,7 +538,7 @@ describe('Database Integration Tests', () => {
 
         await db.updateCardStats(cardId, true);
 
-        const stat = db.getDatabase().stats.find(s => s.card_id === cardId);
+        const stat = db.getDatabase().stats.find((s) => s.card_id === cardId);
         const nextReview = new Date(stat!.next_review);
 
         expect(nextReview.getTime()).toBeGreaterThan(new Date('2024-01-01').getTime());
@@ -562,10 +563,10 @@ describe('Database Integration Tests', () => {
 
         expect(stats).toHaveLength(2);
 
-        const mathStats = stats.find(s => s.name === 'Math');
+        const mathStats = stats.find((s) => s.name === 'Math');
         expect(mathStats?.total_cards).toBe(2);
 
-        const scienceStats = stats.find(s => s.name === 'Science');
+        const scienceStats = stats.find((s) => s.name === 'Science');
         expect(scienceStats?.total_cards).toBe(1);
       });
 
@@ -580,7 +581,7 @@ describe('Database Integration Tests', () => {
         await db.recordAttempt(createMockAttemptInput(cardId, sessionId, { is_correct: false }));
 
         const stats = await db.getSubjectStats();
-        const mathStats = stats.find(s => s.name === 'Math');
+        const mathStats = stats.find((s) => s.name === 'Math');
 
         expect(mathStats?.accuracy).toBe(75);
       });
@@ -589,7 +590,7 @@ describe('Database Integration Tests', () => {
         await db.createCard(createMockCardInput({ subject: 'Math' }));
 
         const stats = await db.getSubjectStats();
-        const mathStats = stats.find(s => s.name === 'Math');
+        const mathStats = stats.find((s) => s.name === 'Math');
 
         expect(mathStats?.accuracy).toBe(0);
       });
@@ -605,7 +606,7 @@ describe('Database Integration Tests', () => {
       it('should return empty stats when no activity', async () => {
         const stats = await db.getDailyStats(7);
 
-        stats.forEach(stat => {
+        stats.forEach((stat) => {
           expect(stat.questions_answered).toBe(0);
           expect(stat.correct_answers).toBe(0);
           expect(stat.accuracy).toBe(0);
@@ -621,7 +622,7 @@ describe('Database Integration Tests', () => {
         await db.recordAttempt(createMockAttemptInput(cardId, sessionId, { is_correct: false }));
 
         const stats = await db.getDailyStats(7);
-        const todayStats = stats.find(s => s.date === '2024-01-15');
+        const todayStats = stats.find((s) => s.date === '2024-01-15');
 
         expect(todayStats?.questions_answered).toBe(2);
         expect(todayStats?.correct_answers).toBe(1);
@@ -635,7 +636,7 @@ describe('Database Integration Tests', () => {
         await db.createCard(createMockCardInput());
 
         const stats = await db.getDailyStats(7);
-        const todayStats = stats.find(s => s.date === '2024-01-15');
+        const todayStats = stats.find((s) => s.date === '2024-01-15');
 
         expect(todayStats?.cards_created).toBe(2);
       });
@@ -674,7 +675,7 @@ describe('Database Integration Tests', () => {
         const result = db.checkDataIntegrity();
 
         expect(result.isValid).toBe(false);
-        expect(result.issues.some(i => i.includes('orphaned stats'))).toBe(true);
+        expect(result.issues.some((i) => i.includes('orphaned stats'))).toBe(true);
       });
 
       it('should detect orphaned attempts', async () => {
@@ -689,7 +690,7 @@ describe('Database Integration Tests', () => {
         const result = db.checkDataIntegrity();
 
         expect(result.isValid).toBe(false);
-        expect(result.issues.some(i => i.includes('orphaned attempts'))).toBe(true);
+        expect(result.issues.some((i) => i.includes('orphaned attempts'))).toBe(true);
       });
     });
 
@@ -746,9 +747,7 @@ describe('Database Integration Tests', () => {
       vi.advanceTimersByTime(2500);
 
       // Should have saved once (debounced)
-      const saveCount = saveSpy.mock.calls.filter(
-        call => call[0] === 'testdeck-data'
-      ).length;
+      const saveCount = saveSpy.mock.calls.filter((call) => call[0] === 'testdeck-data').length;
       expect(saveCount).toBe(1);
 
       saveSpy.mockRestore();
@@ -789,7 +788,6 @@ describe('Database Integration Tests', () => {
       expect(Array.isArray(database.stats)).toBe(true);
     });
   });
-
 });
 
 // Separate describe block for Import/Export tests with real timers
@@ -914,7 +912,7 @@ describe.skip('Database Import/Export Tests', () => {
     const cards = await db.getAllCards();
     // Should have 2 cards: original + new (not duplicate)
     expect(cards).toHaveLength(2);
-    expect(cards.find(c => c.question === 'Existing')).toBeDefined();
-    expect(cards.find(c => c.question === 'New card')).toBeDefined();
+    expect(cards.find((c) => c.question === 'Existing')).toBeDefined();
+    expect(cards.find((c) => c.question === 'New card')).toBeDefined();
   });
 });

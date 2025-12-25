@@ -1,5 +1,5 @@
-// Re-export types
-export * from './types';
+// Re-export types from central location
+export * from '../../types/database';
 
 // Re-export database functions from existing location (temporary)
 export {

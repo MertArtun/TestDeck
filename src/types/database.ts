@@ -52,6 +52,7 @@ export interface CardStats {
   next_review: string;
   ease_factor: number; // for SM-2 algorithm
   interval: number; // days until next review
+  interval_days?: number; // alias for interval (legacy compatibility)
   repetitions: number;
 }
 

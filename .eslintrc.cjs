@@ -52,5 +52,14 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
   },
   ignorePatterns: ['dist', 'src-tauri/target'],
+  overrides: [
+    {
+      files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
+      rules: {
+        // Test files need dynamic imports after vi.mock() calls
+        'import/order': 'off',
+      },
+    },
+  ],
 };
 

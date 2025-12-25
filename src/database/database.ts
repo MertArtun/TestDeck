@@ -298,7 +298,7 @@ export async function importUserData(file: File): Promise<boolean> {
 
     // Merge with existing data
     const existingIds = new Set(mockDb.cards.map((card) => card.id));
-    const newCards = validCards.filter((card) => !existingIds.has(card.id));
+    const newCards = validCards.filter((card: Card) => !existingIds.has(card.id));
 
     mockDb.cards = [...mockDb.cards, ...newCards];
 
@@ -584,9 +584,10 @@ export async function updateCardStats(cardId: number, isCorrect: boolean) {
         card_id: cardId,
         total_attempts: 0,
         correct_attempts: 0,
-        last_attempt: null,
+        last_attempt: new Date().toISOString(),
         next_review: new Date().toISOString(),
         ease_factor: 2.5,
+        interval: 1,
         interval_days: 1,
         repetitions: 0,
       };

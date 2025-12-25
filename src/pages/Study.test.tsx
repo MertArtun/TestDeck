@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import Study from './Study';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { useAppStore } from '../store/appStore';
 import type { Card } from '../types/database';
-
+import Study from './Study';
 // Mock themeStore
 vi.mock('../store/themeStore', () => ({
   useThemeStore: vi.fn(() => ({ language: 'en' })),

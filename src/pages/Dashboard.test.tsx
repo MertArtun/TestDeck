@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import Dashboard from './Dashboard';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as database from '../database/database';
+import Dashboard from './Dashboard';
 
 // Mock themeStore
 vi.mock('../store/themeStore', () => ({
@@ -122,7 +122,11 @@ describe('Dashboard', () => {
 
   describe('stats display', () => {
     it('should display total cards count', async () => {
-      const cards = [createMockCard({ id: 1 }), createMockCard({ id: 2 }), createMockCard({ id: 3 })];
+      const cards = [
+        createMockCard({ id: 1 }),
+        createMockCard({ id: 2 }),
+        createMockCard({ id: 3 }),
+      ];
 
       vi.mocked(database.initDatabase).mockResolvedValue(undefined);
       vi.mocked(database.getAllCards).mockResolvedValue(cards);

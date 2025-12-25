@@ -1,6 +1,3 @@
-import { useState, useEffect, useRef } from 'react';
-import { useAppStore } from '../store/appStore';
-import { createCard } from '../database/database';
 import {
   Plus,
   Save,
@@ -10,9 +7,12 @@ import {
   Clock,
   Sparkles,
   Lightbulb,
-  Keyboard
+  Keyboard,
 } from 'lucide-react';
-import { useI18n } from '../i18n';
+import { useState, useEffect, useRef } from 'react';
+import { createCard } from '@/database/database';
+import { useI18n } from '@/i18n';
+import { useAppStore } from '@/store/appStore';
 
 interface QuickCardData {
   question: string;
@@ -32,11 +32,15 @@ interface QuickCardAddProps {
   defaultDifficulty?: number;
 }
 
-const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: QuickCardAddProps) => {
+const QuickCardAdd = ({
+  onClose,
+  defaultSubject = '',
+  defaultDifficulty = 1,
+}: QuickCardAddProps) => {
   const { addCard } = useAppStore();
   const { t } = useI18n();
   const questionRef = useRef<HTMLTextAreaElement>(null);
-  
+
   // Form data with auto-save to localStorage
   const [formData, setFormData] = useState<QuickCardData>(() => {
     // Auto-restore from localStorage if available
@@ -47,13 +51,13 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
         return {
           ...parsed,
           subject: defaultSubject || parsed.subject,
-          difficulty: defaultDifficulty || parsed.difficulty
+          difficulty: defaultDifficulty || parsed.difficulty,
         };
       }
     } catch (error) {
       console.error('Error loading draft:', error);
     }
-    
+
     return {
       question: '',
       option_a: '',
@@ -63,7 +67,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
       option_e: '',
       correct_answer: 'A' as const,
       subject: defaultSubject,
-      difficulty: defaultDifficulty as 1 | 2 | 3
+      difficulty: defaultDifficulty as 1 | 2 | 3,
     };
   });
 
@@ -74,7 +78,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
       return 0;
     }
   });
-  
+
   const [recentCards, setRecentCards] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('quick-recent-cards') || '[]');
@@ -82,7 +86,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
       return [];
     }
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastCardAdded, setLastCardAdded] = useState<string>('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -123,51 +127,56 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
         e.preventDefault();
         handleSubmit(true);
       }
-      
+
       // Ctrl/Cmd + R = Reset form
       if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
         e.preventDefault();
         resetForm();
       }
-      
+
       // Escape = Close if onClose provided
       if (e.key === 'Escape' && onClose) {
         e.preventDefault();
         onClose();
       }
-      
+
       // F1 = Show keyboard help
       if (e.key === 'F1') {
         e.preventDefault();
         setShowKeyboardHelp(!showKeyboardHelp);
       }
-      
+
       // Number keys 1-5 for correct answer (when not in input)
-      if (['1', '2', '3', '4', '5'].includes(e.key) && 
-          !(e.target as HTMLElement).matches('input, textarea, select')) {
+      if (
+        ['1', '2', '3', '4', '5'].includes(e.key) &&
+        !(e.target as HTMLElement).matches('input, textarea, select')
+      ) {
         e.preventDefault();
         const answers = ['A', 'B', 'C', 'D', 'E'];
-        setFormData(prev => ({ 
-          ...prev, 
-          correct_answer: answers[parseInt(e.key) - 1] as 'A' | 'B' | 'C' | 'D' | 'E' 
+        setFormData((prev) => ({
+          ...prev,
+          correct_answer: answers[parseInt(e.key) - 1] as 'A' | 'B' | 'C' | 'D' | 'E',
         }));
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose, showKeyboardHelp]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'difficulty' ? parseInt(value) : value
+      [name]: name === 'difficulty' ? parseInt(value) : value,
     }));
-    
+
     // Clear error for this field
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -194,7 +203,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
   const resetForm = () => {
     const subjectToKeep = formData.subject;
     const difficultyToKeep = formData.difficulty;
-    
+
     setFormData({
       question: '',
       option_a: '',
@@ -204,18 +213,18 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
       option_e: '',
       correct_answer: 'A',
       subject: subjectToKeep,
-      difficulty: difficultyToKeep
+      difficulty: difficultyToKeep,
     });
-    
+
     setErrors({});
-    
+
     // Clear draft
     try {
       localStorage.removeItem('quick-card-draft');
     } catch (error) {
       console.error('Error clearing draft:', error);
     }
-    
+
     // Focus question input
     setTimeout(() => {
       if (questionRef.current) {
@@ -234,27 +243,28 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
     try {
       const cardData = {
         ...formData,
-        image_path: ''
+        image_path: '',
       };
 
       const cardId = await createCard(cardData);
-      
+
       const newCard = {
         id: cardId,
         ...cardData,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
-      
+
       addCard(newCard);
 
       // Update stats
       const newCount = cardCount + 1;
       setCardCount(newCount);
-      
-      const questionPreview = formData.question.substring(0, 50) + (formData.question.length > 50 ? '...' : '');
+
+      const questionPreview =
+        formData.question.substring(0, 50) + (formData.question.length > 50 ? '...' : '');
       setLastCardAdded(questionPreview);
-      setRecentCards(prev => [questionPreview, ...prev.slice(0, 4)]);
+      setRecentCards((prev) => [questionPreview, ...prev.slice(0, 4)]);
 
       // Show success
       setShowSuccess(true);
@@ -267,7 +277,6 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
           onClose();
         }, 1500);
       }
-
     } catch (error) {
       console.error('Kart oluşturma hatası:', error);
       alert('Kart oluşturulurken bir hata oluştu.');
@@ -288,97 +297,111 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
 
   const templates: QuickCardData[] = [
     {
-      question: "Aşağıdakilerden hangisi doğrudur?",
-      option_a: "Seçenek A",
-      option_b: "Seçenek B", 
-      option_c: "Seçenek C",
-      option_d: "Seçenek D",
-      option_e: "Seçenek E",
+      question: 'Aşağıdakilerden hangisi doğrudur?',
+      option_a: 'Seçenek A',
+      option_b: 'Seçenek B',
+      option_c: 'Seçenek C',
+      option_d: 'Seçenek D',
+      option_e: 'Seçenek E',
       correct_answer: 'A',
       subject: formData.subject,
-      difficulty: formData.difficulty
+      difficulty: formData.difficulty,
     },
     {
-      question: "_______ nedir?",
-      option_a: "Tanım A",
-      option_b: "Tanım B",
-      option_c: "Tanım C", 
-      option_d: "Tanım D",
-      option_e: "Tanım E",
+      question: '_______ nedir?',
+      option_a: 'Tanım A',
+      option_b: 'Tanım B',
+      option_c: 'Tanım C',
+      option_d: 'Tanım D',
+      option_e: 'Tanım E',
       correct_answer: 'A',
       subject: formData.subject,
-      difficulty: formData.difficulty
-    }
+      difficulty: formData.difficulty,
+    },
   ];
 
   const difficultyLabels: Record<1 | 2 | 3, { label: string; color: string; bg: string }> = {
     1: { label: 'Kolay', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
     2: { label: 'Orta', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-    3: { label: 'Zor', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' }
+    3: { label: 'Zor', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '20px'
-    }}>
-      <div style={{
-        background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-        borderRadius: '24px',
-        padding: '32px',
-        width: '100%',
-        maxWidth: '800px',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
-      }}>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '20px',
+      }}
+    >
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+          borderRadius: '24px',
+          padding: '32px',
+          width: '100%',
+          maxWidth: '800px',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+        }}
+      >
         {/* Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '24px'
-        }}>
-          <div style={{
+        <div
+          style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
-          }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(45deg, #3b82f6, #8b5cf6)',
-              borderRadius: '12px',
+            justifyContent: 'space-between',
+            marginBottom: '24px',
+          }}
+        >
+          <div
+            style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
-            }}>
+              gap: '12px',
+            }}
+          >
+            <div
+              style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(45deg, #3b82f6, #8b5cf6)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               <Zap style={{ width: '24px', height: '24px', color: 'white' }} />
             </div>
             <div>
-              <h2 style={{
-                fontSize: '24px',
-                fontWeight: 'bold',
-                color: 'white',
-                margin: '0 0 4px 0'
-              }}>
+              <h2
+                style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  margin: '0 0 4px 0',
+                }}
+              >
                 {t('quick.title')}
               </h2>
-              <p style={{
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontSize: '14px',
-                margin: 0
-              }}>
+              <p
+                style={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '14px',
+                  margin: 0,
+                }}
+              >
                 {cardCount} kart eklendi • {formData.subject || 'Konu seçin'}
               </p>
             </div>
@@ -393,13 +416,13 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                 borderRadius: '8px',
                 padding: '8px',
                 color: 'white',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
               title="Klavye Kısayolları (F1)"
             >
               <Keyboard style={{ width: '16px', height: '16px' }} />
             </button>
-            
+
             {onClose && (
               <button
                 onClick={onClose}
@@ -409,7 +432,7 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   borderRadius: '8px',
                   padding: '8px 16px',
                   color: 'white',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
                 }}
               >
                 ✕
@@ -420,17 +443,19 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
 
         {/* Success Animation */}
         {showSuccess && (
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            animation: 'pulse 0.5s ease-in-out'
-          }}>
+          <div
+            style={{
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              animation: 'pulse 0.5s ease-in-out',
+            }}
+          >
             <CheckCircle2 style={{ width: '20px', height: '20px', color: '#10b981' }} />
             <span style={{ color: '#10b981', fontWeight: '600' }}>
               Kart başarıyla eklendi: {lastCardAdded}
@@ -440,42 +465,58 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
 
         {/* Keyboard Help */}
         {showKeyboardHelp && (
-          <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '20px'
-          }}>
+          <div
+            style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '20px',
+            }}
+          >
             <h4 style={{ color: 'white', margin: '0 0 12px 0', fontSize: '16px' }}>
               ⌨️ Klavye Kısayolları
             </h4>
             <div style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.8)' }}>
-              <p style={{ margin: '4px 0' }}><strong>Ctrl+Enter:</strong> Kartı kaydet ve yeni kart ekle</p>
-              <p style={{ margin: '4px 0' }}><strong>Ctrl+R:</strong> Formu temizle</p>
-              <p style={{ margin: '4px 0' }}><strong>1-5 tuşları:</strong> Doğru cevabı seç (A-E)</p>
-              <p style={{ margin: '4px 0' }}><strong>Esc:</strong> Kapat</p>
-              <p style={{ margin: '4px 0' }}><strong>F1:</strong> Bu yardımı göster/gizle</p>
+              <p style={{ margin: '4px 0' }}>
+                <strong>Ctrl+Enter:</strong> Kartı kaydet ve yeni kart ekle
+              </p>
+              <p style={{ margin: '4px 0' }}>
+                <strong>Ctrl+R:</strong> Formu temizle
+              </p>
+              <p style={{ margin: '4px 0' }}>
+                <strong>1-5 tuşları:</strong> Doğru cevabı seç (A-E)
+              </p>
+              <p style={{ margin: '4px 0' }}>
+                <strong>Esc:</strong> Kapat
+              </p>
+              <p style={{ margin: '4px 0' }}>
+                <strong>F1:</strong> Bu yardımı göster/gizle
+              </p>
             </div>
           </div>
         )}
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr',
-          gap: '24px'
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr',
+            gap: '24px',
+          }}
+        >
           {/* Form */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Question */}
             <div>
-              <label style={{
-                display: 'block',
-                color: 'white',
-                fontWeight: '600',
-                marginBottom: '8px',
-                fontSize: '14px'
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  color: 'white',
+                  fontWeight: '600',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                }}
+              >
                 {t('quick.question')}
               </label>
               <textarea
@@ -488,12 +529,14 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   width: '100%',
                   minHeight: '80px',
                   background: 'rgba(255, 255, 255, 0.1)',
-                  border: errors.question ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.2)',
+                  border: errors.question
+                    ? '2px solid #ef4444'
+                    : '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '8px',
                   padding: '12px',
                   color: 'white',
                   fontSize: '14px',
-                  resize: 'vertical'
+                  resize: 'vertical',
                 }}
               />
               {errors.question && (
@@ -504,64 +547,77 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             </div>
 
             {/* Options */}
-              <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '12px'
-            }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '12px',
+              }}
+            >
               {(['A', 'B', 'C', 'D', 'E'] as const).map((option) => (
                 <div key={option}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '4px'
-                  }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '4px',
+                    }}
+                  >
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ 
-                        ...prev,
-                        correct_answer: option 
-                      }))}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          correct_answer: option,
+                        }))
+                      }
                       style={{
                         width: '24px',
                         height: '24px',
-                        background: formData.correct_answer === option 
-                          ? 'linear-gradient(45deg, #10b981, #14b8a6)'
-                          : 'rgba(255, 255, 255, 0.2)',
+                        background:
+                          formData.correct_answer === option
+                            ? 'linear-gradient(45deg, #10b981, #14b8a6)'
+                            : 'rgba(255, 255, 255, 0.2)',
                         border: 'none',
                         borderRadius: '6px',
                         color: 'white',
                         fontWeight: 'bold',
                         fontSize: '12px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                     >
                       {option}
                     </button>
-                      <label style={{
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: '500'
-                    }}>
-                        {t('quick.option')} {option}
+                    <label
+                      style={{
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                      }}
+                    >
+                      {t('quick.option')} {option}
                       {formData.correct_answer === option && ' ✓'}
                     </label>
                   </div>
                   <input
                     type="text"
                     name={`option_${option.toLowerCase()}`}
-                    value={formData[`option_${option.toLowerCase()}` as keyof QuickCardData] as string}
+                    value={
+                      formData[`option_${option.toLowerCase()}` as keyof QuickCardData] as string
+                    }
                     onChange={handleInputChange}
                     placeholder={`${option} seçeneği`}
                     style={{
                       width: '100%',
                       background: 'rgba(255, 255, 255, 0.1)',
-                      border: errors[`option_${option.toLowerCase()}`] ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.2)',
+                      border: errors[`option_${option.toLowerCase()}`]
+                        ? '2px solid #ef4444'
+                        : '1px solid rgba(255, 255, 255, 0.2)',
                       borderRadius: '6px',
                       padding: '8px',
                       color: 'white',
-                      fontSize: '13px'
+                      fontSize: '13px',
                     }}
                   />
                   {errors[`option_${option.toLowerCase()}`] && (
@@ -574,19 +630,23 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             </div>
 
             {/* Subject & Difficulty */}
-              <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px'
-            }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '12px',
+              }}
+            >
               <div>
-                <label style={{
-                  display: 'block',
-                  color: 'white',
-                  fontWeight: '600',
-                  marginBottom: '6px',
-                  fontSize: '12px'
-                }}>
+                <label
+                  style={{
+                    display: 'block',
+                    color: 'white',
+                    fontWeight: '600',
+                    marginBottom: '6px',
+                    fontSize: '12px',
+                  }}
+                >
                   {t('quick.subject')}
                 </label>
                 <input
@@ -598,11 +658,13 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   style={{
                     width: '100%',
                     background: 'rgba(255, 255, 255, 0.1)',
-                    border: errors.subject ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.2)',
+                    border: errors.subject
+                      ? '2px solid #ef4444'
+                      : '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '6px',
                     padding: '8px',
                     color: 'white',
-                    fontSize: '13px'
+                    fontSize: '13px',
                   }}
                 />
                 {errors.subject && (
@@ -611,15 +673,17 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   </p>
                 )}
               </div>
-              
+
               <div>
-                <label style={{
-                  display: 'block',
-                  color: 'white',
-                  fontWeight: '600',
-                  marginBottom: '6px',
-                  fontSize: '12px'
-                }}>
+                <label
+                  style={{
+                    display: 'block',
+                    color: 'white',
+                    fontWeight: '600',
+                    marginBottom: '6px',
+                    fontSize: '12px',
+                  }}
+                >
                   {t('quick.difficulty')}
                 </label>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -627,23 +691,26 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                     <button
                       key={level}
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, difficulty: level }))}
+                      onClick={() => setFormData((prev) => ({ ...prev, difficulty: level }))}
                       style={{
                         flex: 1,
                         padding: '8px',
-                       background: formData.difficulty === level 
-                          ? difficultyLabels[level as 1 | 2 | 3].bg
-                          : 'rgba(255, 255, 255, 0.1)',
-                       border: formData.difficulty === level 
-                          ? `1px solid ${difficultyLabels[level as 1 | 2 | 3].color}`
-                          : '1px solid rgba(255, 255, 255, 0.2)',
+                        background:
+                          formData.difficulty === level
+                            ? difficultyLabels[level as 1 | 2 | 3].bg
+                            : 'rgba(255, 255, 255, 0.1)',
+                        border:
+                          formData.difficulty === level
+                            ? `1px solid ${difficultyLabels[level as 1 | 2 | 3].color}`
+                            : '1px solid rgba(255, 255, 255, 0.2)',
                         borderRadius: '6px',
-                       color: formData.difficulty === level 
-                          ? difficultyLabels[level as 1 | 2 | 3].color
-                          : 'rgba(255, 255, 255, 0.7)',
+                        color:
+                          formData.difficulty === level
+                            ? difficultyLabels[level as 1 | 2 | 3].color
+                            : 'rgba(255, 255, 255, 0.7)',
                         fontSize: '11px',
                         fontWeight: '600',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                     >
                       {difficultyLabels[level as 1 | 2 | 3].label}
@@ -654,11 +721,13 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             </div>
 
             {/* Action Buttons */}
-              <div style={{
-              display: 'flex',
-              gap: '12px',
-              paddingTop: '8px'
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: '12px',
+                paddingTop: '8px',
+              }}
+            >
               <button
                 onClick={() => handleSubmit(true)}
                 disabled={isSubmitting}
@@ -675,13 +744,13 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  opacity: isSubmitting ? 0.7 : 1
+                  opacity: isSubmitting ? 0.7 : 1,
                 }}
               >
                 <Plus style={{ width: '16px', height: '16px' }} />
-                  {isSubmitting ? '...' : t('quick.addAndContinue')}
+                {isSubmitting ? '...' : t('quick.addAndContinue')}
               </button>
-              
+
               <button
                 onClick={() => handleSubmit(false)}
                 disabled={isSubmitting}
@@ -695,13 +764,13 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '6px',
                 }}
               >
                 <Save style={{ width: '16px', height: '16px' }} />
-                  {t('quick.save')}
+                {t('quick.save')}
               </button>
-              
+
               <button
                 onClick={resetForm}
                 disabled={isSubmitting}
@@ -711,9 +780,9 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '8px',
                   padding: '12px',
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 }}
-                  title={t('quick.resetForm')}
+                title={t('quick.resetForm')}
               >
                 <RotateCcw style={{ width: '16px', height: '16px' }} />
               </button>
@@ -721,36 +790,44 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
           </div>
 
           {/* Sidebar */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
             {/* Stats */}
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
-              padding: '16px'
-            }}>
-              <h4 style={{
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                margin: '0 0 12px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                padding: '16px',
+              }}
+            >
+              <h4
+                style={{
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  margin: '0 0 12px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
                 <Sparkles style={{ width: '16px', height: '16px', color: '#fbbf24' }} />
                 {t('quick.thisSession')}
               </h4>
-              
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '8px'
-              }}>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '8px',
+                }}
+              >
                 <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '12px' }}>
                   {t('quick.cardsAdded')}
                 </span>
@@ -758,12 +835,14 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                   {cardCount}
                 </span>
               </div>
-              
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '12px' }}>
                   {t('quick.activeSubject')}
                 </span>
@@ -775,24 +854,28 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
 
             {/* Recent Cards */}
             {recentCards.length > 0 && (
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '12px',
-                padding: '16px'
-              }}>
-              <h4 style={{
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  margin: '0 0 12px 0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}
+              >
+                <h4
+                  style={{
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    margin: '0 0 12px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
                   <Clock style={{ width: '16px', height: '16px', color: '#10b981' }} />
-                {t('quick.recent')}
+                  {t('quick.recent')}
                 </h4>
-                
+
                 {recentCards.slice(0, 3).map((card, index) => (
                   <div
                     key={index}
@@ -801,17 +884,19 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                       background: 'rgba(255, 255, 255, 0.05)',
                       borderRadius: '6px',
                       marginBottom: '6px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
                     }}
                   >
-                    <p style={{
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      fontSize: '11px',
-                      margin: 0,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
+                    <p
+                      style={{
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '11px',
+                        margin: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {index + 1}. {card}
                     </p>
                   </div>
@@ -820,24 +905,28 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
             )}
 
             {/* Templates */}
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
-              padding: '16px'
-            }}>
-              <h4 style={{
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                margin: '0 0 12px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                padding: '16px',
+              }}
+            >
+              <h4
+                style={{
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  margin: '0 0 12px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
                 <Lightbulb style={{ width: '16px', height: '16px', color: '#fbbf24' }} />
                 {t('quick.templates')}
               </h4>
-              
+
               {templates.map((template, index) => (
                 <button
                   key={index}
@@ -850,25 +939,29 @@ const QuickCardAdd = ({ onClose, defaultSubject = '', defaultDifficulty = 1 }: Q
                     padding: '8px',
                     cursor: 'pointer',
                     marginBottom: '6px',
-                    textAlign: 'left'
+                    textAlign: 'left',
                   }}
                 >
-                  <p style={{
-                    color: 'white',
-                    fontSize: '11px',
-                    margin: '0 0 4px 0',
-                    fontWeight: '500'
-                  }}>
+                  <p
+                    style={{
+                      color: 'white',
+                      fontSize: '11px',
+                      margin: '0 0 4px 0',
+                      fontWeight: '500',
+                    }}
+                  >
                     Şablon {index + 1}
                   </p>
-                  <p style={{
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    fontSize: '10px',
-                    margin: 0,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
+                  <p
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      fontSize: '10px',
+                      margin: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     {template.question}
                   </p>
                 </button>

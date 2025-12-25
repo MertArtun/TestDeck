@@ -1,7 +1,7 @@
 import { Plus, Zap, Database, X, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import QuickCardAdd from '@/components/QuickCardAdd';
+import QuickCardAdd from './QuickCardAdd';
 import { useI18n } from '@/i18n';
 
 const FloatingActionButton = () => {
