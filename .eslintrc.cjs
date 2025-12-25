@@ -9,6 +9,11 @@ module.exports = {
   },
   settings: {
     react: { version: 'detect' },
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
   },
   env: {
     browser: true,
@@ -29,6 +34,8 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
     'react/no-unescaped-entities': 'off',
+    // Ignore path aliases and vitest for import/no-unresolved (TypeScript handles this)
+    'import/no-unresolved': ['error', { ignore: ['^@/', '^vitest'] }],
     // Strict rules for code quality
     'import/order': [
       'error',
