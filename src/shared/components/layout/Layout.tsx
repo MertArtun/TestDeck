@@ -21,8 +21,8 @@ import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import FloatingActionButton from './FloatingActionButton';
 import { useI18n } from '@/i18n';
-import { applyTheme } from '@/shared/utils/themeUtils';
 import { useThemeStore } from '@/store/themeStore';
+import { applyTheme } from '@/utils/themeUtils';
 
 interface LayoutProps {
   children: ReactNode;
