@@ -1,10 +1,10 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useThemeStore } from './store/themeStore';
-import ToastContainer from './components/ToastContainer';
 import { tFor } from './i18n';
+import { useThemeStore } from './store/themeStore';
+import { ToastContainer } from '@/shared/components';
 
-const Layout = React.lazy(() => import('./components/Layout'));
+const Layout = React.lazy(() => import('@/shared/components/layout/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Study = React.lazy(() => import('./pages/Study'));
 const CreateCard = React.lazy(() => import('./pages/CreateCard'));
@@ -26,7 +26,7 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error('Uncaught error:', error, errorInfo);
   }
 
   render() {
@@ -53,18 +53,17 @@ class ErrorBoundary extends React.Component<
 }
 
 const LoadingSpinner = () => (
-    <div className="flex h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent"></div>
-    </div>
+  <div className="flex h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-900">
+    <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent"></div>
+  </div>
 );
-
 
 function App() {
   const { mode } = useThemeStore();
 
   React.useEffect(() => {
     // This is just to ensure the store is initialized, which it is in main.tsx
-    console.log("App component mounted. Current theme mode:", mode);
+    console.log('App component mounted. Current theme mode:', mode);
   }, [mode]);
 
   return (
