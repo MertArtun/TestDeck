@@ -188,6 +188,9 @@ KURULUM_DUZELDI.md
 STATISTICS_FIX_COMPLETED.md
 vite.config.minimal.ts
 
+# Git worktrees
+.worktrees/
+
 # Additional ignore patterns
 *.tmp
 *.temp
