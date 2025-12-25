@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { useThemeStore } from './themeStore';
 
 // Mock applyTheme from themeUtils
-vi.mock('../utils/themeUtils', () => ({
+vi.mock('@/shared/utils', () => ({
   applyTheme: vi.fn(),
   getColorSchemeVariables: vi.fn(() => ({})),
   getFontSizeVariables: vi.fn(() => ({})),
@@ -114,7 +114,7 @@ describe('themeStore', () => {
       });
 
       it('should call applyTheme after setting mode', async () => {
-        const { applyTheme } = await import('../utils/themeUtils');
+        const { applyTheme } = await import('@/shared/utils');
 
         useThemeStore.getState().setThemeMode('dark');
         vi.runAllTimers();
@@ -155,7 +155,7 @@ describe('themeStore', () => {
       });
 
       it('should call applyTheme after setting color scheme', async () => {
-        const { applyTheme } = await import('../utils/themeUtils');
+        const { applyTheme } = await import('@/shared/utils');
 
         useThemeStore.getState().setColorScheme('purple');
         vi.runAllTimers();
@@ -186,7 +186,7 @@ describe('themeStore', () => {
       });
 
       it('should call applyTheme after setting font size', async () => {
-        const { applyTheme } = await import('../utils/themeUtils');
+        const { applyTheme } = await import('@/shared/utils');
 
         useThemeStore.getState().setFontSize('large');
         vi.runAllTimers();
@@ -410,7 +410,7 @@ describe('themeStore', () => {
     });
 
     it('should call applyTheme after reset', async () => {
-      const { applyTheme } = await import('../utils/themeUtils');
+      const { applyTheme } = await import('@/shared/utils');
 
       useThemeStore.getState().resetToDefaults();
       vi.runAllTimers();

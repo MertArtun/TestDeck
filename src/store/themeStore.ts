@@ -1,7 +1,7 @@
 // Theme Store - Tema ve Kullanıcı Ayarları Yönetimi
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '../utils/themeUtils';
+import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '@/shared/utils';
 
 export type Language = 'tr' | 'en';
 
@@ -10,23 +10,23 @@ export interface ThemeState {
   mode: ThemeMode;
   colorScheme: ColorScheme;
   fontSize: FontSize;
-  
+
   // App settings
   language: Language;
   soundEnabled: boolean;
   animationsEnabled: boolean;
   autoSave: boolean;
-  
+
   // Study settings
   questionsPerSession: number;
   timePerQuestion: number; // seconds, 0 for no limit
   showHints: boolean;
   showProgress: boolean;
-  
+
   // Notification settings
   studyReminders: boolean;
   achievementNotifications: boolean;
-  
+
   // Actions
   setThemeMode: (mode: ThemeMode) => void;
   setColorScheme: (scheme: ColorScheme) => void;
@@ -64,7 +64,7 @@ export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
       ...defaultSettings,
-      
+
       setThemeMode: (mode) => {
         console.log('🎯 Setting theme mode:', mode);
         set({ mode });
@@ -106,10 +106,10 @@ export const useThemeStore = create<ThemeState>()(
         set(defaultSettings);
         // Apply default theme immediately
         setTimeout(() => {
-          applyTheme({ 
-            mode: defaultSettings.mode, 
-            colorScheme: defaultSettings.colorScheme, 
-            fontSize: defaultSettings.fontSize 
+          applyTheme({
+            mode: defaultSettings.mode,
+            colorScheme: defaultSettings.colorScheme,
+            fontSize: defaultSettings.fontSize,
           });
         }, 0);
       },
@@ -122,4 +122,4 @@ export const useThemeStore = create<ThemeState>()(
 );
 
 // Export theme utilities from utils file
-export { getColorSchemeVariables, getFontSizeVariables } from '../utils/themeUtils'; 
+export { getColorSchemeVariables, getFontSizeVariables } from '@/shared/utils';

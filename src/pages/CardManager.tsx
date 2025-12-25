@@ -15,9 +15,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { useToastStore } from '../store/toastStore';
 import { Card } from '../types/database';
-import { sanitizeHTML } from '../utils/htmlSanitizer';
 import { getAllCards, updateCard, deleteCard } from '@/services/database';
 import { SkeletonCard } from '@/shared/components';
+import { sanitizeHTML } from '@/shared/utils';
 
 const CardManager = () => {
   const navigate = useNavigate();

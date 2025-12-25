@@ -27,13 +27,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { useThemeStore } from '../store/themeStore';
-import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '../utils/themeUtils';
 import {
   exportUserData,
   importUserData,
   createMultipleCards,
   deleteAllCards,
 } from '@/services/database';
+import { applyTheme, type ThemeMode, type ColorScheme, type FontSize } from '@/shared/utils';
 
 const Settings = () => {
   const navigate = useNavigate();

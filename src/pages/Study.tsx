@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { useAppStore } from '../store/appStore';
 import { Card } from '../types/database';
-import { sanitizeHTML } from '../utils/htmlSanitizer';
 import {
   getAllCards,
   getCardsBySubject,
@@ -22,7 +21,7 @@ import {
   recordAttempt,
   updateCard,
 } from '@/services/database';
-import { safePercentage } from '@/shared/utils';
+import { sanitizeHTML, safePercentage } from '@/shared/utils';
 
 type StudyMode = 'setup' | 'studying' | 'results';
 

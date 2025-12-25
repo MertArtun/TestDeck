@@ -1,17 +1,15 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css"; // Import the CSS file
-
-// Theme system initialization
-import { useThemeStore } from './store/themeStore';
-import { applyTheme } from './utils/themeUtils';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { applyTheme } from '@/shared/utils';
+import { useThemeStore } from '@/store/themeStore';
+import './index.css'; // Import the CSS file
 
 console.log('🚀 TestDeck başlatılıyor...');
 
-const root = document.getElementById("root");
+const root = document.getElementById('root');
 if (!root) {
-  throw new Error("Root element bulunamadı!");
+  throw new Error('Root element bulunamadı!');
 }
 
 // Initialize theme on app start
@@ -35,7 +33,7 @@ const initTheme = () => {
       applyTheme({ mode: 'auto', colorScheme: 'blue', fontSize: 'medium' });
     }
   } catch (error) {
-    console.error("Failed to initialize theme:", error);
+    console.error('Failed to initialize theme:', error);
     // Fallback to default theme
     applyTheme({ mode: 'auto', colorScheme: 'blue', fontSize: 'medium' });
   }
@@ -47,4 +45,4 @@ ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-); 
+);
